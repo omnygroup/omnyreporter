@@ -5,10 +5,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import type { Diagnostic, WriteStats } from '../types.js';
-import type { Logger, ReportWriter } from '../interfaces.js';
 import { DirectoryManager } from './DirectoryManager.js';
 import { SecurityValidatorImpl } from './SecurityValidator.js';
+
+import type { Logger, ReportWriter } from '../interfaces.js';
+import type { Diagnostic, WriteStats } from '../types.js';
 
 export class JsonReportWriter implements ReportWriter {
 	readonly #directoryManager: DirectoryManager;
@@ -36,11 +37,15 @@ export class JsonReportWriter implements ReportWriter {
 			for await (const diagnostic of source) {
 				totalDiagnostics++;
 				const filePath = diagnostic.filePath;
-				
+
 				if (!diagnosticsByFile.has(filePath)) {
 					diagnosticsByFile.set(filePath, []);
 				}
-				diagnosticsByFile.get(filePath)!.push(diagnostic);
+
+				const diagnosticsForFile = diagnosticsByFile.get(filePath);
+				if (diagnosticsForFile !== undefined) {
+					diagnosticsForFile.push(diagnostic);
+				}
 			}
 		} catch (error) {
 			this.#logger.error('Error reading diagnostic stream', { error });
@@ -49,7 +54,7 @@ export class JsonReportWriter implements ReportWriter {
 
 		// Determine type from first diagnostic
 		const firstDiagnostic = Array.from(diagnosticsByFile.values())[0]?.[0];
-		const type = firstDiagnostic?.source || 'eslint';
+		const type = firstDiagnostic?.source ?? 'eslint';
 
 		// Ensure directories exist
 		await this.#directoryManager.ensureDirectories(type);

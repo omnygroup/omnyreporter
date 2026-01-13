@@ -2,8 +2,8 @@
  * Stream processor for ESLint results
  */
 
-import type { Diagnostic } from '../types.js';
 import type { Logger, StreamProcessor } from '../interfaces.js';
+import type { Diagnostic } from '../types.js';
 import type { LintResult } from './EslintLinter.js';
 import type { LintMessageParser } from './LintMessageParser.js';
 
@@ -23,7 +23,7 @@ export class LintStreamProcessorImpl implements LintStreamProcessor {
 	public constructor(
 		parser: LintMessageParser,
 		logger: Logger,
-		batchSize: number = 100
+		batchSize = 100
 	) {
 		this.#parser = parser;
 		this.#logger = logger;
@@ -48,7 +48,7 @@ export class LintStreamProcessorImpl implements LintStreamProcessor {
 			}
 		} catch (error) {
 			this.#logger.error('Error processing lint results', { error });
-			if (this.#errorHandler) {
+			if (this.#errorHandler !== undefined) {
 				this.#errorHandler(error as Error);
 			}
 			throw error;

@@ -43,7 +43,7 @@ export class TestStatisticsCollector {
 	 */
 	private updateFileStats(filepath: string, type: 'passed' | 'failed' | 'skipped', duration: number): void {
 		const key = this.normalizeFilepath(filepath);
-		const stats = this.fileStats.get(key) || { passed: 0, failed: 0, skipped: 0, duration: 0 };
+		const stats = this.fileStats.get(key) ?? { passed: 0, failed: 0, skipped: 0, duration: 0 };
 
 		if (type === 'passed') {
 			stats.passed++;

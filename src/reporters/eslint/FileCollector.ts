@@ -42,8 +42,7 @@ export class FileCollectorImpl implements FileCollector {
 
 		// Default: collect all files with supported extensions
 		this.#logger.debug('Collecting files with supported extensions');
-		const files = await this.#walkDirectory(this.#cwd);
-		return files;
+		return this.#walkDirectory(this.#cwd);
 	}
 
 	async #walkDirectory(dir: string, files: string[] = []): Promise<string[]> {

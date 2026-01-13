@@ -4,8 +4,8 @@
 
 import ts from 'typescript';
 
-import type { Diagnostic } from '../types.js';
 import type { PathNormalizer, SecurityValidator } from '../interfaces.js';
+import type { Diagnostic } from '../types.js';
 import type { DiagnosticsMessageFormatter } from './TypeScriptMessageFormatter.js';
 
 export interface DiagnosticsParser {
@@ -25,7 +25,7 @@ export class DiagnosticsParserImpl implements DiagnosticsParser {
 		formatter: DiagnosticsMessageFormatter,
 		pathNormalizer: PathNormalizer,
 		securityValidator: SecurityValidator,
-		sanitize: boolean = true
+		sanitize = true
 	) {
 		this.#formatter = formatter;
 		this.#pathNormalizer = pathNormalizer;
@@ -38,7 +38,7 @@ export class DiagnosticsParserImpl implements DiagnosticsParser {
 
 		for (const tsDiag of tsDiagnostics) {
 			// Skip diagnostics without file information
-			if (!tsDiag.file || tsDiag.start === undefined) {
+			if (tsDiag.file === undefined || tsDiag.start === undefined) {
 				continue;
 			}
 
@@ -50,8 +50,14 @@ export class DiagnosticsParserImpl implements DiagnosticsParser {
 	}
 
 	#convertDiagnostic(tsDiag: ts.Diagnostic): Diagnostic {
-		const file = tsDiag.file!;
-		const start = tsDiag.start!;
+		const file = tsDiag.file;
+		const start = tsDiag.start;
+		
+		// Types are guaranteed by the parse() method guard clause
+		if (file === undefined || start === undefined) {
+			throw new Error('Invalid diagnostic: missing file or start position');
+		}
+
 		const { line, character } = file.getLineAndCharacterOfPosition(start);
 
 		// Normalize file path
@@ -87,8 +93,14 @@ export class DiagnosticsParserImpl implements DiagnosticsParser {
 				return 'error';
 			case ts.DiagnosticCategory.Warning:
 				return 'warning';
-			default:
+			case ts.DiagnosticCategory.Suggestion:
+			case ts.DiagnosticCategory.Message:
 				return 'warning';
+			default: {
+				// Exhaustiveness check: if we reach here, a new category was added
+				const _exhaustive: never = category;
+				return _exhaustive;
+			}
 		}
 	}
 }

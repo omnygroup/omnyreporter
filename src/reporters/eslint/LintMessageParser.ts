@@ -2,8 +2,8 @@
  * ESLint message parser - converts ESLint messages to Diagnostic format
  */
 
-import type { Diagnostic } from '../types.js';
 import type { PathNormalizer, SecurityValidator } from '../interfaces.js';
+import type { Diagnostic } from '../types.js';
 import type { LintMessage, LintResult } from './EslintLinter.js';
 
 export interface LintMessageParser {
@@ -21,7 +21,7 @@ export class LintMessageParserImpl implements LintMessageParser {
 	public constructor(
 		pathNormalizer: PathNormalizer,
 		securityValidator: SecurityValidator,
-		sanitize: boolean = true
+		sanitize = true
 	) {
 		this.#pathNormalizer = pathNormalizer;
 		this.#securityValidator = securityValidator;
@@ -53,14 +53,14 @@ export class LintMessageParserImpl implements LintMessageParser {
 			line: message.line,
 			column: message.column,
 			severity: message.severity === 2 ? 'error' : 'warning',
-			ruleId: message.ruleId || 'unknown',
+			ruleId: message.ruleId ?? undefined,
 			message: sanitizedMessage,
-			suggestion: message.fix ? this.#formatFix(message.fix) : undefined,
+			suggestion: message.fix !== undefined ? this.#formatFix(message.fix) : undefined,
 			source: 'eslint',
 		};
 	}
 
 	#formatFix(fix: { readonly range: [number, number]; readonly text: string }): string {
-		return `Replace characters ${fix.range[0]}-${fix.range[1]} with: ${fix.text}`;
+		return `Replace characters ${String(fix.range[0])}-${String(fix.range[1])} with: ${fix.text}`;
 	}
 }

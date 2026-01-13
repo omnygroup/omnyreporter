@@ -6,6 +6,33 @@ import path from 'path';
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Type guard to check if an error is a Node.js error with a code property
+ */
+interface NodeError extends Error {
+	code?: string;
+}
+
+/**
+ * Get a safe error message from an unknown error
+ */
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) {
+		return error.message;
+	}
+	if (typeof error === 'string') {
+		return error;
+	}
+	return 'Unknown error';
+}
+
+/**
+ * Check if an error is a Node.js error with a code property
+ */
+function isNodeError(error: unknown): error is NodeError {
+	return error instanceof Error && 'code' in error;
+}
+
 export interface ExecutionResult {
 	outputFilePath: string;
 	exitCode: number;
@@ -24,8 +51,8 @@ export class VitestExecutor {
 	#projectRoot: string;
 
 	constructor(options: { timeout?: number; tempOutputFile?: string } = {}) {
-		this.#defaultTimeout = options.timeout || this.#defaultTimeout;
-		this.#tempOutputFile = options.tempOutputFile || this.#tempOutputFile;
+		this.#defaultTimeout = options.timeout ?? this.#defaultTimeout;
+		this.#tempOutputFile = options.tempOutputFile ?? this.#tempOutputFile;
 
 		// Use the current working directory as the project root so the reporter
 		// runs Vitest in the calling project (not inside the reporter package).
@@ -38,15 +65,15 @@ export class VitestExecutor {
 		// Clean up any existing temp file
 		this.#cleanupTempFile(outputFilePath);
 
-		console.log('🧪 Running Vitest tests with JSON reporter...\n');
+		console.warn('🧪 Running Vitest tests with JSON reporter...\n');
 
 		const startTime = Date.now();
 
 		try {
 			const result = await this.#spawnVitest(outputFilePath);
 
-			const duration = Date.now() - startTime;
-			console.log(`\n⏱️  Test execution completed in ${duration}ms`);
+			const duration = String(Date.now() - startTime);
+			console.warn(`\n⏱️  Test execution completed in ${duration}ms`);
 
 			return result;
 		} catch (error) {
@@ -77,7 +104,8 @@ export class VitestExecutor {
 
 			if (this.#defaultTimeout > 0) {
 				timeoutHandle = setTimeout(() => {
-					console.warn(`\n⏱️  Warning: Test execution exceeded ${this.#defaultTimeout / 1000}s timeout`);
+					const timeoutSeconds = String(this.#defaultTimeout / 1000);
+					console.warn(`\n⏱️  Warning: Test execution exceeded ${timeoutSeconds}s timeout`);
 					vitestProcess.kill('SIGTERM');
 
 					// Force kill after 5 seconds if not terminated
@@ -101,18 +129,19 @@ export class VitestExecutor {
 				process.stderr.write(output);
 			});
 
-			vitestProcess.on('error', (error: any) => {
-				if (timeoutHandle) clearTimeout(timeoutHandle);
+			vitestProcess.on('error', (error: unknown) => {
+				if (timeoutHandle !== null) clearTimeout(timeoutHandle);
 
-				if (error.code === 'ENOENT') {
+				if (isNodeError(error) && error.code === 'ENOENT') {
 					reject(new Error('❌ Vitest not found. Please install it: npm install --save-dev vitest'));
 				} else {
-					reject(new Error(`❌ Failed to execute Vitest: ${error.message}`));
+					const errorMessage = getErrorMessage(error);
+					reject(new Error(`❌ Failed to execute Vitest: ${errorMessage}`));
 				}
 			});
 
-			vitestProcess.on('close', (exitCode) => {
-				if (timeoutHandle) clearTimeout(timeoutHandle);
+			vitestProcess.on('close', (exitCode: number | null) => {
+				if (timeoutHandle !== null) clearTimeout(timeoutHandle);
 
 				if (!fs.existsSync(outputFilePath)) {
 					reject(
@@ -123,14 +152,15 @@ export class VitestExecutor {
 
 				try {
 					fs.readFileSync(outputFilePath, 'utf8');
-				} catch (readError: any) {
-					reject(new Error(`❌ Failed to read output file: ${readError.message}`));
+				} catch (readError: unknown) {
+					const errorMessage = getErrorMessage(readError);
+					reject(new Error(`❌ Failed to read output file: ${errorMessage}`));
 					return;
 				}
 
 				resolve({
 					outputFilePath,
-					exitCode: exitCode || 0,
+					exitCode: exitCode ?? 0,
 					stdout,
 					stderr,
 				});
@@ -138,17 +168,18 @@ export class VitestExecutor {
 		});
 	}
 
-	#cleanupTempFile(filePath: string) {
+	#cleanupTempFile(filePath: string): void {
 		try {
 			if (fs.existsSync(filePath)) {
 				fs.unlinkSync(filePath);
 			}
-		} catch (error: any) {
-			console.warn(`⚠️  Warning: Could not clean up temp file: ${error.message}`);
+		} catch (error: unknown) {
+			const errorMessage = getErrorMessage(error);
+			console.warn(`⚠️  Warning: Could not clean up temp file: ${errorMessage}`);
 		}
 	}
 
-	cleanup() {
+	cleanup(): void {
 		const outputFilePath = path.join(this.#projectRoot, this.#tempOutputFile);
 		this.#cleanupTempFile(outputFilePath);
 	}

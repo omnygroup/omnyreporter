@@ -2,8 +2,9 @@
  * TypeScript Compiler API wrapper
  */
 
-import ts from 'typescript';
 import path from 'node:path';
+
+import ts from 'typescript';
 
 import type { Logger } from '../interfaces.js';
 
@@ -21,7 +22,7 @@ export interface TypeScriptCompilerAPI {
 	/**
 	 * Check if TypeScript is configured
 	 */
-	isConfigured(): Promise<boolean>;
+	isConfigured(): boolean;
 }
 
 export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
@@ -39,14 +40,14 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 			this.#logger.debug('Starting TypeScript diagnostics collection');
 
 			const configPath = this.#findConfigFile(tsconfigPath);
-			if (!configPath) {
+			if (configPath === undefined) {
 				throw new Error('tsconfig.json not found in project root');
 			}
 
 			this.#logger.debug('Using TypeScript config', { path: configPath });
 
-			const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-			if (configFile.error) {
+			const configFile = ts.readConfigFile(configPath, (fileName) => ts.sys.readFile(fileName));
+			if (configFile.error !== undefined) {
 				throw new Error(
 					'Failed to read tsconfig.json: ' +
 					ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n')
@@ -61,7 +62,7 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 
 			if (parsedConfig.errors.length > 0) {
 				const errorMessages = parsedConfig.errors
-					.map(err => ts.flattenDiagnosticMessageText(err.messageText, '\n'))
+					.map((err) => ts.flattenDiagnosticMessageText(err.messageText, '\n'))
 					.join('\n');
 				throw new Error('Failed to parse tsconfig.json: ' + errorMessages);
 			}
@@ -98,10 +99,17 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 			// Remove duplicates
 			const uniqueDiagnostics = Array.from(
 				new Map(
-					allDiagnostics.map(d => [
-						`${d.file?.fileName}-${d.start}-${d.messageText}`,
-						d,
-					])
+					allDiagnostics.map(d => {
+						const fileName = d.file?.fileName ?? 'unknown';
+						const start = String(d.start ?? -1);
+						const messageText = typeof d.messageText === 'string'
+							? d.messageText
+							: 'messageChain';
+						return [
+							`${fileName}-${start}-${messageText}`,
+							d,
+						];
+					})
 				).values()
 			);
 
@@ -109,7 +117,7 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 				count: uniqueDiagnostics.length,
 			});
 
-						return uniqueDiagnostics;
+			return await Promise.resolve(uniqueDiagnostics);
 		} catch (error) {
 			this.#logger.error('TypeScript diagnostics collection failed', { error });
 			throw error;
@@ -120,7 +128,7 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 		return ts.version;
 	}
 
-	public async isConfigured(): Promise<boolean> {
+	public isConfigured(): boolean {
 		try {
 			const configPath = this.#findConfigFile();
 			return configPath !== undefined;
@@ -130,11 +138,15 @@ export class TypeScriptCompilerImpl implements TypeScriptCompilerAPI {
 	}
 
 	#findConfigFile(customPath?: string): string | undefined {
-		if (customPath) {
+		if (customPath !== undefined && customPath.length > 0) {
 			return path.resolve(this.#cwd, customPath);
 		}
 
-		return ts.findConfigFile(this.#cwd, ts.sys.fileExists, 'tsconfig.json');
+		return ts.findConfigFile(
+			this.#cwd,
+			(fileName) => ts.sys.fileExists(fileName),
+			'tsconfig.json'
+		);
 	}
 
 	public getProgram(): ts.Program | undefined {

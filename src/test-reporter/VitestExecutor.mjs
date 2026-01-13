@@ -16,7 +16,7 @@ export class VitestExecutor {
 
     this._cleanupTempFile(outputFilePath);
 
-    console.log('🧪 Running Vitest tests with JSON reporter...\n');
+    console.warn('🧪 Running Vitest tests with JSON reporter...\n');
 
     const startTime = Date.now();
 
@@ -24,7 +24,7 @@ export class VitestExecutor {
       const result = await this._spawnVitest(outputFilePath);
 
       const duration = Date.now() - startTime;
-      console.log(`\n⏱️  Test execution completed in ${duration}ms`);
+      console.warn(`\n⏱️  Test execution completed in ${duration}ms`);
 
       return result;
     } catch (error) {

@@ -2,17 +2,17 @@
  * Reporting facade - simplified interface for running reporters
  */
 
-import type { DiagnosticsResult } from './types.js';
-import type { WriteStats } from './types.js';
 import { createConfig } from './config.js';
-import type { EslintConfig } from './eslint/types.js';
-import type { TypeScriptConfig } from './typescript/types.js';
 import { EslintReporterFactory } from './eslint/EslintReporterFactory.js';
-import { TypeScriptReporterFactory } from './typescript/TypeScriptReporterFactory.js';
 import { DirectoryManager } from './shared/DirectoryManager.js';
-import { SecurityValidatorImpl } from './shared/SecurityValidator.js';
-import { LoggerImpl } from './shared/Logger.js';
 import { JsonReportWriter } from './shared/JsonReportWriter.js';
+import { LoggerImpl } from './shared/Logger.js';
+import { SecurityValidatorImpl } from './shared/SecurityValidator.js';
+import { TypeScriptReporterFactory } from './typescript/TypeScriptReporterFactory.js';
+
+import type { EslintConfig } from './eslint/types.js';
+import type { DiagnosticsResult, WriteStats } from './types.js';
+import type { TypeScriptConfig } from './typescript/types.js';
 
 export class ReportingFacade {
 	readonly #cwd: string;
@@ -38,8 +38,8 @@ export class ReportingFacade {
 			outputDir: baseConfig.outputDir,
 			includeSource: baseConfig.includeSource,
 			sanitize: baseConfig.sanitize,
-			patterns: baseConfig.patterns ? Array.from(baseConfig.patterns) : undefined,
-			ignorePatterns: baseConfig.ignorePatterns ? Array.from(baseConfig.ignorePatterns) : undefined,
+			patterns: baseConfig.patterns !== undefined ? Array.from(baseConfig.patterns) : undefined,
+			ignorePatterns: baseConfig.ignorePatterns !== undefined ? Array.from(baseConfig.ignorePatterns) : undefined,
 			...partialConfig,
 		};
 
@@ -68,8 +68,8 @@ export class ReportingFacade {
 			outputDir: baseConfig.outputDir,
 			includeSource: baseConfig.includeSource,
 			sanitize: baseConfig.sanitize,
-			patterns: baseConfig.patterns ? Array.from(baseConfig.patterns) : undefined,
-			ignorePatterns: baseConfig.ignorePatterns ? Array.from(baseConfig.ignorePatterns) : undefined,
+			patterns: baseConfig.patterns !== undefined ? Array.from(baseConfig.patterns) : undefined,
+			ignorePatterns: baseConfig.ignorePatterns !== undefined ? Array.from(baseConfig.ignorePatterns) : undefined,
 			...partialConfig,
 		};
 
@@ -115,9 +115,9 @@ export class ReportingFacade {
 		await directoryManager.cleanOutputDir(type);
 
 		// Write diagnostics as stream
-		async function* diagnosticStream() {
+		async function* diagnosticStream(): AsyncGenerator<unknown, void, unknown> {
 			for (const diagnostic of result.diagnostics) {
-				yield diagnostic;
+				yield await Promise.resolve(diagnostic);
 			}
 		}
 

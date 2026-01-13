@@ -11,7 +11,7 @@ export class LoggerImpl implements Logger {
 
 	public constructor(options: pino.LoggerOptions = {}) {
 		this.#logger = pino({
-			level: process.env['LOG_LEVEL'] || 'info',
+			level: process.env['LOG_LEVEL'] ?? 'info',
 			transport: process.env['NODE_ENV'] !== 'production'
 				? {
 					target: 'pino-pretty',
@@ -27,19 +27,19 @@ export class LoggerImpl implements Logger {
 	}
 
 	public info(message: string, ...args: unknown[]): void {
-		this.#logger.info(args.length > 0 ? { ...args } : {}, message);
+		this.#logger.info(args.length > 0 ? { args } : {}, message);
 	}
 
 	public warn(message: string, ...args: unknown[]): void {
-		this.#logger.warn(args.length > 0 ? { ...args } : {}, message);
+		this.#logger.warn(args.length > 0 ? { args } : {}, message);
 	}
 
 	public error(message: string, ...args: unknown[]): void {
-		this.#logger.error(args.length > 0 ? { ...args } : {}, message);
+		this.#logger.error(args.length > 0 ? { args } : {}, message);
 	}
 
 	public debug(message: string, ...args: unknown[]): void {
-		this.#logger.debug(args.length > 0 ? { ...args } : {}, message);
+		this.#logger.debug(args.length > 0 ? { args } : {}, message);
 	}
 
 	/**

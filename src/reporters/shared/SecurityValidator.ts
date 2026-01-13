@@ -3,8 +3,8 @@
  */
 
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import os from 'node:os';
+import path from 'node:path';
 
 import type { SecurityValidator } from '../interfaces.js';
 
@@ -23,8 +23,8 @@ export class SecurityValidatorImpl implements SecurityValidator {
 		this.#sensitivePatterns = [
 			// Absolute paths that might contain usernames
 			/[A-Z]:\\Users\\[^\\]+/gi,
-			/\/home\/[^\/]+/gi,
-			/\/Users\/[^\/]+/gi,
+			/\/home\/[^/]+/gi,
+			/\/Users\/[^/]+/gi,
 			// Environment variables
 			/\$\{[A-Z_]+\}/gi,
 			/%[A-Z_]+%/gi,
@@ -45,12 +45,7 @@ export class SecurityValidatorImpl implements SecurityValidator {
 			if (!normalized.startsWith(this.#cwd)) {
 				// In moderate mode, allow node_modules and common build dirs
 				if (this.#policy === 'moderate') {
-					const relativePath = path.relative(this.#cwd, normalized);
-				const parts = relativePath.split(path.sep);
-				const firstSegment = parts.length > 0 ? parts[0] : undefined;
-				if (firstSegment !== undefined && ['node_modules', 'dist', 'build', '.git'].includes(firstSegment)) {
-						return true;
-					}
+					return this.#isAllowedBuildDir(normalized);
 				}
 				return false;
 			}
@@ -61,13 +56,8 @@ export class SecurityValidatorImpl implements SecurityValidator {
 			}
 
 			// Strict mode: disallow system directories
-			if (this.#policy === 'strict') {
-				const systemDirs = ['/etc', '/sys', '/proc', 'C:\\Windows', 'C:\\System'];
-				for (const sysDir of systemDirs) {
-					if (normalized.startsWith(sysDir)) {
-						return false;
-					}
-				}
+			if (this.#policy === 'strict' && this.#isSystemDir(normalized)) {
+				return false;
 			}
 
 			return true;
@@ -76,30 +66,54 @@ export class SecurityValidatorImpl implements SecurityValidator {
 		}
 	}
 
+	private #isAllowedBuildDir(normalized: string): boolean {
+		const relativePath = path.relative(this.#cwd, normalized);
+		const parts = relativePath.split(path.sep);
+		const firstSegment = parts.length > 0 ? parts[0] : undefined;
+		return firstSegment !== undefined && ['node_modules', 'dist', 'build', '.git'].includes(firstSegment);
+	}
+
+	private #isSystemDir(normalized: string): boolean {
+		const systemDirs = ['/etc', '/sys', '/proc', 'C:\\Windows', 'C:\\System'];
+		return systemDirs.some((sysDir) => normalized.startsWith(sysDir));
+	}
+
 	public sanitizeMessage(message: string): string {
 		let sanitized = message;
+		sanitized = this.#redactSensitivePatterns(sanitized);
 
-		// Replace sensitive patterns
+		// Replace absolute paths with relative ones
+		sanitized = this.#replaceCwdWithDot(sanitized);
+
+		// Replace home directory
+		sanitized = this.#replaceHomeDir(sanitized);
+
+		return sanitized;
+	}
+
+	private #redactSensitivePatterns(text: string): string {
+		let result = text;
 		for (const pattern of this.#sensitivePatterns) {
-			sanitized = sanitized.replace(pattern, (match) => {
+			result = result.replace(pattern, (match) => {
 				// Keep structure but redact content
 				if (match.includes('\\Users\\') || match.includes('/home/') || match.includes('/Users/')) {
-					return match.replace(/[^\\\/]+(?=[\\\/]|$)/g, '***');
+					return match.replace(/[^/\\]+(?=[/\\]|$)/g, '***');
 				}
 				return '[REDACTED]';
 			});
 		}
+		return result;
+	}
 
-		// Replace absolute paths with relative ones
+	private #replaceCwdWithDot(text: string): string {
 		const cwdPattern = new RegExp(this.#cwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-		sanitized = sanitized.replace(cwdPattern, '.');
+		return text.replace(cwdPattern, '.');
+	}
 
-		// Replace home directory
+	private #replaceHomeDir(text: string): string {
 		const homeDir = os.homedir();
 		const homePattern = new RegExp(homeDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-		sanitized = sanitized.replace(homePattern, '~');
-
-		return sanitized;
+		return text.replace(homePattern, '~');
 	}
 
 	public async validateOutputDirectory(directory: string): Promise<boolean> {

@@ -16,12 +16,12 @@ export class FileSystemWriter {
 		const { errorsByFile } = aggregatedErrors;
 
 		if (errorsByFile.size === 0) {
-			console.log('✅ All tests passed! Cleaning up error reports...');
+			console.warn('✅ All tests passed! Cleaning up error reports...');
 			this.#deleteOutputDirectory();
 			return;
 		}
 
-		console.log(`💾 Writing ${errorsByFile.size} error report files...`);
+		console.warn(`💾 Writing ${errorsByFile.size} error report files...`);
 
 		this.#deleteOutputDirectory();
 		this.#ensureDirectoryExists(this.#outputDir);
@@ -32,7 +32,7 @@ export class FileSystemWriter {
 			filesWritten++;
 		}
 
-		console.log(`✅ Successfully wrote ${filesWritten} error report files to ${this.#outputDir}/`);
+		console.warn(`✅ Successfully wrote ${filesWritten} error report files to ${this.#outputDir}/`);
 	}
 
 	async #writeErrorFile(testFile, failures) {
@@ -57,7 +57,6 @@ export class FileSystemWriter {
 			$schema: schemaPath,
 			testFile: normalizedPath,
 			timestamp: new Date().toISOString(),
-			environment: environmentInfo,
 			summary,
 			failures,
 		};
@@ -122,6 +121,12 @@ export class FileSystemWriter {
 		} catch (error) {
 			console.warn(`⚠️  Warning: Could not delete output directory: ${error.message}`);
 		}
+	}
+
+	#calculateSchemaPath(outputPath) {
+		// Calculate schema path relative to the output file
+		const depth = outputPath.split(path.sep).length - 1;
+		return './' + Array(depth).fill('..').join('/') + '/schema.json';
 	}
 
 	getOutputDir() {

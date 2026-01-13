@@ -4,8 +4,8 @@
 
 import os from 'node:os';
 
-import type { Diagnostic, DiagnosticsResult } from '../types.js';
 import type { DiagnosticsAggregator } from '../interfaces.js';
+import type { Diagnostic, DiagnosticsResult } from '../types.js';
 
 export class DiagnosticsAggregatorImpl implements DiagnosticsAggregator {
 	public async aggregate(stream: AsyncIterable<Diagnostic>): Promise<DiagnosticsResult> {

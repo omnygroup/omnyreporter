@@ -60,7 +60,7 @@ export class SensitiveDataSanitizer {
 	 * @returns Parsed object with sensitive data redacted
 	 */
 	public sanitizeToObject(obj: Record<string, unknown>): Record<string, unknown> {
-		return JSON.parse(this.sanitize(obj));
+		return JSON.parse(this.sanitize(obj)) as Record<string, unknown>;
 	}
 }
 

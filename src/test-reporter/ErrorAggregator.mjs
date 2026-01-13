@@ -31,7 +31,7 @@ export class ErrorAggregator {
 
 		const failedCount = Array.from(errorsByFile.values()).reduce((sum, failures) => sum + failures.length, 0);
 
-		console.log(`✅ Aggregated ${String(failedCount)} failures across ${String(errorsByFile.size)} files`);
+		console.warn(`✅ Aggregated ${String(failedCount)} failures across ${String(errorsByFile.size)} files`);
 
 		return {
 			errorsByFile,

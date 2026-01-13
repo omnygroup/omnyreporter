@@ -2,14 +2,15 @@
  * Main ESLint reporter implementation
  */
 
-import type { DiagnosticsResult, ValidationStatus } from '../types.js';
-import type { Logger, PathNormalizer, SecurityValidator } from '../interfaces.js';
 import { BaseDiagnosticSource } from '../shared/BaseDiagnosticSource.js';
 import { DiagnosticsAggregatorImpl } from '../shared/DiagnosticsAggregator.js';
-import type { EslintConfig } from './types.js';
+
+import type { Logger, PathNormalizer, SecurityValidator } from '../interfaces.js';
+import type { DiagnosticsResult, ValidationStatus } from '../types.js';
 import type { EslintLinterAPI } from './EslintLinter.js';
 import type { FileCollector } from './FileCollector.js';
 import type { LintStreamProcessor } from './LintStreamProcessor.js';
+import type { EslintConfig } from './types.js';
 
 export class EslintReporter extends BaseDiagnosticSource {
 	readonly #linter: EslintLinterAPI;
@@ -39,7 +40,7 @@ export class EslintReporter extends BaseDiagnosticSource {
 
 		try {
 			// Determine file patterns (default: src/)
-			const filePatterns = config.patterns && config.patterns.length > 0 
+			const filePatterns = config.patterns !== undefined && config.patterns.length > 0 
 				? Array.from(config.patterns)
 				: ['src'];
 			
@@ -94,7 +95,7 @@ export class EslintReporter extends BaseDiagnosticSource {
 
 			// Check ESLint version
 			const version = this.#linter.getVersion();
-			if (!version) {
+			if (version === '') {
 				warnings.push('Could not determine ESLint version');
 			} else {
 				this.logger.debug('ESLint version detected', { version });

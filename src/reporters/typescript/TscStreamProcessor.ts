@@ -4,8 +4,8 @@
 
 import ts from 'typescript';
 
-import type { Diagnostic } from '../types.js';
 import type { Logger, StreamProcessor } from '../interfaces.js';
+import type { Diagnostic } from '../types.js';
 import type { DiagnosticsParser } from './DiagnosticsParser.js';
 
 export interface TscStreamProcessor extends StreamProcessor<Diagnostic> {
@@ -24,7 +24,7 @@ export class TscStreamProcessorImpl implements TscStreamProcessor {
 	public constructor(
 		parser: DiagnosticsParser,
 		logger: Logger,
-		batchSize: number = 100
+		batchSize = 100
 	) {
 		this.#parser = parser;
 		this.#logger = logger;
@@ -62,7 +62,7 @@ export class TscStreamProcessorImpl implements TscStreamProcessor {
 			}
 		} catch (error) {
 			this.#logger.error('Error processing TypeScript diagnostics', { error });
-			if (this.#errorHandler) {
+			if (this.#errorHandler !== undefined) {
 				this.#errorHandler(error as Error);
 			}
 			throw error;

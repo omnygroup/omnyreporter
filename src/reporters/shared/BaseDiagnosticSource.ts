@@ -3,16 +3,16 @@
  */
 
 import type {
-	CollectorConfig,
-	DiagnosticsResult,
-	ValidationStatus,
-} from '../types.js';
-import type {
 	DiagnosticSource,
 	Logger,
 	PathNormalizer,
 	SecurityValidator,
 } from '../interfaces.js';
+import type {
+	CollectorConfig,
+	DiagnosticsResult,
+	ValidationStatus,
+} from '../types.js';
 
 export abstract class BaseDiagnosticSource implements DiagnosticSource {
 	protected readonly logger: Logger;
@@ -37,7 +37,7 @@ export abstract class BaseDiagnosticSource implements DiagnosticSource {
 	 * Validate configuration before collection
 	 */
 	protected validateConfig(config: CollectorConfig): void {
-		if (!config.cwd) {
+		if (config.cwd === '') {
 			throw new Error('cwd is required in configuration');
 		}
 
@@ -53,10 +53,10 @@ export abstract class BaseDiagnosticSource implements DiagnosticSource {
 	/**
 	 * Create a timeout promise
 	 */
-	protected createTimeout(ms: number): Promise<never> {
+	protected async createTimeout(ms: number): Promise<never> {
 		return new Promise((_, reject) => {
 			setTimeout(() => {
-				reject(new Error(`Operation timed out after ${ms}ms`));
+				reject(new Error(`Operation timed out after ${String(ms)}ms`));
 			}, ms);
 		});
 	}

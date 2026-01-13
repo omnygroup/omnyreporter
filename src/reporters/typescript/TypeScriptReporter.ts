@@ -4,13 +4,14 @@
 
 import os from 'node:os';
 
-import type { DiagnosticsResult, ValidationStatus } from '../types.js';
-import type { Logger, PathNormalizer, SecurityValidator } from '../interfaces.js';
 import { BaseDiagnosticSource } from '../shared/BaseDiagnosticSource.js';
 import { DiagnosticsAggregatorImpl } from '../shared/DiagnosticsAggregator.js';
+
+import type { Logger, PathNormalizer, SecurityValidator } from '../interfaces.js';
+import type { DiagnosticsResult, ValidationStatus } from '../types.js';
+import type { TscStreamProcessor } from './TscStreamProcessor.js';
 import type { TypeScriptConfig } from './types.js';
 import type { TypeScriptCompilerAPI } from './TypeScriptCompiler.js';
-import type { TscStreamProcessor } from './TscStreamProcessor.js';
 
 export class TypeScriptReporter extends BaseDiagnosticSource {
 	readonly #compiler: TypeScriptCompilerAPI;
@@ -79,32 +80,30 @@ export class TypeScriptReporter extends BaseDiagnosticSource {
 		}
 	}
 
-	public async validate(): Promise<ValidationStatus> {
+	public validate(): ValidationStatus {
 		const errors: string[] = [];
 		const warnings: string[] = [];
 
 		try {
 			// Check if tsconfig.json exists
-			const isConfigured = await this.#compiler.isConfigured();
+			const isConfigured = this.#compiler.isConfigured();
 			if (!isConfigured) {
 				errors.push('tsconfig.json not found in project root');
 			}
 
 			// Check TypeScript version
 			const version = this.#compiler.getVersion();
-			if (!version) {
+			if (version === '') {
 				warnings.push('Could not determine TypeScript version');
 			} else {
 				this.logger.debug('TypeScript version detected', { version });
-				
+
 				// Check minimum version (4.5+)
 				const parts = version.split('.').map(Number);
 				const major = parts[0];
 				const minor = parts[1];
-				if (major !== undefined && minor !== undefined) {
-					if (major < 4 || (major === 4 && minor < 5)) {
-						warnings.push(`TypeScript version ${version} is below recommended minimum (4.5.0)`);
-					}
+				if (major !== undefined && minor !== undefined && (major < 4 || (major === 4 && minor < 5))) {
+					warnings.push(`TypeScript version ${version} is below recommended minimum (4.5.0)`);
 				}
 			}
 		} catch (error) {

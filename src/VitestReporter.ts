@@ -80,8 +80,8 @@ class OmnyVitestReporter {
 	public constructor(config: VitestReporterConfig) {
 		this.config = {
 			format: config.format,
-			outputDir: config.outputDir || './test-results',
-			verbose: config.verbose || false,
+			outputDir: config.outputDir ?? './test-results',
+			verbose: config.verbose ?? false,
 		};
 		this.startTime = Date.now();
 		this.statistics = new TestStatisticsCollector();
@@ -106,14 +106,14 @@ class OmnyVitestReporter {
 			const filepath = ((taskContainer as Record<string, unknown>)['filepath'] as string | undefined) ?? testModule.filepath;
 			const tasks = ((taskContainer as Record<string, unknown>)['tasks'] as VitestTask[] | undefined) ?? testModule.tasks;
 
-			if (!filepath || typeof filepath !== 'string') {
-				logger.warn('Test module has no filepath');
-				return;
+if (typeof filepath !== 'string') {
+			logger.warn('Test module has no filepath');
+			return;
 			}
 
 			const normalizedPath = resolve(filepath);
 
-			if (tasks && Array.isArray(tasks)) {
+		if (Array.isArray(tasks)) {
 				for (const testTask of tasks) {
 					this.processTestTask(testTask, normalizedPath);
 				}
@@ -153,13 +153,13 @@ class OmnyVitestReporter {
 	 * Process individual test task, including nested tasks
 	 */
 	private processTestTask(task: VitestTask, filepath: string): void {
-		const state = task.result?.state || task.state;
-		const duration = task.result?.duration || 0;
-		const testName = task.name || 'Unknown';
+		const state = task.result?.state ?? task.state;
+		const duration = task.result?.duration ?? 0;
+		const testName = task.name !== '' ? task.name : 'Unknown';
 		const timestamp = new Date().toISOString();
 
 		// Process nested tasks first (describe blocks contain tests)
-		if (task.tasks && Array.isArray(task.tasks)) {
+		if (Array.isArray(task.tasks)) {
 			for (const nestedTask of task.tasks) {
 				this.processTestTask(nestedTask, filepath);
 			}
@@ -184,9 +184,9 @@ class OmnyVitestReporter {
 				duration,
 				timestamp,
 				fullName: testName,
-				error: error?.message || 'Unknown error',
-				message: error?.message || 'Unknown error',
-				stack: error?.stack || '',
+				error: error?.message ?? 'Unknown error',
+				message: error?.message ?? 'Unknown error',
+				stack: error?.stack ?? '',
 			});
 		} else if (state === TASK_STATES.SKIP || state === TASK_STATES.TODO) {
 			this.statistics.addSkippedTest({

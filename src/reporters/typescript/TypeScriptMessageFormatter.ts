@@ -26,6 +26,6 @@ export class TypeScriptMessageFormatterImpl implements DiagnosticsMessageFormatt
 	}
 
 	public extractCode(diagnostic: ts.Diagnostic): string {
-		return diagnostic.code ? `TS${diagnostic.code}` : 'TS0000';
+		return diagnostic.code > 0 ? `TS${String(diagnostic.code)}` : 'TS0000';
 	}
 }

@@ -4,8 +4,9 @@
 
 import process from 'node:process';
 
-import type { ReportingConfig } from '../reporters/ReportingConfig.js';
 import { ReportingOrchestrator } from '../reporters/ReportingOrchestrator.js';
+
+import type { ReportingConfig } from '../reporters/ReportingConfig.js';
 
 interface CliArgs {
 	run: 'eslint' | 'typescript' | 'all';
@@ -36,62 +37,11 @@ function parseArgs(args: string[]): CliArgs {
 			break;
 		}
 
-		switch (arg) {
-			case '--run':
-				if (next && ['eslint', 'typescript', 'all'].includes(next)) {
-					result.run = next as 'eslint' | 'typescript' | 'all';
-					i++;
-				}
-				break;
-			case '--output':
-			case '-o':
-				if (next) {
-					result.output = next;
-					i++;
-				}
-				break;
-			case '--timeout':
-			case '-t':
-				if (next) {
-					result.timeout = parseInt(next, 10);
-					i++;
-				}
-				break;
-			case '--patterns':
-				// Collect all patterns until next flag
-				const patterns: string[] = [];
-				i++;
-				while (i < args.length) {
-					const pattern = args[i];
-					if (!pattern || pattern.startsWith('-')) {
-						break;
-					}
-					patterns.push(pattern);
-					i++;
-				}
-				if (patterns.length > 0) {
-					result.patterns = patterns;
-					i--; // Adjust because loop will increment at end
-				}
-				break;
-			case '--verbose':
-			case '-v':
-				result.verbose = true;
-				break;
-			case '--no-exit-on-error':
-				result.exitOnError = false;
-				break;
-			case '--cwd':
-				if (next) {
-					result.cwd = next;
-					i++;
-				}
-				break;
-			case '--help':
-			case '-h':
-				printHelp();
-				process.exit(0);
-				break;
+		const update = getArgumentUpdate(arg, next, args, i);
+		applyUpdate(result, update);
+
+		if (update.incrementBy > 0) {
+			i += update.incrementBy;
 		}
 
 		i++;
@@ -100,8 +50,133 @@ function parseArgs(args: string[]): CliArgs {
 	return result;
 }
 
+interface ArgumentUpdate {
+	property?: keyof Omit<CliArgs, 'passThroughArgs'>;
+	value?: string | boolean | number | string[];
+	incrementBy: number;
+	shouldExit?: boolean;
+}
+
+function getArgumentUpdate(
+	arg: string,
+	next: string | undefined,
+	args: string[],
+	currentIndex: number,
+): ArgumentUpdate {
+	switch (arg) {
+		case '--run': {
+			if (next !== undefined && ['eslint', 'typescript', 'all'].includes(next)) {
+				return {
+					property: 'run',
+					value: next,
+					incrementBy: 1,
+				};
+			}
+			return { incrementBy: 0 };
+		}
+		case '--output':
+		case '-o': {
+			if (next !== undefined) {
+				return {
+					property: 'output',
+					value: next,
+					incrementBy: 1,
+				};
+			}
+			return { incrementBy: 0 };
+		}
+		case '--timeout':
+		case '-t': {
+			if (next !== undefined) {
+				return {
+					property: 'timeout',
+					value: parseInt(next, 10),
+					incrementBy: 1,
+				};
+			}
+			return { incrementBy: 0 };
+		}
+		case '--patterns': {
+			const patterns = collectPatterns(args, currentIndex);
+			const increment = patterns.nextIndex - currentIndex - 1;
+			return {
+				property: 'patterns',
+				value: patterns.collected,
+				incrementBy: increment,
+			};
+		}
+		case '--verbose':
+		case '-v': {
+			return {
+				property: 'verbose',
+				value: true,
+				incrementBy: 0,
+			};
+		}
+		case '--no-exit-on-error': {
+			return {
+				property: 'exitOnError',
+				value: false,
+				incrementBy: 0,
+			};
+		}
+		case '--cwd': {
+			if (next !== undefined) {
+				return {
+					property: 'cwd',
+					value: next,
+					incrementBy: 1,
+				};
+			}
+			return { incrementBy: 0 };
+		}
+		case '--help':
+		case '-h': {
+			return {
+				incrementBy: 0,
+				shouldExit: true,
+			};
+		}
+		default: {
+			return { incrementBy: 0 };
+		}
+	}
+}
+
+function applyUpdate(result: CliArgs, update: ArgumentUpdate): void {
+	if (update.shouldExit === true) {
+		printHelp();
+		process.exit(0);
+	}
+
+	if (update.property !== undefined && update.value !== undefined) {
+		const typedResult = result as Record<keyof Omit<CliArgs, 'passThroughArgs'>, unknown>;
+		typedResult[update.property] = update.value;
+	}
+}
+
+function collectPatterns(
+	args: string[],
+	startIndex: number,
+): { collected: string[]; nextIndex: number } {
+	const patterns: string[] = [];
+	let i = startIndex + 1;
+	while (i < args.length) {
+		const pattern = args[i];
+		if (pattern === undefined || pattern.startsWith('-')) {
+			break;
+		}
+		patterns.push(pattern);
+		i++;
+	}
+	return {
+		collected: patterns,
+		nextIndex: i,
+	};
+}
+
 function printHelp(): void {
-	console.log(`
+	console.error(`
 omny diagnostics - Report ESLint and TypeScript diagnostics
 
 USAGE:
@@ -141,22 +216,7 @@ OUTPUT:
 
 export async function runDiagnosticsCli(args: string[]): Promise<void> {
 	const cliArgs = parseArgs(args);
-
-	const config: ReportingConfig = {
-		run: cliArgs.run,
-		outputDir: cliArgs.output || '.omnyreporter',
-		verbose: cliArgs.verbose || false,
-		exitCodeOnError: cliArgs.exitOnError ?? true,
-		cwd: cliArgs.cwd || process.cwd(),
-		eslintConfig: {
-			timeout: cliArgs.timeout || 30000, // Default 30 seconds
-			patterns: cliArgs.patterns?.length ? cliArgs.patterns : ['src'],
-		},
-		typescriptConfig: {
-			timeout: cliArgs.timeout || 30000, // Default 30 seconds
-			patterns: cliArgs.patterns?.length ? cliArgs.patterns : ['src'],
-		},
-	};
+	const config = buildReportingConfig(cliArgs);
 
 	try {
 		const orchestrator = new ReportingOrchestrator(config);
@@ -171,9 +231,36 @@ export async function runDiagnosticsCli(args: string[]): Promise<void> {
 		}
 	} catch (error) {
 		console.error('❌ Diagnostic reporting failed:', (error as Error).message);
-		if (cliArgs.verbose) {
+		if (cliArgs.verbose === true) {
 			console.error(error);
 		}
 		process.exit(2);
 	}
+}
+
+function buildReportingConfig(cliArgs: CliArgs): ReportingConfig {
+	const timeout = cliArgs.timeout ?? 30000;
+	const patterns =
+		cliArgs.patterns !== undefined && cliArgs.patterns.length > 0
+			? cliArgs.patterns
+			: ['src'];
+	const verbose = cliArgs.verbose ?? false;
+	const cwd = cliArgs.cwd ?? process.cwd();
+	const exitCodeOnError = cliArgs.exitOnError ?? true;
+
+	return {
+		run: cliArgs.run,
+		outputDir: cliArgs.output ?? '.omnyreporter',
+		verbose,
+		exitCodeOnError,
+		cwd,
+		eslintConfig: {
+			timeout,
+			patterns,
+		},
+		typescriptConfig: {
+			timeout,
+			patterns,
+		},
+	};
 }

@@ -13,9 +13,12 @@ export async function main(args: string[]): Promise<void> {
 		case 'report':
 			await runDiagnosticsCli(commandArgs);
 			break;
-		default:
-			console.error(`Unknown command: ${command || '(none)'}`);
+		case undefined:
+		default: {
+			const commandName = command ?? '(none)';
+			console.error(`Unknown command: ${commandName}`);
 			console.error('Available commands: diagnostics, report');
 			process.exit(1);
+		}
 	}
 }

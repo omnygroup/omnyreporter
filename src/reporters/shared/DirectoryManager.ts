@@ -9,7 +9,7 @@ export class DirectoryManager {
 	readonly #baseOutputDir: string;
 
 	public constructor(baseOutputDir?: string, cwd: string = process.cwd()) {
-		this.#baseOutputDir = baseOutputDir || path.join(cwd, '.omnyreporter');
+		this.#baseOutputDir = baseOutputDir ?? path.join(cwd, '.omnyreporter');
 	}
 
 	/**

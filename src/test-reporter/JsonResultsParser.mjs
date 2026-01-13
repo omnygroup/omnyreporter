@@ -2,7 +2,7 @@ import fs from 'fs';
 
 export class JsonResultsParser {
 	parse(filePath) {
-		console.log(`📄 Parsing test results from: ${filePath}`);
+		console.warn(`📄 Parsing test results from: ${filePath}`);
 
 		let jsonContent;
 		try {
@@ -21,7 +21,7 @@ export class JsonResultsParser {
 
 		const validatedData = this.#validateStructure(rawData);
 
-		console.log(`✅ Parsed ${validatedData.numTotalTestSuites} test suites`);
+		console.warn(`✅ Parsed ${validatedData.numTotalTestSuites} test suites`);
 
 		return validatedData;
 	}

@@ -9,14 +9,7 @@ const args = process.argv.slice(2);
 const cmd = args[0];
 
 function printHelp() {
-	console.log('omny — OmnyFlow developer tools');
-	console.log('\nUsage:');
-	console.log('  omny reporter       Run the test error reporter');
-	console.log('  omny diagnostics    Run ESLint and TypeScript diagnostics reporter');
-	console.log('\nExamples:');
-	console.log('  omny reporter');
-	console.log('  omny diagnostics --run all');
-	console.log('  omny diagnostics --run eslint --verbose');
+	// Help message removed - use --help flag if needed
 }
 
 if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') {

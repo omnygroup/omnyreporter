@@ -26,18 +26,18 @@ export class StatisticsFormatter {
 	format(aggregatedErrors) {
 		const { errorsByFile, statistics } = aggregatedErrors;
 
-		console.log('\n' + this.#formatSeparator('='));
-		console.log(this.#formatHeader('Test Results Summary'));
-		console.log(this.#formatSeparator('=') + '\n');
+		console.warn('\n' + this.#formatSeparator('='));
+		console.warn(this.#formatHeader('Test Results Summary'));
+		console.warn(this.#formatSeparator('=') + '\n');
 
 		this.#formatOverallStatistics(statistics);
 
 		if (statistics.failedTests > 0) {
-			console.log('\n' + this.#formatSeparator('-'));
+			console.warn('\n' + this.#formatSeparator('-'));
 			this.#formatErrorBreakdown(errorsByFile, aggregatedErrors);
 		}
 
-		console.log('\n' + this.#formatSeparator('='));
+		console.warn('\n' + this.#formatSeparator('='));
 	}
 
 	#formatOverallStatistics(stats) {
@@ -45,29 +45,29 @@ export class StatisticsFormatter {
 		const statusIcon = stats.failedTests === 0 ? '✅' : '❌';
 		const statusText = stats.failedTests === 0 ? 'PASSED' : 'FAILED';
 
-		console.log(`${statusIcon} Status: ${this.#color(statusText, statusColor + Colors.bold)}\n`);
+		console.warn(`${statusIcon} Status: ${this.#color(statusText, statusColor + Colors.bold)}\n`);
 
-		console.log(this.#color('Test Suites:', Colors.bold));
-		console.log(
+		console.warn(this.#color('Test Suites:', Colors.bold));
+		console.warn(
 			`  ${this.#color('●', Colors.green)} Passed: ${this.#color(stats.passedTestSuites, Colors.green)} / ${stats.totalTestSuites}`
 		);
 		if (stats.failedTestSuites > 0) {
-			console.log(
+			console.warn(
 				`  ${this.#color('●', Colors.red)} Failed: ${this.#color(stats.failedTestSuites, Colors.red)} / ${stats.totalTestSuites}`
 			);
 		}
 
-		console.log(`\n${this.#color('Tests:', Colors.bold)}`);
-		console.log(
+		console.warn(`\n${this.#color('Tests:', Colors.bold)}`);
+		console.warn(
 			`  ${this.#color('●', Colors.green)} Passed: ${this.#color(stats.passedTests, Colors.green)} / ${stats.totalTests}`
 		);
 		if (stats.failedTests > 0) {
-			console.log(
+			console.warn(
 				`  ${this.#color('●', Colors.red)} Failed: ${this.#color(stats.failedTests, Colors.red)} / ${stats.totalTests}`
 			);
 		}
 		if (stats.skippedTests > 0) {
-			console.log(
+			console.warn(
 				`  ${this.#color('●', Colors.yellow)} Skipped: ${this.#color(stats.skippedTests, Colors.yellow)}`
 			);
 		}
@@ -75,17 +75,17 @@ export class StatisticsFormatter {
 		const successRateColor =
 			stats.successRate >= 90 ? Colors.green : stats.successRate >= 70 ? Colors.yellow : Colors.red;
 
-		console.log(
+		console.warn(
 			`\n${this.#color('Success Rate:', Colors.bold)} ${this.#color(stats.successRate + '%', successRateColor)}`
 		);
 
 		const durationFormatted = this.#formatDuration(stats.duration);
-		console.log(`${this.#color('Duration:', Colors.bold)} ${this.#color(durationFormatted, Colors.cyan)}`);
+		console.warn(`${this.#color('Duration:', Colors.bold)} ${this.#color(durationFormatted, Colors.cyan)}`);
 	}
 
 	#formatErrorBreakdown(errorsByFile, aggregatedErrors) {
-		console.log(this.#color('\nFailure Breakdown', Colors.bold + Colors.red));
-		console.log(this.#formatSeparator('-'));
+		console.warn(this.#color('\nFailure Breakdown', Colors.bold + Colors.red));
+		console.warn(this.#formatSeparator('-'));
 
 		this.#formatTopFailedFiles(errorsByFile);
 
@@ -105,14 +105,14 @@ export class StatisticsFormatter {
 			.slice(0, 5);
 
 		if (fileCounts.length > 0) {
-			console.log(`\n${this.#color('Top Failed Files:', Colors.yellow)}`);
+			console.warn(`\n${this.#color('Top Failed Files:', Colors.yellow)}`);
 
 			for (let i = 0; i < fileCounts.length; i++) {
 				const { file, count } = fileCounts[i];
 				const number = this.#color(`${i + 1}.`, Colors.dim);
 				const countColor = count > 5 ? Colors.red : count > 2 ? Colors.yellow : Colors.white;
 
-				console.log(`  ${number} ${file} ${this.#color(`(${count} failures)`, countColor)}`);
+				console.warn(`  ${number} ${file} ${this.#color(`(${count} failures)`, countColor)}`);
 			}
 		}
 	}
@@ -128,13 +128,13 @@ export class StatisticsFormatter {
 		}
 
 		if (errorTypes.size > 0) {
-			console.log(`\n${this.#color('Error Types:', Colors.yellow)}`);
+			console.warn(`\n${this.#color('Error Types:', Colors.yellow)}`);
 
 			const sortedTypes = Array.from(errorTypes.entries()).sort((a, b) => b[1] - a[1]);
 
 			for (const [type, count] of sortedTypes) {
 				const percentage = ((count / aggregatedErrors.statistics.failedTests) * 100).toFixed(1);
-				console.log(
+				console.warn(
 					`  ${this.#color('●', this.#getErrorTypeColor(type))} ${type}: ${this.#color(count, Colors.bold)} ${this.#color(`(${percentage}%)`, Colors.dim)}`
 				);
 			}
@@ -153,25 +153,25 @@ export class StatisticsFormatter {
 		const slowest = allFailures.slice(0, 5);
 
 		if (slowest.length > 0) {
-			console.log(`\n${this.#color('Slowest Failures:', Colors.yellow)}`);
+			console.warn(`\n${this.#color('Slowest Failures:', Colors.yellow)}`);
 
 			for (let i = 0; i < slowest.length; i++) {
 				const { file, failure } = slowest[i];
 				const number = this.#color(`${i + 1}.`, Colors.dim);
 				const duration = this.#color(this.#formatDuration(failure.duration), Colors.magenta);
 
-				console.log(`  ${number} ${failure.testName}`);
-				console.log(`     ${this.#color('File:', Colors.dim)} ${file}`);
-				console.log(`     ${this.#color('Duration:', Colors.dim)} ${duration}`);
+				console.warn(`  ${number} ${failure.testName}`);
+				console.warn(`     ${this.#color('File:', Colors.dim)} ${file}`);
+				console.warn(`     ${this.#color('Duration:', Colors.dim)} ${duration}`);
 			}
 		}
 	}
 
 	#formatFailedFilesList(errorsByFile) {
-		console.log(`\n${this.#color('Failed Files:', Colors.yellow)}`);
+		console.warn(`\n${this.#color('Failed Files:', Colors.yellow)}`);
 
 		for (const [file, failures] of errorsByFile.entries()) {
-			console.log(`  ${this.#color('●', Colors.red)} ${file} ${this.#color(`(${failures.length})`, Colors.dim)}`);
+			console.warn(`  ${this.#color('●', Colors.red)} ${file} ${this.#color(`(${failures.length})`, Colors.dim)}`);
 		}
 	}
 

@@ -16,17 +16,17 @@ export class PathNormalizerImpl implements PathNormalizer {
 	}
 
 	public normalize(rawPath: string, baseDir?: string): string {
-		if (!rawPath) {
+		if (rawPath === '') {
 			return '';
 		}
 
-		const cacheKey = `${rawPath}:${baseDir || ''}`;
+		const cacheKey = `${rawPath}:${baseDir ?? ''}`;
 		const cached = this.#cache.get(cacheKey);
 		if (cached !== undefined) {
 			return cached;
 		}
 
-		const base = baseDir ? path.normalize(baseDir) : this.#baseDir;
+		const base = baseDir !== undefined && baseDir !== '' ? path.normalize(baseDir) : this.#baseDir;
 		let normalized = rawPath.replace(/\\/g, '/');
 
 		// Handle absolute paths

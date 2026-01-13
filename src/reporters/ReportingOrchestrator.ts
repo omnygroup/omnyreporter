@@ -5,11 +5,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { Logger } from './interfaces.js';
-import { LoggerImpl } from './shared/Logger.js';
-import { DirectoryManager } from './shared/DirectoryManager.js';
-import type { ReportingConfig, CombinedReportingResult } from './ReportingConfig.js';
 import { ReportingFacade } from './ReportingFacade.js';
+import { DirectoryManager } from './shared/DirectoryManager.js';
+import { LoggerImpl } from './shared/Logger.js';
+
+import type { Logger } from './interfaces.js';
+import type { CombinedReportingResult, ReportingConfig } from './ReportingConfig.js';
 
 export class ReportingOrchestrator {
 	readonly #config: ReportingConfig;
@@ -74,13 +75,14 @@ export class ReportingOrchestrator {
 
 	async #runEslint(result: CombinedReportingResult): Promise<void> {
 		const startTime = Date.now();
+		const updatedResult = result;
 		
 		try {
 			const { result: eslintResult, writeStats } = await this.#facade.collectEslintDiagnostics(
 				this.#config.eslintConfig
 			);
 
-			result.eslint = {
+			updatedResult.eslint = {
 				success: eslintResult.summary.totalErrors === 0,
 				errors: eslintResult.summary.totalErrors,
 				warnings: eslintResult.summary.totalWarnings,
@@ -88,22 +90,18 @@ export class ReportingOrchestrator {
 				durationMs: Date.now() - startTime,
 			};
 
-			result.totalErrors += eslintResult.summary.totalErrors;
-			result.totalWarnings += eslintResult.summary.totalWarnings;
-			result.filesWritten += writeStats.filesWritten;
+			updatedResult.totalErrors += eslintResult.summary.totalErrors;
+			updatedResult.totalWarnings += eslintResult.summary.totalWarnings;
+			updatedResult.filesWritten += writeStats.filesWritten;
 
 			if (eslintResult.summary.totalErrors > 0) {
-				result.success = false;
+				updatedResult.success = false;
 			}
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : String(error);
-			console.error('ESLint collection error:', errorMsg);
-			if (error instanceof Error && error.stack) {
-				console.error(error.stack);
-			}
 			this.#logger.error('ESLint reporting failed', { error: errorMsg });
-			result.success = false;
-			result.eslint = {
+			updatedResult.success = false;
+			updatedResult.eslint = {
 				success: false,
 				errors: 0,
 				warnings: 0,
@@ -115,13 +113,14 @@ export class ReportingOrchestrator {
 
 	async #runTypeScript(result: CombinedReportingResult): Promise<void> {
 		const startTime = Date.now();
+		const updatedResult = result;
 		
 		try {
 			const { result: tsResult, writeStats } = await this.#facade.collectTypeScriptDiagnostics(
 				this.#config.typescriptConfig
 			);
 
-			result.typescript = {
+			updatedResult.typescript = {
 				success: tsResult.summary.totalErrors === 0,
 				errors: tsResult.summary.totalErrors,
 				warnings: tsResult.summary.totalWarnings,
@@ -129,17 +128,17 @@ export class ReportingOrchestrator {
 				durationMs: Date.now() - startTime,
 			};
 
-			result.totalErrors += tsResult.summary.totalErrors;
-			result.totalWarnings += tsResult.summary.totalWarnings;
-			result.filesWritten += writeStats.filesWritten;
+			updatedResult.totalErrors += tsResult.summary.totalErrors;
+			updatedResult.totalWarnings += tsResult.summary.totalWarnings;
+			updatedResult.filesWritten += writeStats.filesWritten;
 
 			if (tsResult.summary.totalErrors > 0) {
-				result.success = false;
+				updatedResult.success = false;
 			}
 		} catch (error) {
 			this.#logger.error('TypeScript reporting failed', { error });
-			result.success = false;
-			result.typescript = {
+			updatedResult.success = false;
+			updatedResult.typescript = {
 				success: false,
 				errors: 0,
 				warnings: 0,
@@ -173,31 +172,31 @@ export class ReportingOrchestrator {
 	 * Print results to console
 	 */
 	public printResults(result: CombinedReportingResult): void {
-		console.log('\n📊 Diagnostic Report Summary\n');
-		console.log('═'.repeat(60));
+		this.#logger.warn('📊 Diagnostic Report Summary');
+		this.#logger.warn('═'.repeat(60));
 
-		if (result.eslint) {
-			console.log('\n📝 ESLint:');
-			console.log(`   Files:    ${result.eslint.files}`);
-			console.log(`   Errors:   ${result.eslint.errors}`);
-			console.log(`   Warnings: ${result.eslint.warnings}`);
-			console.log(`   Duration: ${result.eslint.durationMs}ms`);
-			console.log(`   Status:   ${result.eslint.success ? '✅ PASS' : '❌ FAIL'}`);
+		if (result.eslint !== undefined) {
+			this.#logger.warn('📝 ESLint:');
+			this.#logger.warn(`   Files:    ${String(result.eslint.files)}`);
+			this.#logger.warn(`   Errors:   ${String(result.eslint.errors)}`);
+			this.#logger.warn(`   Warnings: ${String(result.eslint.warnings)}`);
+			this.#logger.warn(`   Duration: ${String(result.eslint.durationMs)}ms`);
+			this.#logger.warn(`   Status:   ${result.eslint.success ? '✅ PASS' : '❌ FAIL'}`);
 		}
 
-		if (result.typescript) {
-			console.log('\n📘 TypeScript:');
-			console.log(`   Files:    ${result.typescript.files}`);
-			console.log(`   Errors:   ${result.typescript.errors}`);
-			console.log(`   Warnings: ${result.typescript.warnings}`);
-			console.log(`   Duration: ${result.typescript.durationMs}ms`);
-			console.log(`   Status:   ${result.typescript.success ? '✅ PASS' : '❌ FAIL'}`);
+		if (result.typescript !== undefined) {
+			this.#logger.warn('📘 TypeScript:');
+			this.#logger.warn(`   Files:    ${String(result.typescript.files)}`);
+			this.#logger.warn(`   Errors:   ${String(result.typescript.errors)}`);
+			this.#logger.warn(`   Warnings: ${String(result.typescript.warnings)}`);
+			this.#logger.warn(`   Duration: ${String(result.typescript.durationMs)}ms`);
+			this.#logger.warn(`   Status:   ${result.typescript.success ? '✅ PASS' : '❌ FAIL'}`);
 		}
 
-		console.log('\n' + '═'.repeat(60));
-		console.log(`\n📦 Total Errors:   ${result.totalErrors}`);
-		console.log(`⚠️  Total Warnings: ${result.totalWarnings}`);
-		console.log(`📁 Files Written:  ${result.filesWritten}`);
-		console.log(`\n${result.success ? '✅ All checks passed!' : '❌ Some checks failed.'}\n`);
+		this.#logger.warn('═'.repeat(60));
+		this.#logger.warn(`📦 Total Errors:   ${String(result.totalErrors)}`);
+		this.#logger.warn(`⚠️  Total Warnings: ${String(result.totalWarnings)}`);
+		this.#logger.warn(`📁 Files Written:  ${String(result.filesWritten)}`);
+		this.#logger.warn(`\n${result.success ? '✅ All checks passed!' : '❌ Some checks failed.'}`);
 	}
 }

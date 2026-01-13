@@ -56,7 +56,7 @@ export class EslintLinterImpl implements EslintLinterAPI {
 			errorOnUnmatchedPattern: false,
 		};
 
-		if (overrideConfigFile) {
+		if (overrideConfigFile !== undefined) {
 			eslintOptions.overrideConfigFile = overrideConfigFile;
 		}
 
@@ -74,10 +74,10 @@ export class EslintLinterImpl implements EslintLinterAPI {
 				messages: result.messages.map(msg => ({
 					line: msg.line,
 					column: msg.column,
-					severity: msg.severity as 1 | 2,
+					severity: msg.severity,
 					message: msg.message,
 					ruleId: msg.ruleId,
-					fix: msg.fix ? {
+				fix: msg.fix !== undefined ? {
 						range: msg.fix.range,
 						text: msg.fix.text,
 					} : undefined,
@@ -85,9 +85,16 @@ export class EslintLinterImpl implements EslintLinterAPI {
 				errorCount: result.errorCount,
 				warningCount: result.warningCount,
 			}));
-		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : String(error);
-			const errorStack = error instanceof Error ? error.stack : '';
+		} catch (error: unknown) {
+			let errorMsg: string;
+			let errorStack: string;
+			if (error instanceof Error) {
+				errorMsg = error.message;
+				errorStack = error.stack ?? '';
+			} else {
+				errorMsg = String(error);
+				errorStack = '';
+			}
 			this.#logger.error('ESLint execution failed', { 
 				error: errorMsg,
 				stack: errorStack,

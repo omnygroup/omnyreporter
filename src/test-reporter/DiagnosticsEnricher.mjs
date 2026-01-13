@@ -20,7 +20,7 @@ export class DiagnosticsEnricher {
 	}
 
 	enrich(testResults) {
-		console.log('🔍 Enriching test failure diagnostics...');
+		console.warn('🔍 Enriching test failure diagnostics...');
 
 		this.#environmentInfo = this.#collectEnvironmentInfo();
 
@@ -39,7 +39,7 @@ export class DiagnosticsEnricher {
 			}
 		}
 
-		console.log(`✅ Enriched ${totalFailures} test failures with diagnostics`);
+		console.warn(`✅ Enriched ${totalFailures} test failures with diagnostics`);
 
 		return enrichedResults;
 	}
