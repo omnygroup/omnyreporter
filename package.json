@@ -1,13 +1,46 @@
 {
-  "name": "omny-test-reporter",
+  "name": "@omnygroup/omnyreporter",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "parse-tests.mjs",
+  "main": "dist/parse-tests.js",
   "bin": {
     "omny": "./bin/omny.js"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/parse-tests.js",
+      "types": "./dist/parse-tests.d.ts"
+    },
+    "./vitest-reporter": {
+      "import": "./dist/VitestReporter.js",
+      "types": "./dist/VitestReporter.d.ts"
+    },
+    "./dist/VitestReporter.js": {
+      "import": "./dist/VitestReporter.js",
+      "types": "./dist/VitestReporter.d.ts"
+    }
+  },
   "scripts": {
+    "build": "tsc",
     "start": "node parse-tests.mjs"
+  },
+  "dependencies": {
+    "@pinojs/redact": "^0.4.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^10.3.1"
+  },
+  "peerDependencies": {
+    "vitest": "^2.0.0 || ^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.7",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
   }
 }
