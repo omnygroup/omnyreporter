@@ -45,6 +45,10 @@ export class ReportingOrchestrator {
 		};
 
 		try {
+			// Clean all directories at the start
+			await this.#directoryManager.cleanOutputDir('eslint');
+			await this.#directoryManager.cleanOutputDir('typescript');
+
 			if (this.#config.run === 'eslint') {
 				await this.#runEslint(result);
 			} else if (this.#config.run === 'typescript') {
