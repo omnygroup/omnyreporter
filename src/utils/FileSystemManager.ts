@@ -43,7 +43,7 @@ export class FileSystemManager {
 
 	private readonly failedDir: string;
 
-	public constructor(projectRoot: string = '.') {
+	public constructor(projectRoot = '.') {
 		this.baseDir = join(projectRoot, '.omnyreporter');
 		this.passedDir = join(this.baseDir, 'passed');
 		this.failedDir = join(this.baseDir, 'failed');

@@ -10,11 +10,11 @@ export class TestStatisticsCollector {
 
 	private skippedTests: TestResultRecord[] = [];
 
-	private totalDuration: number = 0;
+	private totalDuration = 0;
 
 	private startTime: number = Date.now();
 
-	private fileStats: Map<string, { passed: number; failed: number; skipped: number; duration: number }> = new Map();
+	private fileStats = new Map<string, { passed: number; failed: number; skipped: number; duration: number }>();
 
 	/**
 	 * Add a passed test

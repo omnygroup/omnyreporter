@@ -1,8 +1,7 @@
 import { resolve } from 'node:path';
 
-import { FileSystemManager } from './utils/FileSystemManager.js';
 import { logger } from './logger/Logger.js';
-import { sanitizer } from './utils/SensitiveDataSanitizer.js';
+import { FileSystemManager } from './utils/FileSystemManager.js';
 import { TestStatisticsCollector } from './utils/TestStatisticsCollector.js';
 
 /**
@@ -60,17 +59,9 @@ interface VitestTask {
 	result?: {
 		state: string;
 		duration: number;
-		errors?: Array<{ message: string; stack: string }>;
+		errors?: { message: string; stack: string }[];
 	};
 	tasks?: VitestTask[];
-}
-
-/**
- * SerializedError type from Vitest
- */
-interface SerializedError {
-	message: string;
-	stack?: string;
 }
 
 /**
@@ -111,14 +102,14 @@ class OmnyVitestReporter {
 	/**
 	 * Called when individual test module ends - collect results incrementally
 	 */
-	public async onTestModuleEnd(testModule: TestModule): Promise<void> {
+	public onTestModuleEnd(testModule: TestModule): void {
 		try {
 			// TestModule can have a nested task structure or direct tasks
-			const taskContainer = (testModule as unknown as Record<string, unknown>)['task'] || testModule;
-			const filepath = (taskContainer as Record<string, unknown>)['filepath'] as string || testModule.filepath;
-			const tasks = (taskContainer as Record<string, unknown>)['tasks'] as VitestTask[] || testModule.tasks;
+			const taskContainer = (testModule as unknown as Record<string, unknown>)['task'] ?? testModule;
+			const filepath = ((taskContainer as Record<string, unknown>)['filepath'] as string | undefined) ?? testModule.filepath;
+			const tasks = ((taskContainer as Record<string, unknown>)['tasks'] as VitestTask[] | undefined) ?? testModule.tasks;
 
-			if (!filepath) {
+			if (!filepath || typeof filepath !== 'string') {
 				logger.warn('Test module has no filepath');
 				return;
 			}
@@ -229,23 +220,23 @@ class OmnyVitestReporter {
 		logger.info('╚════════════════════════════════════════╝');
 
 		// File summary
-		let fileSummary = `Test Files  `;
+		let fileSummary = 'Test Files  ';
 		if (fileCount.withFailed > 0) {
-			fileSummary += `${failColor}${fileCount.withFailed} failed${resetColor} | `;
+			fileSummary += `${failColor}${String(fileCount.withFailed)} failed${resetColor} | `;
 		}
-		fileSummary += `${passColor}${fileCount.withPassed} passed${resetColor} (${fileCount.total})`;
+		fileSummary += `${passColor}${String(fileCount.withPassed)} passed${resetColor} (${String(fileCount.total)})`;
 		logger.info(fileSummary);
 
 		// Test summary
-		let testSummary = `Tests  `;
+		let testSummary = 'Tests  ';
 		if (counts.failed > 0) {
-			testSummary += `${failColor}${counts.failed} failed${resetColor} | `;
+			testSummary += `${failColor}${String(counts.failed)} failed${resetColor} | `;
 		}
-		testSummary += `${passColor}${counts.passed} passed${resetColor}`;
+		testSummary += `${passColor}${String(counts.passed)} passed${resetColor}`;
 		if (counts.skipped > 0) {
-			testSummary += ` ${skipColor}${counts.skipped} skipped${resetColor}`;
+			testSummary += ` ${skipColor}${String(counts.skipped)} skipped${resetColor}`;
 		}
-		testSummary += ` (${counts.total})`;
+		testSummary += ` (${String(counts.total)})`;
 		logger.info(testSummary);
 
 		logger.info(`Duration: ${(duration / 1000).toFixed(2)}s`);

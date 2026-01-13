@@ -1,8 +1,6 @@
 export class PathNormalizer {
-	#projectName = 'omnyflow-sdk';
-
 	#patterns = [
-		/^[A-Za-z]:[\\\/].*?omnyflow-sdk[\\\/](.+)$/,
+		/^[A-Za-z]:[/\\].*?omnyflow-sdk[/\\](.+)$/,
 		/^[^:]*omnyflow-sdk[\/\\](.+)$/,
 		/^\/.*?\/omnyflow-sdk[\/\\](.+)$/,
 	];

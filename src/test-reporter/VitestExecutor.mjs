@@ -1,10 +1,6 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export class VitestExecutor {
   constructor(options = {}) {
@@ -81,7 +77,9 @@ export class VitestExecutor {
       });
 
       vitestProcess.on('error', (error) => {
-        if (timeoutHandle) clearTimeout(timeoutHandle);
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+        }
 
         if (error.code === 'ENOENT') {
           reject(new Error('❌ Vitest not found. Please install it: npm install --save-dev vitest'));

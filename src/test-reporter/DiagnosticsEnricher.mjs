@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
+
 import { PathNormalizer } from './PathNormalizer.mjs';
 
 export class DiagnosticsEnricher {
@@ -205,7 +206,7 @@ export class DiagnosticsEnricher {
 			hash.update(testName);
 
 			return hash.digest('hex').substring(0, 16);
-		} catch (error) {
+		} catch {
 			const hash = crypto.createHash('sha256');
 			hash.update(testFile);
 			hash.update(testName);
@@ -229,8 +230,9 @@ export class DiagnosticsEnricher {
 		let vitestVersion = 'unknown';
 		try {
 			const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-			vitestVersion = packageJson.devDependencies?.vitest || packageJson.dependencies?.vitest || 'unknown';
-		} catch (error) {
+			vitestVersion = packageJson.devDependencies?.vitest ?? packageJson.dependencies?.vitest ?? 'unknown';
+		} catch {
+			// Default values will be used if package.json cannot be read
 		}
 
 		return {

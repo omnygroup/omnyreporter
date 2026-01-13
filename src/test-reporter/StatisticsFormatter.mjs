@@ -23,7 +23,7 @@ export class StatisticsFormatter {
 		this.#useColors = options.useColors !== false;
 	}
 
-	format(aggregatedErrors, originalResults) {
+	format(aggregatedErrors) {
 		const { errorsByFile, statistics } = aggregatedErrors;
 
 		console.log('\n' + this.#formatSeparator('='));
@@ -141,7 +141,7 @@ export class StatisticsFormatter {
 		}
 	}
 
-	#formatSlowestFailures(errorsByFile, aggregatedErrors) {
+	#formatSlowestFailures(errorsByFile) {
 		const allFailures = [];
 		for (const [file, failures] of errorsByFile.entries()) {
 			for (const failure of failures) {

@@ -4,12 +4,12 @@
  * @module parse-tests
  */
 
-import { VitestExecutor } from './src/test-reporter/VitestExecutor.mjs';
-import { JsonResultsParser } from './src/test-reporter/JsonResultsParser.mjs';
 import { DiagnosticsEnricher } from './src/test-reporter/DiagnosticsEnricher.mjs';
 import { ErrorAggregator } from './src/test-reporter/ErrorAggregator.mjs';
 import { FileSystemWriter } from './src/test-reporter/FileSystemWriter.mjs';
+import { JsonResultsParser } from './src/test-reporter/JsonResultsParser.mjs';
 import { StatisticsFormatter } from './src/test-reporter/StatisticsFormatter.mjs';
+import { VitestExecutor } from './src/test-reporter/VitestExecutor.mjs';
 
 /**
  * Main execution pipeline
@@ -47,22 +47,21 @@ async function main() {
 		console.log('─────────────────────────────\n');
 
 		const aggregator = new ErrorAggregator();
-		const aggregatedErrors = aggregator.aggregate(enrichedResults, testResults);
+		const aggregatedErrors = aggregator.aggregate(enrichedResults);
 
 		// Phase 5: Write to file system
 		console.log('\nPhase 5/6: Writing error reports');
 		console.log('─────────────────────────────\n');
 
 		const writer = new FileSystemWriter();
-		const environmentInfo = enricher.getEnvironmentInfo();
-		await writer.write(aggregatedErrors, environmentInfo, testResults);
+		await writer.write(aggregatedErrors);
 
 		// Phase 6: Display statistics
 		console.log('\nPhase 6/6: Formatting statistics');
 		console.log('─────────────────────────────\n');
 
 		const formatter = new StatisticsFormatter();
-		formatter.format(aggregatedErrors, testResults);
+		formatter.format(aggregatedErrors);
 
 		// Cleanup
 		executor.cleanup();
@@ -106,9 +105,9 @@ async function main() {
 }
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', () => {
 	console.error('\n❌ Unhandled Promise Rejection:');
-	console.error(reason);
+	console.error(_reason);
 	process.exit(2);
 });
 

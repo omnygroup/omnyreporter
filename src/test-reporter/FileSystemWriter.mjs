@@ -1,19 +1,19 @@
 import fs from 'fs';
 import path from 'path';
+
 import { PathNormalizer } from './PathNormalizer.mjs';
 
 export class FileSystemWriter {
 	#outputDir = 'tests-errors';
 	#pathNormalizer;
-	#schemaReference = '../../schemas/test-error-schema.json';
 
 	constructor(options = {}) {
 		this.#outputDir = options.outputDir || this.#outputDir;
 		this.#pathNormalizer = new PathNormalizer();
 	}
 
-	async write(aggregatedErrors, environmentInfo, originalResults) {
-		const { errorsByFile, statistics } = aggregatedErrors;
+	async write(aggregatedErrors) {
+		const { errorsByFile } = aggregatedErrors;
 
 		if (errorsByFile.size === 0) {
 			console.log('✅ All tests passed! Cleaning up error reports...');
@@ -28,14 +28,14 @@ export class FileSystemWriter {
 
 		let filesWritten = 0;
 		for (const [testFile, failures] of errorsByFile.entries()) {
-			await this.#writeErrorFile(testFile, failures, environmentInfo, originalResults);
+			await this.#writeErrorFile(testFile, failures);
 			filesWritten++;
 		}
 
 		console.log(`✅ Successfully wrote ${filesWritten} error report files to ${this.#outputDir}/`);
 	}
 
-	async #writeErrorFile(testFile, failures, environmentInfo, originalResults) {
+	async #writeErrorFile(testFile, failures) {
 		const normalizedPath = this.#pathNormalizer.normalize(testFile);
 
 		const fileDir = this.#pathNormalizer.getDirectory(normalizedPath);
@@ -49,9 +49,7 @@ export class FileSystemWriter {
 
 		const schemaPath = this.#calculateSchemaPath(outputPath);
 
-		const testSuite = originalResults.testResults.find(
-			(suite) => this.#pathNormalizer.normalize(suite.name) === normalizedPath
-		);
+		const testSuite = undefined;
 
 		const summary = this.#buildTestFileSummary(testSuite, failures);
 
@@ -99,12 +97,6 @@ export class FileSystemWriter {
 			skippedTests,
 			duration: testSuite.duration || 0,
 		};
-	}
-
-	#calculateSchemaPath(outputPath) {
-		const outputDir = path.dirname(outputPath);
-		const relativeToRoot = path.relative(outputDir, '.');
-		return path.posix.join(relativeToRoot.replace(/\\/g, '/'), 'schemas/test-error-schema.json');
 	}
 
 	#ensureDirectoryExists(dirPath) {
