@@ -6,40 +6,94 @@
 
 import type { Diagnostic } from '../../../core/index.js';
 
+export interface SeverityCount {
+  readonly error: number;
+  readonly warning: number;
+  readonly info: number;
+  readonly note: number;
+}
+
+export interface GroupedBySources {
+  readonly eslint: readonly Diagnostic[];
+  readonly typescript: readonly Diagnostic[];
+  readonly vitest: readonly Diagnostic[];
+}
+
 /**
  * Aggregates diagnostics from multiple sources
  */
 export class DiagnosticAggregator {
   /**
-   * Merge multiple diagnostic arrays and remove duplicates
+   * Merge multiple diagnostic arrays
    * @param sources Multiple diagnostic arrays
-   * @returns Merged and deduplicated diagnostics
+   * @returns Merged diagnostics flattened into single array
    */
-  public static aggregate(...sources: readonly (readonly Diagnostic[])[]): readonly Diagnostic[] {
-    const seen = new Set<string>();
+  public static aggregate(sources: readonly (readonly Diagnostic[])[]): readonly Diagnostic[] {
     const results: Diagnostic[] = [];
 
-    sources.forEach((source) => {
-      source.forEach((diagnostic) => {
-        if (!seen.has(diagnostic.id)) {
-          seen.add(diagnostic.id);
-          results.push(diagnostic);
-        }
-      });
-    });
-
-    // Sort by file and line
-    results.sort((a, b) => {
-      if (a.filePath !== b.filePath) {
-        return a.filePath.localeCompare(b.filePath);
-      }
-      if (a.line !== b.line) {
-        return a.line - b.line;
-      }
-      return a.column - b.column;
-    });
+    for (const source of sources) {
+      results.push(...source);
+    }
 
     return Object.freeze(results);
+  }
+
+  /**
+   * Count diagnostics by severity
+   * @param diagnostics Diagnostics to count
+   * @returns Severity counts
+   */
+  public static countBySeverity(diagnostics: readonly Diagnostic[]): SeverityCount {
+    let error = 0;
+    let warning = 0;
+    let info = 0;
+    let note = 0;
+
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.severity === 'error') {
+        error++;
+      } else if (diagnostic.severity === 'warning') {
+        warning++;
+      } else if (diagnostic.severity === 'info') {
+        info++;
+      } else if (diagnostic.severity === 'note') {
+        note++;
+      }
+    }
+
+    return {
+      error,
+      warning,
+      info,
+      note,
+    };
+  }
+
+  /**
+   * Group diagnostics by source
+   * @param diagnostics Diagnostics to group
+   * @returns Grouped diagnostics by source
+   */
+  public static groupBySource(diagnostics: readonly Diagnostic[]): GroupedBySources {
+    const eslint: Diagnostic[] = [];
+    const typescript: Diagnostic[] = [];
+    const vitest: Diagnostic[] = [];
+
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.source === 'eslint') {
+        eslint.push(diagnostic);
+      } else if (diagnostic.source === 'typescript') {
+        typescript.push(diagnostic);
+      } else if (diagnostic.source === 'vitest') {
+        vitest.push(diagnostic);
+      }
+    }
+
+    return {
+      eslint: Object.freeze(eslint),
+      typescript: Object.freeze(typescript),
+      vitest: Object.freeze(vitest),
+    };
   }
 
   /**

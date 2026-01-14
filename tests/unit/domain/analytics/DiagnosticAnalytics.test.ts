@@ -16,33 +16,30 @@ describe('DiagnosticAnalytics', () => {
   });
 
   describe('collect', () => {
-    it('should return empty statistics for empty diagnostic list', async () => {
-      const result = await analytics.collect([]);
+    it('should return empty statistics for empty diagnostic list', () => {
+      const stats = analytics.getSnapshot();
 
-      expect(result.isOk()).toBe(true);
-      const stats = result._unsafeUnwrap();
       expect(stats.totalCount).toBe(0);
       expect(stats.errorCount).toBe(0);
     });
 
-    it('should calculate correct statistics for mixed severity diagnostics', async () => {
+    it('should calculate correct statistics for mixed severity diagnostics', () => {
       const diagnostics = [
         ...createTestDiagnostics(2, 'eslint').map((d) => ({ ...d, severity: 'error' as const })),
         ...createTestDiagnostics(3, 'eslint').map((d) => ({ ...d, severity: 'warning' as const })),
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'info' as const })),
       ];
 
-      const result = await analytics.collect(diagnostics);
+      diagnostics.forEach((d) => analytics.collect(d));
 
-      expect(result.isOk()).toBe(true);
-      const stats = result._unsafeUnwrap();
+      const stats = analytics.getSnapshot();
       expect(stats.totalCount).toBe(6);
       expect(stats.errorCount).toBe(2);
       expect(stats.warningCount).toBe(3);
       expect(stats.infoCount).toBe(1);
     });
 
-    it('should handle all severity levels', async () => {
+    it('should handle all severity levels', () => {
       const diagnostics: Diagnostic[] = [
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'error' as const })),
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'warning' as const })),
@@ -50,31 +47,30 @@ describe('DiagnosticAnalytics', () => {
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'note' as const })),
       ];
 
-      const result = await analytics.collect(diagnostics);
+      diagnostics.forEach((d) => analytics.collect(d));
 
-      expect(result.isOk()).toBe(true);
-      const stats = result._unsafeUnwrap();
+      const stats = analytics.getSnapshot();
       expect(stats.errorCount).toBe(1);
       expect(stats.warningCount).toBe(1);
       expect(stats.infoCount).toBe(1);
       expect(stats.noteCount).toBe(1);
     });
 
-    it('should include timestamp in statistics', async () => {
+    it('should include timestamp in statistics', () => {
       const beforeTime = new Date();
-      const result = await analytics.collect(createTestDiagnostics(1));
+      analytics.collect(createTestDiagnostics(1)[0]);
       const afterTime = new Date();
 
-      const stats = result._unsafeUnwrap();
+      const stats = analytics.getSnapshot();
       expect(stats.timestamp.getTime()).toBeGreaterThanOrEqual(beforeTime.getTime());
       expect(stats.timestamp.getTime()).toBeLessThanOrEqual(afterTime.getTime());
     });
 
-    it('should set source to eslint', async () => {
-      const result = await analytics.collect(createTestDiagnostics(1, 'eslint'));
+    it('should set source to eslint on collected diagnostics', () => {
+      analytics.collect(createTestDiagnostics(1, 'eslint')[0]);
 
-      const stats = result._unsafeUnwrap();
-      expect(stats.source).toBe('eslint');
+      const collected = analytics.getDiagnostics();
+      expect(collected[0].source).toBe('eslint');
     });
   });
 });

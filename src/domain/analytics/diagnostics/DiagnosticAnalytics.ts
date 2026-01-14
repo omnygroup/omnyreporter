@@ -21,6 +21,11 @@ export class DiagnosticAnalytics extends BaseAnalyticsCollector<
     super();
   }
 
+  /**
+   * Collect a single diagnostic and update statistics
+   * @param diagnostic Single diagnostic to collect
+   * @returns void
+   */
   public collect(diagnostic: Diagnostic): void {
     this.diagnostics.push(diagnostic);
     this.stats = StatisticsCalculator.calculateDiagnosticStats(this.diagnostics);

@@ -41,7 +41,7 @@ export class CollectDiagnosticsUseCase {
         }
       }
 
-      const aggregated = this.aggregator.aggregate(...diagnosticArrays);
+      const aggregated = this.aggregator.aggregate(diagnosticArrays);
 
       return ok(aggregated);
     } catch (error) {

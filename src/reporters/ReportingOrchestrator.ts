@@ -4,11 +4,13 @@
  * @module reporters/ReportingOrchestrator
  */
 
+import { injectable, inject } from 'inversify';
 import type { ILogger, DiagnosticStatistics, TestStatistics } from '../core/index.js';
 import { DiagnosticAnalytics } from '../domain/analytics/diagnostics/DiagnosticAnalytics.js';
 import { EslintAdapter } from './eslint/EslintAdapter.js';
 import { TypeScriptAdapter } from './typescript/TypeScriptAdapter.js';
 import { VitestAdapter } from './vitest/VitestAdapter.js';
+import { TOKENS } from '../container.js';
 import type { Diagnostic } from '../core/index.js';
 import type { TestResult } from './vitest/TaskProcessor.js';
 
@@ -33,21 +35,31 @@ export interface OrchestrationResult {
  * Coordinates ESLint, TypeScript, and Vitest adapters
  * Aggregates results and provides unified statistics
  */
+@injectable()
 export class ReportingOrchestrator {
-  private eslintAdapter: EslintAdapter;
-  private typescriptAdapter: TypeScriptAdapter;
-  private vitestAdapter: VitestAdapter;
-  private diagnosticAnalytics: DiagnosticAnalytics;
+  /** ESLint adapter */
+  private readonly eslintAdapter: EslintAdapter;
+  /** TypeScript adapter */
+  private readonly typescriptAdapter: TypeScriptAdapter;
+  /** Vitest adapter */
+  private readonly vitestAdapter: VitestAdapter;
+  /** Diagnostic analytics collector */
+  private readonly diagnosticAnalytics: DiagnosticAnalytics;
 
   /**
-   * Create a new ReportingOrchestrator instance
-   * @param logger Logger service for all adapters
+   * Create a new ReportingOrchestrator instance (dependencies injected)
    */
-  public constructor(private readonly logger: ILogger) {
-    this.eslintAdapter = new EslintAdapter(logger);
-    this.typescriptAdapter = new TypeScriptAdapter(logger);
-    this.vitestAdapter = new VitestAdapter(logger);
-    this.diagnosticAnalytics = new DiagnosticAnalytics();
+  public constructor(
+    @inject(TOKENS.Logger) private readonly logger: ILogger,
+    @inject(TOKENS.EslintAdapter) eslintAdapter: EslintAdapter,
+    @inject(TOKENS.TypeScriptAdapter) typescriptAdapter: TypeScriptAdapter,
+    @inject(TOKENS.VitestAdapter) vitestAdapter: VitestAdapter,
+    @inject(TOKENS.DiagnosticAnalytics) diagnosticAnalytics: DiagnosticAnalytics
+  ) {
+    this.eslintAdapter = eslintAdapter;
+    this.typescriptAdapter = typescriptAdapter;
+    this.vitestAdapter = vitestAdapter;
+    this.diagnosticAnalytics = diagnosticAnalytics;
   }
 
   /**

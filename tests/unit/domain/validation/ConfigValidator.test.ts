@@ -63,7 +63,17 @@ describe('ConfigValidator', () => {
       const config = createTestConfig();
       const result = validator.validateOrThrow(config);
 
-      expect(result).toEqual(config);
+      // Schema applies defaults for optional fields; ensure returned config
+      // includes those defaults merged with the provided config
+      expect(result).toEqual({
+        patterns: config.patterns,
+        ignorePatterns: config.ignorePatterns,
+        concurrency: 4,
+        timeout: 30000,
+        cache: false,
+        eslint: true,
+        typescript: true,
+      });
     });
 
     it('should throw ValidationError for invalid input', () => {

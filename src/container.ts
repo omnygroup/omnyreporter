@@ -9,12 +9,14 @@ import { Container } from 'inversify';
 // Infrastructure - Logging
 import { PinoLogger } from './infrastructure/logging/PinoLogger.js';
 import type { ILogger } from './core/index.js';
+import { ConsoleLogger } from './infrastructure/logging/ConsoleLogger.js';
 
 // Infrastructure - FileSystem
 import { NodeFileSystem } from './infrastructure/filesystem/NodeFileSystem.js';
 import { DirectoryService } from './infrastructure/filesystem/DirectoryService.js';
 import { JsonWriter } from './infrastructure/filesystem/JsonWriter.js';
 import { StreamWriter } from './infrastructure/filesystem/StreamWriter.js';
+import { FileWriter } from './infrastructure/filesystem/FileWriter.js';
 import type { IFileSystem } from './core/index.js';
 
 // Infrastructure - Paths
@@ -33,6 +35,7 @@ import { TableFormatter } from './infrastructure/formatting/TableFormatter.js';
 
 // Domain - Analytics
 import { DiagnosticAggregator } from './domain/analytics/diagnostics/DiagnosticAggregator.js';
+import { TypeScriptAnalytics } from './domain/analytics/typescript/TypeScriptAnalytics.js';
 
 // Domain - Validation
 import { ConfigValidator } from './domain/validation/ConfigValidator.js';
@@ -40,6 +43,12 @@ import { ConfigValidator } from './domain/validation/ConfigValidator.js';
 // Reporters
 import { EslintAdapter } from './reporters/eslint/EslintAdapter.js';
 import { TypeScriptAdapter } from './reporters/typescript/TypeScriptAdapter.js';
+import { VitestAdapter } from './reporters/vitest/VitestAdapter.js';
+import { ReportingOrchestrator } from './reporters/ReportingOrchestrator.js';
+import { ReportingFacade } from './reporters/ReportingFacade.js';
+
+// Domain - Analytics (diagnostics collector)
+import { DiagnosticAnalytics } from './domain/analytics/diagnostics/DiagnosticAnalytics.js';
 
 // Application - Use Cases
 import { CollectDiagnosticsUseCase } from './application/usecases/CollectDiagnostics.js';
@@ -75,6 +84,13 @@ export const TOKENS = {
   // Reporters
   EslintAdapter: Symbol.for('EslintAdapter'),
   TypeScriptAdapter: Symbol.for('TypeScriptAdapter'),
+  VitestAdapter: Symbol.for('VitestAdapter'),
+  TypeScriptAnalytics: Symbol.for('TypeScriptAnalytics'),
+  DiagnosticAnalytics: Symbol.for('DiagnosticAnalytics'),
+  ReportingOrchestrator: Symbol.for('ReportingOrchestrator'),
+  ReportingFacade: Symbol.for('ReportingFacade'),
+  ConsoleLogger: Symbol.for('ConsoleLogger'),
+  FileWriter: Symbol.for('FileWriter'),
   
   // Use Cases
   CollectDiagnosticsUseCase: Symbol.for('CollectDiagnosticsUseCase'),
@@ -92,6 +108,8 @@ export function setupContainer(): Container {
 
   // Register Logger as singleton
   container.bind<ILogger>(TOKENS.Logger).to(PinoLogger).inSingletonScope();
+  // Also provide a ConsoleLogger as an alternative singleton implementation
+  container.bind<ILogger>(TOKENS.ConsoleLogger).to(ConsoleLogger).inSingletonScope();
 
   // Register FileSystem as singleton
   container.bind<IFileSystem>(TOKENS.FileSystem).to(NodeFileSystem).inSingletonScope();
@@ -123,16 +141,26 @@ export function setupContainer(): Container {
   // Register ConfigValidator as singleton
   container.bind(TOKENS.ConfigValidator).to(ConfigValidator).inSingletonScope();
 
-  // Register Reporters as transient with logger injection
+  // Register Reporters as transient with logger injection using factories
   container
     .bind(TOKENS.EslintAdapter)
-    .to(EslintAdapter)
+    .toDynamicValue(() => new EslintAdapter(container.get(TOKENS.Logger)))
     .inTransientScope();
 
   container
     .bind(TOKENS.TypeScriptAdapter)
-    .to(TypeScriptAdapter)
+    .toDynamicValue(() => new TypeScriptAdapter(container.get(TOKENS.Logger)))
     .inTransientScope();
+
+  container
+    .bind(TOKENS.VitestAdapter)
+    .toDynamicValue(() => new VitestAdapter(container.get(TOKENS.Logger)))
+    .inTransientScope();
+
+  // Register analytics collectors as transient
+  container.bind(TOKENS.TypeScriptAnalytics).to(TypeScriptAnalytics).inTransientScope();
+  // DiagnosticAnalytics used by the orchestrator - provide instance as constant
+  container.bind(TOKENS.DiagnosticAnalytics).toConstantValue(new DiagnosticAnalytics());
 
   // Register Use Cases as transient
   // These would need proper configuration based on available sources
@@ -146,6 +174,12 @@ export function setupContainer(): Container {
     .bind(TOKENS.GenerateReportUseCase)
     .to(GenerateReportUseCase)
     .inTransientScope();
+
+  // Register orchestrator and facade
+  container.bind(TOKENS.ReportingOrchestrator).to(ReportingOrchestrator).inTransientScope();
+  // FileWriter requires basePath primitive - provide a default via factory
+  container.bind(TOKENS.FileWriter).toDynamicValue(() => new FileWriter(process.cwd())).inTransientScope();
+  container.bind(TOKENS.ReportingFacade).to(ReportingFacade).inSingletonScope();
 
   return container;
 }

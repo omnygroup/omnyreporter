@@ -54,7 +54,7 @@ export class GenerateReportUseCase {
       }
 
       // Aggregate diagnostics
-      const aggregated = DiagnosticAggregator.aggregate(...diagnosticArrays);
+      const aggregated = DiagnosticAggregator.aggregate(diagnosticArrays);
 
       // Calculate statistics
       const analytics = new DiagnosticAnalytics();

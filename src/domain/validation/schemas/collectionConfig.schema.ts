@@ -16,7 +16,7 @@ export const CollectionConfigSchema = z.object({
 
   rootPath: z
     .string()
-    .min(1, 'Root path is required')
+    .optional()
     .describe('Root directory for collection'),
 
   concurrency: z
