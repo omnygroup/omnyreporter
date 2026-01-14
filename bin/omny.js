@@ -2,21 +2,15 @@
 
 /**
  * OmnyReporter CLI Entry Point
- * Routes to appropriate command handlers
  */
 
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const distPath = join(__dirname, '..', 'dist');
+import { runCli } from '../dist/view/cli/App.js';
 
 async function main() {
 	try {
-		const { default: app } = await import(join(distPath, 'cli', 'index.js'));
-		await app();
+		await runCli();
 	} catch (error) {
-		console.error('Failed to start CLI:', error instanceof Error ? error.message : String(error));
+		console.error('Fatal error:', error instanceof Error ? error.message : String(error));
 		if (process.env.DEBUG) {
 			console.error(error);
 		}

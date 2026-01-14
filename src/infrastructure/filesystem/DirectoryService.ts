@@ -4,6 +4,7 @@
  * @module infrastructure/filesystem/DirectoryService
  */
 
+import { injectable } from 'inversify';
 import { resolve } from 'node:path';
 
 import type { IFileSystem } from '../../core/index.js';
@@ -15,6 +16,7 @@ const TEMP_DIR = 'temp';
 /**
  * Service for managing application directory structure
  */
+@injectable()
 export class DirectoryService {
   private readonly rootPath: string;
 

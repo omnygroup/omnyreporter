@@ -3,11 +3,13 @@
  * @module infrastructure/formatting/JsonFormatter
  */
 
+import { injectable } from 'inversify';
 import type { IFormatter } from '../../core/index.js';
 
 /**
  * JSON formatter for data serialization
  */
+@injectable()
 export class JsonFormatter<T> implements IFormatter<T, string> {
   private readonly indentation: number;
 

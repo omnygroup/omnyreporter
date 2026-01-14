@@ -9,6 +9,8 @@
     "rootDir": "src",
     "sourceMap": true,
     "moduleResolution": "bundler",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -29,5 +31,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "src/cli/**", "src/view/**"]
+  "exclude": ["node_modules", "dist", "src/cli/**"]
 }

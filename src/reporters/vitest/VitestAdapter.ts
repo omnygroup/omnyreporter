@@ -1,38 +1,84 @@
 /**
  * Vitest adapter - integration with Vitest reporter hooks
+ * Collects test results and aggregates statistics
  * @module reporters/vitest/VitestAdapter
  */
 
-// TODO: Update Vitest API imports for current version
-// import type { File as VitestFile, Reporter } from 'vitest';
-
 import type { ILogger } from '../../core/index.js';
+import type { TestResult } from './TaskProcessor.js';
 import { TaskProcessor } from './TaskProcessor.js';
+import { TestAnalytics } from '../../domain/analytics/tests/TestAnalytics.js';
 
 /**
  * Adapter implementing Vitest Reporter interface
- * TODO: Update to match current Vitest Reporter API
+ * Coordinates test collection and analytics aggregation
  */
 export class VitestAdapter {
-  public constructor(private readonly logger: ILogger) {}
+  private analytics: TestAnalytics;
 
-  public onTestModuleEnd(file: unknown[]): void {
-    this.logger.debug('Test module ended', { fileCount: (file as unknown[]).length });
+  public constructor(private readonly logger: ILogger) {
+    this.analytics = new TestAnalytics();
+  }
 
-    (file as unknown[]).forEach((f) => {
-      const results = TaskProcessor.extractResults(f);
-      results.forEach(() => {
-        // This would be extended in the full implementation
-        // For now, we're setting up the structure
+  /**
+   * Initialize the Vitest reporter
+   */
+  public onInit(): void {
+    this.logger.info('Vitest reporter initialized');
+    this.analytics.reset();
+  }
+
+  /**
+   * Handle test module completion
+   * Extract test results and collect them
+   * @param files Array of Vitest file objects
+   */
+  public onTestModuleEnd(files: unknown[]): void {
+    this.logger.debug('Test module ended', { fileCount: (files as unknown[]).length });
+
+    (files as unknown[]).forEach((file) => {
+      const results = TaskProcessor.extractResults(file);
+      results.forEach((result: TestResult) => {
+        this.analytics.collect(result);
       });
     });
   }
 
-  public onInit(): void {
-    this.logger.info('Vitest reporter initialized');
+  /**
+   * Handle test run completion
+   * Log final statistics
+   */
+  public onTestRunEnd(): void {
+    const snapshot = this.analytics.getSnapshot();
+    this.logger.info('Vitest test run completed', {
+      totalTests: snapshot.totalCount,
+      passed: snapshot.passedCount,
+      failed: snapshot.failedCount,
+      skipped: snapshot.skippedCount,
+      totalDuration: snapshot.totalDuration,
+    });
   }
 
-  public onTestRunEnd(): void {
-    this.logger.info('Vitest test run completed');
+  /**
+   * Get aggregated test statistics
+   * @returns Test statistics snapshot
+   */
+  public getTestStatistics() {
+    return this.analytics.getSnapshot();
+  }
+
+  /**
+   * Get all collected test results
+   * @returns Array of test results
+   */
+  public getTestResults(): readonly TestResult[] {
+    return this.analytics.getResults();
+  }
+
+  /**
+   * Reset analytics state
+   */
+  public reset(): void {
+    this.analytics.reset();
   }
 }

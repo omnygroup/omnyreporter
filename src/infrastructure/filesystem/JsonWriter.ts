@@ -3,6 +3,7 @@
  * @module infrastructure/filesystem/JsonWriter
  */
 
+import { injectable } from 'inversify';
 import { resolve } from 'node:path';
 
 import type { IFileSystem, IWriter, WriteStats, WriteOptions, Result } from '../../core/index.js';
@@ -11,6 +12,7 @@ import { FileSystemError, ok, err } from '../../core/index.js';
 /**
  * Writer for JSON files
  */
+@injectable()
 export class JsonWriter implements IWriter<unknown> {
   public constructor(
     private readonly fileSystem: IFileSystem,

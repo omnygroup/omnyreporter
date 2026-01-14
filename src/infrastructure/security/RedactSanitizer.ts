@@ -3,12 +3,14 @@
  * @module infrastructure/security/RedactSanitizer
  */
 
+import { injectable } from 'inversify';
 import type { ISanitizer } from '../../core/index.js';
 
 /**
  * Sanitizer implementation using @pinojs/redact
  * Masks sensitive data in messages and objects
  */
+@injectable()
 export class RedactSanitizer implements ISanitizer {
   // private readonly redactor: (obj: unknown) => unknown;
 

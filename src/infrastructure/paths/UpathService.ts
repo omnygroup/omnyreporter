@@ -3,7 +3,8 @@
  * @module infrastructure/paths/UpathService
  */
 
-import { join, dirname, basename, extname, relative, resolve, isAbsolute, normalize } from 'upath';
+import { injectable } from 'inversify';
+import upath from 'upath';
 
 import type { IPathService } from '../../core/index.js';
 
@@ -11,36 +12,37 @@ import type { IPathService } from '../../core/index.js';
  * Path service implementation using upath
  * Provides cross-platform path handling with consistent forward slashes
  */
+@injectable()
 export class UpathService implements IPathService {
   public normalize(path: string): string {
-    return normalize(path);
+    return upath.normalize(path);
   }
 
   public join(...segments: string[]): string {
-    return join(...segments);
+    return upath.join(...segments);
   }
 
   public dirname(path: string): string {
-    return dirname(path);
+    return upath.dirname(path);
   }
 
   public basename(path: string, ext?: string): string {
-    return basename(path, ext);
+    return upath.basename(path, ext);
   }
 
   public extname(path: string): string {
-    return extname(path);
+    return upath.extname(path);
   }
 
   public isAbsolute(path: string): boolean {
-    return isAbsolute(path);
+    return upath.isAbsolute(path);
   }
 
   public relative(from: string, to: string): string {
-    return relative(from, to);
+    return upath.relative(from, to);
   }
 
   public resolve(...segments: string[]): string {
-    return resolve(...segments);
+    return upath.resolve(...segments);
   }
 }

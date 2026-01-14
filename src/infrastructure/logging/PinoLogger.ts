@@ -4,6 +4,7 @@
  * @module infrastructure/logging/PinoLogger
  */
 
+import { injectable } from 'inversify';
 import pino, { type Logger as PinoLoggerType } from 'pino';
 
 import type { ILogger, LogContext } from '../../core/index.js';
@@ -12,6 +13,7 @@ import type { ILogger, LogContext } from '../../core/index.js';
  * Logger implementation using Pino
  * Provides structured logging with context support
  */
+@injectable()
 export class PinoLogger implements ILogger {
   private readonly logger: PinoLoggerType;
 

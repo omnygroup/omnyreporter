@@ -3,6 +3,7 @@
  * @module infrastructure/filesystem/NodeFileSystem
  */
 
+import { injectable } from 'inversify';
 import { promises as fs } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import * as fsExtra from 'fs-extra';
@@ -15,6 +16,7 @@ import { FileSystemError } from '../../core/index.js';
  * File system implementation using Node.js fs module
  * Provides atomic writes, automatic directory creation, and JSON handling
  */
+@injectable()
 export class NodeFileSystem implements IFileSystem {
   public async exists(path: string): Promise<boolean> {
     try {

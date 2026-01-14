@@ -3,6 +3,7 @@
  * @module infrastructure/formatting/TableFormatter
  */
 
+import { injectable } from 'inversify';
 import Table from 'cli-table3';
 import chalk from 'chalk';
 
@@ -12,6 +13,7 @@ import type { IFormatter } from '../../core/index.js';
 /**
  * Table formatter for diagnostics
  */
+@injectable()
 export class TableFormatter implements IFormatter<readonly Diagnostic[], string> {
   public format(diagnostics: readonly Diagnostic[]): string {
     const table = new Table({

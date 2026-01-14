@@ -3,6 +3,8 @@
  * @module domain/validation/ConfigValidator
  */
 
+// Inversify decorator - import needed for @injectable decorator to work at runtime
+import { injectable } from 'inversify';
 import type { ZodSchema } from 'zod';
 
 import { ValidationError, ok, err } from '../../core/index.js';
@@ -11,6 +13,7 @@ import type { Result } from '../../core/index.js';
 /**
  * Facade for configuration validation
  */
+@injectable()
 export class ConfigValidator {
   /**
    * Validate configuration against schema

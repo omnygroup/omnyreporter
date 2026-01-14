@@ -6,19 +6,19 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { diagnosticsCommand } from './commands/index.js';
+import * as diagnosticsCommand from './commands/diagnostics.js';
 
 /**
  * Build and configure the CLI application
  * @returns Configured yargs instance
  */
-export function createCliApp() {
+export function getCliApp() {
   let app = yargs(hideBin(process.argv))
     .command(
       diagnosticsCommand.command,
       diagnosticsCommand.describe,
-      diagnosticsCommand.builder,
-      diagnosticsCommand.handler
+      diagnosticsCommand.builder as any,
+      diagnosticsCommand.handler as any
     )
     .option('verbose', {
       alias: 'v',
@@ -35,8 +35,7 @@ export function createCliApp() {
     .help()
     .alias('help', 'h')
     .version(false)
-    .strict()
-    .wrap(Math.min(120, yargs.terminalWidth()));
+    .strict();
 
   return app;
 }
@@ -45,6 +44,6 @@ export function createCliApp() {
  * Run the CLI application
  */
 export async function runCli(): Promise<void> {
-  const app = createCliApp();
+  const app = getCliApp();
   await app.argv;
 }

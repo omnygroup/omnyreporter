@@ -3,7 +3,9 @@
  * @module infrastructure/security/PathValidator
  */
 
-import { isAbsolute } from 'upath';
+// Inversify decorator - import needed for @injectable decorator to work at runtime
+import { injectable } from 'inversify';
+import upath from 'upath';
 
 import { FileSystemError } from '../../core/index.js';
 import type { IPathService } from '../../core/index.js';
@@ -11,6 +13,7 @@ import type { IPathService } from '../../core/index.js';
 /**
  * Service for validating paths for security and normalization
  */
+@injectable()
 export class PathValidator {
   public constructor(private readonly pathService: IPathService) {}
 
@@ -34,7 +37,7 @@ export class PathValidator {
       const normalizedBase = this.pathService.normalize(basePath);
       const relative = this.pathService.relative(normalizedBase, normalized);
 
-      if (relative.startsWith('..') || isAbsolute(relative)) {
+      if (relative.startsWith('..') || upath.isAbsolute(relative)) {
         throw new FileSystemError('Path escapes base directory', { path, basePath });
       }
     }

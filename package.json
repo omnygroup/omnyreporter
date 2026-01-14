@@ -32,7 +32,13 @@
     "start": "node parse-tests.mjs",
     "report:lint": "node bin/omny.js diagnostics --run eslint",
     "report:tsc": "node bin/omny.js diagnostics --run typescript",
-    "report:all": "node bin/omny.js diagnostics --run all"
+    "report:all": "node bin/omny.js diagnostics --run all",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@omnygroup/eslint": "file:../omnyeslint",

@@ -4,5 +4,5 @@
  * @module view
  */
 
-export { createCliApp, runCli } from './cli/index.js';
+export { getCliApp, runCli } from './cli/index.js';
 export * from './cli/commands/index.js';
