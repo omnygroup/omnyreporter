@@ -33,12 +33,12 @@ export async function executeDiagnostics(
     const useCase = new CollectDiagnosticsUseCase(sources, DiagnosticAggregator);
     const result = await useCase.execute(config);
 
-    if (result.isOk?.()) {
+    if (result.isOk()) {
       logger.info('Diagnostics collection completed', {
         diagnosticsCount: result.value.length,
       });
     } else {
-      logger.error('Diagnostics collection failed');
+      logger.error('Diagnostics collection failed', { error: result.error });
       throw result.error;
     }
   } catch (error) {
