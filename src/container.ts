@@ -10,13 +10,18 @@ import { Container } from 'inversify';
 import { TOKENS } from './diTokens.js';
 import { DiagnosticAggregator } from './domain/analytics/diagnostics/DiagnosticAggregator.js';
 import { DiagnosticAnalytics } from './domain/analytics/diagnostics/DiagnosticAnalytics.js';
+import { DiagnosticMetadataBuilder } from './domain/analytics/diagnostics/DiagnosticMetadataBuilder.js';
+import { FileReportAssembler } from './domain/mappers/FileReportAssembler.js';
+import { SourceCodeEnricher } from './domain/mappers/SourceCodeEnricher.js';
 import { TypeScriptAnalytics } from './domain/analytics/typescript/TypeScriptAnalytics.js';
 import { ConfigValidator } from './domain/validation/ConfigValidator.js';
 import { DirectoryService } from './infrastructure/filesystem/DirectoryService.js';
+import { FileContentReader } from './infrastructure/filesystem/FileContentReader.js';
 import { FileWriter } from './infrastructure/filesystem/FileWriter.js';
 import { JsonWriter } from './infrastructure/filesystem/JsonWriter.js';
 import { NodeFileSystem } from './infrastructure/filesystem/NodeFileSystem.js';
 import { StreamWriter } from './infrastructure/filesystem/StreamWriter.js';
+import { StructuredReportWriter } from './infrastructure/filesystem/StructuredReportWriter.js';
 import { ConsoleFormatter } from './infrastructure/formatting/ConsoleFormatter.js';
 import { JsonFormatter } from './infrastructure/formatting/JsonFormatter.js';
 import { TableFormatter } from './infrastructure/formatting/TableFormatter.js';
@@ -129,6 +134,35 @@ export function setupContainer(): Container {
   container.bind(TOKENS.TypeScriptAnalytics).to(TypeScriptAnalytics).inTransientScope();
   // DiagnosticAnalytics used by the orchestrator - provide instance as constant
   container.bind(TOKENS.DiagnosticAnalytics).toConstantValue(new DiagnosticAnalytics());
+
+  // Register file content reader
+  container.bind(TOKENS.FileContentReader).to(FileContentReader).inTransientScope();
+
+  // Register diagnostic metadata builder as constant (stateless)
+  container.bind(TOKENS.DiagnosticMetadataBuilder).toConstantValue(DiagnosticMetadataBuilder);
+
+  // Register file report assembler as constant (stateless)
+  container.bind(TOKENS.FileReportAssembler).toConstantValue(FileReportAssembler);
+
+  // Register source code enricher
+  // Construct SourceCodeEnricher via factory to avoid relying on constructor metadata
+  container
+    .bind(TOKENS.SourceCodeEnricher)
+    .toDynamicValue(() => new SourceCodeEnricher(container.get(TOKENS.FileContentReader)))
+    .inTransientScope();
+
+  // Register structured report writer via factory to avoid relying on interface metadata
+  container
+    .bind(TOKENS.StructuredReportWriter)
+    .toDynamicValue(() =>
+      new StructuredReportWriter(
+        container.get(TOKENS.FileSystem),
+        container.get(TOKENS.PathService),
+        container.get(TOKENS.DirectoryService),
+        container.get(TOKENS.Logger)
+      )
+    )
+    .inTransientScope();
 
   // Use-cases require runtime parameters (sources, writers) and are
   // created by the application layer (CLI handlers). Do not bind them

@@ -4,7 +4,7 @@
  * @module domain/analytics/diagnostics/DiagnosticAggregator
  */
 
-import type { Diagnostic } from '@core';
+import type { Diagnostic, DiagnosticSource } from '@core';
 
 export interface SeverityCount {
   readonly error: number;
@@ -120,5 +120,52 @@ export class DiagnosticAggregator {
     filePath: string
   ): readonly Diagnostic[] {
     return Object.freeze(diagnostics.filter((d) => d.filePath === filePath));
+  }
+
+  /**
+   * Group diagnostics by file path
+   * @param diagnostics Diagnostics to group
+   * @returns Map of file path to diagnostics
+   */
+  public static groupByFile(
+    diagnostics: readonly Diagnostic[]
+  ): Map<string, readonly Diagnostic[]> {
+    const grouped = new Map<string, Diagnostic[]>();
+
+    for (const diagnostic of diagnostics) {
+      const { filePath } = diagnostic;
+
+      if (!grouped.has(filePath)) {
+        grouped.set(filePath, []);
+      }
+
+      grouped.get(filePath)!.push(diagnostic);
+    }
+
+    // Freeze inner arrays
+    for (const [, diags] of grouped) {
+      Object.freeze(diags);
+    }
+
+    return grouped;
+  }
+
+  /**
+   * Group diagnostics by source and then by file
+   * @param diagnostics Diagnostics to group
+   * @returns Map of source to map of file path to diagnostics
+   */
+  public static groupBySourceAndFile(
+    diagnostics: readonly Diagnostic[]
+  ): Map<DiagnosticSource, Map<string, readonly Diagnostic[]>> {
+    const bySource = this.groupBySource(diagnostics);
+    const result = new Map<DiagnosticSource, Map<string, readonly Diagnostic[]>>();
+
+    for (const [source, diags] of Object.entries(bySource)) {
+      const fileMap = this.groupByFile(diags);
+      result.set(source as DiagnosticSource, fileMap);
+    }
+
+    return result;
   }
 }

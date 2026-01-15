@@ -24,6 +24,11 @@ export const TOKENS = {
   ReportingFacade: Symbol.for('ReportingFacade'),
   ConsoleLogger: Symbol.for('ConsoleLogger'),
   FileWriter: Symbol.for('FileWriter'),
+  FileContentReader: Symbol.for('FileContentReader'),
+  DiagnosticMetadataBuilder: Symbol.for('DiagnosticMetadataBuilder'),
+  FileReportAssembler: Symbol.for('FileReportAssembler'),
+  SourceCodeEnricher: Symbol.for('SourceCodeEnricher'),
+  StructuredReportWriter: Symbol.for('StructuredReportWriter'),
   CollectDiagnosticsUseCase: Symbol.for('CollectDiagnosticsUseCase'),
   GenerateReportUseCase: Symbol.for('GenerateReportUseCase'),
 } as const;

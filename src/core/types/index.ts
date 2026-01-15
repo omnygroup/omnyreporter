@@ -7,6 +7,9 @@ export type {
   Diagnostic,
   DiagnosticSeverity,
   DiagnosticSource,
+  FileContent,
+  DiagnosticReportMetadata,
+  DiagnosticFileReport,
 } from './diagnostic.js';
 export { createDiagnostic } from './diagnostic.js';
 

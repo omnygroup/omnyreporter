@@ -8,11 +8,12 @@ import { resolve } from 'node:path';
 
 import { injectable } from 'inversify';
 
-import type { IFileSystem } from '../../core/index.js';
+import { type IFileSystem, type DiagnosticSource } from '../../core/index.js';
 
 const OMNY_DIR = '.omnyreporter';
 const REPORTS_DIR = 'reports';
 const TEMP_DIR = 'temp';
+const ERRORS_DIR = 'errors';
 
 /**
  * Service for managing application directory structure
@@ -69,6 +70,46 @@ export class DirectoryService {
     if (await this.fileSystem.exists(tempDir)) {
       await this.fileSystem.removeDir(tempDir);
       await this.fileSystem.ensureDir(tempDir);
+    }
+  }
+
+  /**
+   * Get instrument-specific directory
+   * @param source Diagnostic source (eslint, typescript, vitest)
+   * @returns Path to .omnyreporter/{source} directory
+   */
+  public getInstrumentDirectory(source: DiagnosticSource): string {
+    return resolve(this.getAppDirectory(), source);
+  }
+
+  /**
+   * Get errors directory for specific instrument
+   * @param source Diagnostic source
+   * @returns Path to .omnyreporter/{source}/errors directory
+   */
+  public getInstrumentErrorsDirectory(source: DiagnosticSource): string {
+    return resolve(this.getInstrumentDirectory(source), ERRORS_DIR);
+  }
+
+  /**
+   * Clear errors for specific instrument
+   * @param source Diagnostic source
+   */
+  public async clearInstrumentErrors(source: DiagnosticSource): Promise<void> {
+    const errorsDir = this.getInstrumentErrorsDirectory(source);
+    if (await this.fileSystem.exists(errorsDir)) {
+      await this.fileSystem.removeDir(errorsDir);
+    }
+  }
+
+  /**
+   * Clear all diagnostic errors
+   */
+  public async clearAllErrors(): Promise<void> {
+    const sources: DiagnosticSource[] = ['eslint', 'typescript', 'vitest'];
+
+    for (const source of sources) {
+      await this.clearInstrumentErrors(source);
     }
   }
 }

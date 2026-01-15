@@ -1,17 +1,15 @@
 /**
  * Generate report use-case
- * Orchestrates diagnostic collection, aggregation, and reporting
+ * Orchestrates diagnostic collection, aggregation, enrichment, and reporting
  * @module application/usecases/GenerateReport
  */
 
-import { DiagnosticError, ok, err ,type 
-  IDiagnosticSource,type 
-  IWriter,type 
-  Diagnostic,type 
-  Result,type 
-  WriteStats,
-} from '@core';
-import { type CollectionConfig , DiagnosticAnalytics, DiagnosticAggregator } from '@domain';
+import { injectable } from 'inversify';
+
+import { DiagnosticError, ok, err, type IDiagnosticSource, type Diagnostic, type Result, type WriteStats } from '@core';
+import { type CollectionConfig, DiagnosticAnalytics, DiagnosticAggregator } from '@domain';
+import { SourceCodeEnricher } from '@domain/mappers/index.js';
+import { StructuredReportWriter } from '@infrastructure/filesystem/index.js';
 
 /**
  * Result of report generation
@@ -19,16 +17,18 @@ import { type CollectionConfig , DiagnosticAnalytics, DiagnosticAggregator } fro
 export interface ReportResult {
   readonly diagnostics: readonly Diagnostic[];
   readonly stats: ReturnType<DiagnosticAnalytics['getSnapshot']>;
-  readonly writeStats?: WriteStats;
+  readonly writeStats: WriteStats;
 }
 
 /**
  * Use-case for generating diagnostic reports
  */
+@injectable()
 export class GenerateReportUseCase {
   public constructor(
     private readonly sources: readonly IDiagnosticSource[],
-    private readonly writer: IWriter<readonly Diagnostic[]>
+    private readonly enricher: SourceCodeEnricher,
+    private readonly writer: StructuredReportWriter
   ) {}
 
   /**
@@ -59,12 +59,36 @@ export class GenerateReportUseCase {
       aggregated.forEach((d) => { analytics.collect(d); });
       const stats = analytics.getSnapshot();
 
-      // Write report
-      const writeResult = await this.writer.write(aggregated, { fileName: 'report.json' });
+      // Group by source and file
+      const grouped = DiagnosticAggregator.groupBySourceAndFile(aggregated);
+
+      // Filter empty groups
+      const filtered = new Map(Array.from(grouped).filter(([, fileMap]) => fileMap.size > 0));
+
+      // Enrich with source code
+      const enrichResult = await this.enricher.enrichAll(filtered);
+
+      if (!enrichResult.isOk()) {
+        return err(
+          new DiagnosticError(
+            'Failed to enrich diagnostics',
+            {},
+            enrichResult.error instanceof Error ? enrichResult.error : undefined
+          )
+        );
+      }
+
+      // Write structured reports
+      const writeResult = await this.writer.write(enrichResult.value);
 
       if (!writeResult.isOk()) {
-        // Return error if write failed
-        return err(new DiagnosticError('Failed to write report', {}, writeResult.error instanceof Error ? writeResult.error : undefined));
+        return err(
+          new DiagnosticError(
+            'Failed to write report',
+            {},
+            writeResult.error instanceof Error ? writeResult.error : undefined
+          )
+        );
       }
 
       return ok({
@@ -83,3 +107,4 @@ export class GenerateReportUseCase {
     }
   }
 }
+

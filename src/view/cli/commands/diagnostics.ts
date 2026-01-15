@@ -3,16 +3,16 @@
  * @module view/cli/commands/diagnostics
  */
 
-
 import { CollectDiagnosticsUseCase } from '@application/usecases/CollectDiagnostics';
 import { getContainer } from '@/container';
-import { type ILogger, type Diagnostic ,type  IFormatter } from '@core';
+import { type ILogger, type Diagnostic, type IFormatter, type IFileSystem } from '@core';
 import { TOKENS } from '@/diTokens';
 import { DiagnosticAggregator } from '@domain/analytics/diagnostics/DiagnosticAggregator';
+import { DirectoryService } from '@infrastructure/filesystem/index.js';
 import { EslintReporter } from '@reporters/eslint/EslintReporter';
 import { TypeScriptReporter } from '@reporters/typescript/TypeScriptReporter';
 
-import type { CollectionConfig } from '../../../domain/index.js';
+import type { CollectionConfig } from '@domain/index.js';
 import type { Arguments, CommandBuilder, Argv } from 'yargs';
 
 export interface DiagnosticsOptions extends Arguments {
@@ -62,6 +62,7 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
   try {
     const container = getContainer();
     const logger = container.get<ILogger>(TOKENS.Logger);
+    const fileSystem = container.get<IFileSystem>(TOKENS.FileSystem);
 
     logger.info('Starting diagnostics collection', {
       patterns: argv.patterns,
@@ -98,7 +99,8 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
     }
 
     // Create use case with sources
-    const useCase = new CollectDiagnosticsUseCase(sources, DiagnosticAggregator);
+    const directoryService = new DirectoryService(fileSystem);
+    const useCase = new CollectDiagnosticsUseCase(sources, DiagnosticAggregator, directoryService);
 
     // Execute collection
     const result = await useCase.execute(config);

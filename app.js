@@ -4,6 +4,7 @@
  * OmnyReporter CLI Entry Point
  */
 
+import 'reflect-metadata';
 import { runCli } from './dist/view/cli/App.js';
 
 async function main() {
