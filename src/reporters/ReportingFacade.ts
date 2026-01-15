@@ -55,25 +55,21 @@ export class ReportingFacade {
   private readonly orchestrator: ReportingOrchestrator;
   private readonly logger: ILogger;
   private readonly writer: IWriter<readonly Diagnostic[]>;
-  private readonly projectRoot: string;
 
   /**
    * Create a new ReportingFacade instance (dependencies injected)
    * @param orchestrator Orchestrator coordinating reporters
    * @param logger Logger implementation
    * @param writer Writer implementation for diagnostics
-   * @param projectRoot Optional project root path (used by some writers)
    */
   public constructor(
     @inject(TOKENS.ReportingOrchestrator) orchestrator: ReportingOrchestrator,
     @inject(TOKENS.Logger) logger: ILogger,
-    @inject(TOKENS.FileWriter) writer: IWriter<readonly Diagnostic[]>,
-    projectRoot?: string
+    @inject(TOKENS.FileWriter) writer: IWriter<readonly Diagnostic[]>
   ) {
     this.orchestrator = orchestrator;
     this.logger = logger;
     this.writer = writer;
-    this.projectRoot = projectRoot ?? process.cwd();
   }
 
   /**
@@ -144,7 +140,7 @@ export class ReportingFacade {
    * @param config Collection configuration
    * @returns Diagnostics result with TypeScript issues
    */
-  public async collectTypeScriptDiagnostics(/* config: { timeout?: number } */): Promise<{ result: DiagnosticsResult }> {
+  public async collectTypeScriptDiagnostics(_config: { timeout?: number }): Promise<{ result: DiagnosticsResult }> {
     try {
       await this.orchestrator.runTypeScript('tsconfig.json');
       const result = this.orchestrator.getResults();

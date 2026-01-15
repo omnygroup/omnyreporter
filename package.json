@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/parse-tests.js",
   "bin": {
-    "omny": "./bin/omny.js"
+    "omnyreporter": "./bin/omny.js"
   },
   "exports": {
     ".": {
