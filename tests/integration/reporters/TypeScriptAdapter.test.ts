@@ -4,29 +4,29 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TypeScriptAdapter } from '../../../../src/reporters/typescript/index.js';
+import { TypeScriptReporter } from '../../../../src/reporters/typescript/TypeScriptReporter.js';
 import { MockLogger } from '../../../mocks/MockLogger.js';
 import { createTestConfig } from '../../../helpers/index.js';
 
-describe('TypeScriptAdapter', () => {
-  let adapter: TypeScriptAdapter;
+describe('TypeScriptReporter', () => {
+  let reporter: TypeScriptReporter;
   let mockLogger: MockLogger;
 
   beforeEach(() => {
     mockLogger = new MockLogger();
-    adapter = new TypeScriptAdapter(mockLogger);
+    reporter = new TypeScriptReporter(mockLogger);
   });
 
   describe('getName', () => {
     it('should return "typescript" as source name', () => {
-      expect(adapter.getName()).toBe('typescript');
+      expect(reporter.getName()).toBe('typescript');
     });
   });
 
   describe('collect', () => {
     it('should return Result type', async () => {
       const config = createTestConfig();
-      const result = await adapter.collect(config);
+      const result = await reporter.collect(config);
 
       expect(result.isOk()).toBeDefined();
       expect(result.isErr()).toBeDefined();

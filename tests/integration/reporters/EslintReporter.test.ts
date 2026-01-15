@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { EslintReporter } from '../../../../src/reporters/eslint/index.js';
+import { EslintReporter } from '../../../../src/reporters/eslint/EslintReporter.js';
 import { MockLogger } from '../../../mocks/MockLogger.js';
 import { createTestConfig } from '../../../helpers/index.js';
 
