@@ -4,8 +4,9 @@
  * @module infrastructure/filesystem/DirectoryService
  */
 
-import { injectable } from 'inversify';
 import { resolve } from 'node:path';
+
+import { injectable } from 'inversify';
 
 import type { IFileSystem } from '../../core/index.js';
 

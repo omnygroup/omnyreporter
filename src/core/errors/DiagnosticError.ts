@@ -17,7 +17,7 @@ export class DiagnosticError extends BaseError {
     originalError?: Error
   ) {
     super(message, context, originalError);
-    this.source = context?.source as string | undefined;
+    this.source = context?.source;
     Object.setPrototypeOf(this, DiagnosticError.prototype);
   }
 }

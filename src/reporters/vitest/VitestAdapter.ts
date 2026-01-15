@@ -4,10 +4,12 @@
  * @module reporters/vitest/VitestAdapter
  */
 
-import type { ILogger } from '../../core/index.js';
-import type { TestResult } from './TaskProcessor.js';
-import { TaskProcessor } from './TaskProcessor.js';
 import { TestAnalytics } from '../../domain/analytics/tests/TestAnalytics.js';
+
+import { TaskProcessor ,type  TestResult } from './TaskProcessor.js';
+
+import type { ILogger } from '../../core/index.js';
+
 
 /**
  * Adapter implementing Vitest Reporter interface
@@ -34,9 +36,9 @@ export class VitestAdapter {
    * @param files Array of Vitest file objects
    */
   public onTestModuleEnd(files: unknown[]): void {
-    this.logger.debug('Test module ended', { fileCount: (files as unknown[]).length });
+    this.logger.debug('Test module ended', { fileCount: (files).length });
 
-    (files as unknown[]).forEach((file) => {
+    (files).forEach((file) => {
       const results = TaskProcessor.extractResults(file);
       results.forEach((result: TestResult) => {
         this.analytics.collect(result);

@@ -3,9 +3,10 @@
  * @module domain/analytics/lint/LintAnalytics
  */
 
-import type { Diagnostic } from '../../../core/index.js';
-import { BaseAnalyticsCollector } from '../../../core/index.js';
+import { BaseAnalyticsCollector ,type  Diagnostic } from '../../../core/index.js';
+
 import { LintStatisticsCalculator } from './LintStatisticsCalculator.js';
+
 import type { LintStatistics } from './types.js';
 
 /**

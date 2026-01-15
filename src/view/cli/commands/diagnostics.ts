@@ -3,17 +3,17 @@
  * @module view/cli/commands/diagnostics
  */
 
-import type { Arguments, CommandBuilder, Argv } from 'yargs';
 
+import { CollectDiagnosticsUseCase } from '../../../application/usecases/CollectDiagnostics.js';
 import { getContainer } from '../../../container.js';
+import { type ILogger, type Diagnostic ,type  IFormatter } from '../../../core/index.js';
 import { TOKENS } from '../../../diTokens.js';
-import type { ILogger, Diagnostic } from '../../../core/index.js';
-import type { IFormatter } from '../../../core/index.js';
-import type { CollectionConfig } from '../../../domain/index.js';
+import { DiagnosticAggregator } from '../../../domain/analytics/diagnostics/DiagnosticAggregator.js';
 import { EslintReporter } from '../../../reporters/eslint/EslintReporter.js';
 import { TypeScriptReporter } from '../../../reporters/typescript/TypeScriptReporter.js';
-import { CollectDiagnosticsUseCase } from '../../../application/usecases/CollectDiagnostics.js';
-import { DiagnosticAggregator } from '../../../domain/analytics/diagnostics/DiagnosticAggregator.js';
+
+import type { CollectionConfig } from '../../../domain/index.js';
+import type { Arguments, CommandBuilder, Argv } from 'yargs';
 
 export interface DiagnosticsOptions extends Arguments {
   patterns?: string[];
@@ -113,16 +113,16 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
 
     // Get formatter based on format option
     if (argv.format === 'json') {
-      const formatter = container.get<IFormatter<readonly Diagnostic[], string>>(TOKENS.JsonFormatter);
+      const formatter = container.get<IFormatter<readonly Diagnostic[]>>(TOKENS.JsonFormatter);
       const output = formatter.format(diagnostics);
       console.log(output);
     } else if (argv.format === 'table') {
-      const formatter = container.get<IFormatter<readonly Diagnostic[], string>>(TOKENS.TableFormatter);
+      const formatter = container.get<IFormatter<readonly Diagnostic[]>>(TOKENS.TableFormatter);
       const output = formatter.format(diagnostics);
       console.log(output);
     } else {
       // pretty format
-      const formatter = container.get<IFormatter<Diagnostic, string>>(TOKENS.ConsoleFormatter);
+      const formatter = container.get<IFormatter<Diagnostic>>(TOKENS.ConsoleFormatter);
       diagnostics.forEach((d) => {
         const output = formatter.format(d);
         console.log(output);

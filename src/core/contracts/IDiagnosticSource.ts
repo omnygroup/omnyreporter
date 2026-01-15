@@ -3,8 +3,8 @@
  * @module core/contracts/IDiagnosticSource
  */
 
-import type { Diagnostic, Result } from '../types/index.js';
 import type { CollectionConfig } from '../../domain/index.js';
+import type { Diagnostic, Result } from '../types/index.js';
 
 export interface IDiagnosticSource {
   /**

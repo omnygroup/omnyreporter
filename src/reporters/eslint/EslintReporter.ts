@@ -3,10 +3,12 @@
  * @module reporters/eslint/EslintReporter
  */
 
-import { BaseDiagnosticSource } from '../../core/index.js';
-import type { ILogger } from '../../core/index.js';
-import type { CollectionConfig } from '../../domain/index.js';
+import { BaseDiagnosticSource ,type  ILogger } from '../../core/index.js';
+
 import { EslintAdapter } from './EslintAdapter.js';
+
+import type { CollectionConfig } from '../../domain/index.js';
+
 
 /**
  * ESLint diagnostic source

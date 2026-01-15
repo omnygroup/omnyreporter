@@ -5,13 +5,17 @@
  */
 
 import { injectable, inject } from 'inversify';
-import type { ILogger, DiagnosticStatistics, TestStatistics } from '../core/index.js';
+
+import { type ILogger, type DiagnosticStatistics, type TestStatistics ,type  Diagnostic } from '../core/index.js';
+import { TOKENS } from '../diTokens.js';
 import { DiagnosticAnalytics } from '../domain/analytics/diagnostics/DiagnosticAnalytics.js';
+
 import { EslintAdapter } from './eslint/EslintAdapter.js';
 import { TypeScriptAdapter } from './typescript/TypeScriptAdapter.js';
 import { VitestAdapter } from './vitest/VitestAdapter.js';
-import { TOKENS } from '../diTokens.js';
-import type { Diagnostic } from '../core/index.js';
+
+
+
 import type { TestResult } from './vitest/TaskProcessor.js';
 
 /**

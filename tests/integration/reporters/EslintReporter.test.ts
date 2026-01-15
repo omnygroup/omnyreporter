@@ -4,9 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { EslintReporter } from '../../../src/reporters/eslint';
-import { MockLogger } from '../../mocks';
 import { createTestConfig } from '../../helpers';
+import { MockLogger } from '../../mocks';
 
 describe('EslintReporter', () => {
   let reporter: EslintReporter;

@@ -13,7 +13,7 @@ import * as diagnosticsCommand from './commands/diagnostics.js';
  * @returns Configured yargs instance
  */
 export function getCliApp() {
-  let app = yargs(hideBin(process.argv))
+  return yargs(hideBin(process.argv))
     .command(
       diagnosticsCommand.command,
       diagnosticsCommand.describe,
@@ -36,8 +36,6 @@ export function getCliApp() {
     .alias('help', 'h')
     .version(false)
     .strict();
-
-  return app;
 }
 
 /**

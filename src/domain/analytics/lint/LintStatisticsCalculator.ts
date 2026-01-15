@@ -3,8 +3,8 @@
  * @module domain/analytics/lint/LintStatisticsCalculator
  */
 
-import type { Diagnostic } from '../../../core/index.js';
 import type { LintStatistics } from './types.js';
+import type { Diagnostic } from '../../../core/index.js';
 
 /**
  * Calculates lint-specific statistics from diagnostics
@@ -30,7 +30,7 @@ export class LintStatisticsCalculator {
     diagnostics.forEach((d) => {
       if (d.code) {
         ruleCount[d.code] = (ruleCount[d.code] ?? 0) + 1;
-        const fileKey = `${d.code}`;
+        const fileKey = d.code;
         filesByRule[fileKey] = (filesByRule[fileKey] ?? 0) + 1;
       }
     });

@@ -7,8 +7,7 @@
 import { injectable } from 'inversify';
 import upath from 'upath';
 
-import { FileSystemError } from '../../core/index.js';
-import type { IPathService } from '../../core/index.js';
+import { FileSystemError ,type  IPathService } from '../../core/index.js';
 
 /**
  * Service for validating paths for security and normalization

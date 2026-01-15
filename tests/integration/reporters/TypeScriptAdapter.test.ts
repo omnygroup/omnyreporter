@@ -4,9 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { TypeScriptReporter } from '../../../src/reporters/typescript';
-import { MockLogger } from '../../mocks';
 import { createTestConfig } from '../../helpers';
+import { MockLogger } from '../../mocks';
 
 describe('TypeScriptReporter', () => {
   let reporter: TypeScriptReporter;
@@ -52,7 +53,7 @@ describe('TypeScriptReporter', () => {
         // All diagnostics should have typescript source
         diagnostics.forEach((diag: any) => {
           if ('source' in diag) {
-            expect(['typescript']).toContain((diag as any).source);
+            expect(['typescript']).toContain((diag).source);
           }
         });
       }

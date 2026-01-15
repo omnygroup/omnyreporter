@@ -3,10 +3,12 @@
  * @module domain/analytics/tests/TestAnalytics
  */
 
-import type { TestStatistics } from '../../../core/index.js';
-import type { TestResult } from '../../../reporters/vitest/TaskProcessor.js';
-import { BaseAnalyticsCollector } from '../../../core/index.js';
+import { BaseAnalyticsCollector ,type  TestStatistics } from '../../../core/index.js';
+
 import { TestStatisticsCalculator } from './TestStatisticsCalculator.js';
+
+import type { TestResult } from '../../../reporters/vitest/TaskProcessor.js';
+
 
 /**
  * Analytics collector for test results

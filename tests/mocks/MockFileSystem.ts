@@ -7,8 +7,8 @@ import type { IFileSystem } from '../../src/core/contracts/index.js';
 import type { WriteStats, WriteOptions } from '../../src/core/types/index.js';
 
 export class MockFileSystem implements IFileSystem {
-  private files: Map<string, string | Buffer> = new Map();
-  private directories: Set<string> = new Set();
+  private files = new Map<string, string | Buffer>();
+  private directories = new Set<string>();
 
   async exists(path: string): Promise<boolean> {
     return this.files.has(path) || this.directories.has(path);

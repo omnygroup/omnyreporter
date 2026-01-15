@@ -4,6 +4,7 @@
  */
 
 import { injectable } from 'inversify';
+
 import type { ISanitizer } from '../../core/index.js';
 
 /**

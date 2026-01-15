@@ -27,7 +27,7 @@ export interface TestStatistics extends StatisticsBase {
   readonly skippedCount: number;
   readonly totalDuration: number;
   readonly averageDuration: number;
-  readonly slowestTests: Array<{ readonly name: string; readonly duration: number }>;
+  readonly slowestTests: { readonly name: string; readonly duration: number }[];
 }
 
 /** Statistics snapshot - immutable point in time */

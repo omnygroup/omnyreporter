@@ -7,53 +7,57 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 
 // Infrastructure - Logging
-import { PinoLogger } from './infrastructure/logging/PinoLogger.js';
-import type { ILogger } from './core/index.js';
-import { ConsoleLogger } from './infrastructure/logging/ConsoleLogger.js';
-
-// Infrastructure - FileSystem
-import { NodeFileSystem } from './infrastructure/filesystem/NodeFileSystem.js';
+import { TOKENS } from './diTokens.js';
+import { DiagnosticAggregator } from './domain/analytics/diagnostics/DiagnosticAggregator.js';
+import { DiagnosticAnalytics } from './domain/analytics/diagnostics/DiagnosticAnalytics.js';
+import { TypeScriptAnalytics } from './domain/analytics/typescript/TypeScriptAnalytics.js';
+import { ConfigValidator } from './domain/validation/ConfigValidator.js';
 import { DirectoryService } from './infrastructure/filesystem/DirectoryService.js';
-import { JsonWriter } from './infrastructure/filesystem/JsonWriter.js';
-import { StreamWriter } from './infrastructure/filesystem/StreamWriter.js';
 import { FileWriter } from './infrastructure/filesystem/FileWriter.js';
-import type { IFileSystem } from './core/index.js';
-
-// Infrastructure - Paths
-import { UpathService } from './infrastructure/paths/UpathService.js';
-import type { IPathService } from './core/index.js';
-
-// Infrastructure - Security
-import { RedactSanitizer } from './infrastructure/security/RedactSanitizer.js';
-import { PathValidator } from './infrastructure/security/PathValidator.js';
-import type { ISanitizer } from './core/index.js';
-
-// Infrastructure - Formatting
+import { JsonWriter } from './infrastructure/filesystem/JsonWriter.js';
+import { NodeFileSystem } from './infrastructure/filesystem/NodeFileSystem.js';
+import { StreamWriter } from './infrastructure/filesystem/StreamWriter.js';
 import { ConsoleFormatter } from './infrastructure/formatting/ConsoleFormatter.js';
 import { JsonFormatter } from './infrastructure/formatting/JsonFormatter.js';
 import { TableFormatter } from './infrastructure/formatting/TableFormatter.js';
-
-// Domain - Analytics
-import { DiagnosticAggregator } from './domain/analytics/diagnostics/DiagnosticAggregator.js';
-import { TypeScriptAnalytics } from './domain/analytics/typescript/TypeScriptAnalytics.js';
-
-// Domain - Validation
-import { ConfigValidator } from './domain/validation/ConfigValidator.js';
-
-// Reporters
+import { ConsoleLogger } from './infrastructure/logging/ConsoleLogger.js';
+import { PinoLogger } from './infrastructure/logging/PinoLogger.js';
+import { UpathService } from './infrastructure/paths/UpathService.js';
+import { PathValidator } from './infrastructure/security/PathValidator.js';
+import { RedactSanitizer } from './infrastructure/security/RedactSanitizer.js';
 import { EslintAdapter } from './reporters/eslint/EslintAdapter.js';
 import { TypeScriptAdapter } from './reporters/typescript/TypeScriptAdapter.js';
+
 import { VitestAdapter } from './reporters/vitest/VitestAdapter.js';
+import type { ILogger } from './core/index.js';
+
+// Infrastructure - FileSystem
+
+import type { IFileSystem } from './core/index.js';
+
+// Infrastructure - Paths
+
+import type { IPathService } from './core/index.js';
+
+// Infrastructure - Security
+
+import type { ISanitizer } from './core/index.js';
+
+// Infrastructure - Formatting
+
+// Domain - Analytics
+
+// Domain - Validation
+
+// Reporters
 import { ReportingOrchestrator } from './reporters/ReportingOrchestrator.js';
 import { ReportingFacade } from './reporters/ReportingFacade.js';
-import { TOKENS } from './diTokens.js';
 
 // Domain - Analytics (diagnostics collector)
-import { DiagnosticAnalytics } from './domain/analytics/diagnostics/DiagnosticAnalytics.js';
 
 // Application - Use Cases
-import { CollectDiagnosticsUseCase } from './application/usecases/CollectDiagnostics.js';
-import { GenerateReportUseCase } from './application/usecases/GenerateReport.js';
+// Application - Use Cases
+// (use-cases are constructed by the application layer at runtime; do not import here to avoid unused bindings)
 
 // Define dependency injection tokens
 // TOKENS moved to src/diTokens.ts to avoid circular imports

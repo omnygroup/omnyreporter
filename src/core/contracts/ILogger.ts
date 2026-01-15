@@ -3,9 +3,7 @@
  * @module core/contracts/ILogger
  */
 
-export interface LogContext {
-  readonly [key: string]: unknown;
-}
+export type LogContext = Readonly<Record<string, unknown>>;
 
 export interface ILogger {
   /**

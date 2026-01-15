@@ -35,19 +35,19 @@ export class StatisticsCalculator {
       switch (d.severity) {
         case 'error':
           errorCount += 1;
-          totalBySeverity['error'] = (totalBySeverity['error'] as number) + 1;
+          totalBySeverity['error'] = (totalBySeverity['error']!) + 1;
           break;
         case 'warning':
           warningCount += 1;
-          totalBySeverity['warning'] = (totalBySeverity['warning'] as number) + 1;
+          totalBySeverity['warning'] = (totalBySeverity['warning']!) + 1;
           break;
         case 'info':
           infoCount += 1;
-          totalBySeverity['info'] = (totalBySeverity['info'] as number) + 1;
+          totalBySeverity['info'] = (totalBySeverity['info']!) + 1;
           break;
         case 'note':
           noteCount += 1;
-          totalBySeverity['note'] = (totalBySeverity['note'] as number) + 1;
+          totalBySeverity['note'] = (totalBySeverity['note']!) + 1;
           break;
       }
 

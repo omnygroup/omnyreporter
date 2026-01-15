@@ -3,19 +3,17 @@
  * @module infrastructure/formatting/ConsoleFormatter
  */
 
-import { injectable } from 'inversify';
 import chalk from 'chalk';
+import { injectable } from 'inversify';
 import createSpinner from 'ora';
 
-import type { Diagnostic } from '../../core/index.js';
-import type { DiagnosticStatistics } from '../../core/index.js';
-import type { IFormatter } from '../../core/index.js';
+import { type Diagnostic ,type  DiagnosticStatistics ,type  IFormatter } from '../../core/index.js';
 
 /**
  * Console formatter for diagnostics with colors and styling
  */
 @injectable()
-export class ConsoleFormatter implements IFormatter<Diagnostic, string> {
+export class ConsoleFormatter implements IFormatter<Diagnostic> {
   public format(diagnostic: Diagnostic): string {
     const severity = this.formatSeverity(diagnostic.severity);
     const code = chalk.gray(`[${diagnostic.code}]`);

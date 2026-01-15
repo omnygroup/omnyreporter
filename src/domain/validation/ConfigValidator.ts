@@ -5,12 +5,13 @@
 
 // Inversify decorator - import needed for @injectable decorator to work at runtime
 import { injectable } from 'inversify';
-import type { ZodSchema } from 'zod';
 
-import { ValidationError, ok, err } from '../../core/index.js';
-import type { Result } from '../../core/index.js';
-import { CollectionConfigSchema } from './schemas/index.js';
-import type { CollectionConfig } from './schemas/index.js';
+
+import { ValidationError, ok, err ,type  Result } from '../../core/index.js';
+
+import { CollectionConfigSchema ,type  CollectionConfig } from './schemas/index.js';
+
+import type { ZodSchema } from 'zod';
 
 /**
  * Facade for configuration validation

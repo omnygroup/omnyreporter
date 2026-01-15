@@ -5,17 +5,18 @@
  */
 
 import { injectable, inject } from 'inversify';
-import type {
-  ILogger,
-  IWriter,
-  Diagnostic,
-  Result,
+
+import { DiagnosticError, ok, err ,type 
+  ILogger,type 
+  IWriter,type 
+  Diagnostic,type 
+  Result,type 
   DiagnosticStatistics,
-} from '../core/index.js';
-import { DiagnosticError, ok, err } from '../core/index.js';
-import type { TestStatistics } from '../core/index.js';
+,type  TestStatistics } from '../core/index.js';
 import type { CollectionConfig } from '../domain/index.js';
+
 import { ReportingOrchestrator } from './ReportingOrchestrator.js';
+
 import { TOKENS } from '../diTokens.js';
 
 /**
@@ -82,7 +83,7 @@ export class ReportingFacade {
     try {
       // Run all reporters through orchestrator
       if (config.eslint) {
-        await this.orchestrator.runEslint(config.patterns as string[], undefined);
+        await this.orchestrator.runEslint(config.patterns, undefined);
       }
       
       if (config.typescript) {

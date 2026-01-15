@@ -3,8 +3,7 @@
  * @module core/contracts/IWriter
  */
 
-import type { Result } from '../types/index.js';
-import type { WriteStats, WriteOptions } from '../types/index.js';
+import { type Result ,type  WriteStats,type  WriteOptions } from '../types/index.js';
 
 export interface IWriter<TData> {
   /**

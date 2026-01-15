@@ -14,6 +14,6 @@ export interface LintStatistics extends StatisticsBase {
   readonly infoCount: number;
   readonly noteCount: number;
   readonly autoFixableCount: number;
-  readonly mostCommonRules: Array<{ readonly rule: string; readonly count: number }>;
+  readonly mostCommonRules: { readonly rule: string; readonly count: number }[];
   readonly filesByRule: Record<string, number>;
 }

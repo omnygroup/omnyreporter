@@ -3,11 +3,11 @@
  * @module infrastructure/filesystem/StreamWriter
  */
 
-import { injectable } from 'inversify';
 import { resolve } from 'node:path';
 
-import type { IFileSystem, IWriter, WriteStats, WriteOptions, Result } from '../../core/index.js';
-import { FileSystemError, ok, err } from '../../core/index.js';
+import { injectable } from 'inversify';
+
+import { FileSystemError, ok, err ,type  IFileSystem,type  IWriter,type  WriteStats,type  WriteOptions,type  Result } from '../../core/index.js';
 
 /**
  * Writer for streaming data (async iterables)

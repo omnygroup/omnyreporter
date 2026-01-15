@@ -11,7 +11,7 @@ import type { Diagnostic } from '../../src/core/types/index.js';
 export class DiagnosticTestBuilder {
   private diagnostic: Diagnostic;
 
-  constructor(id: string = 'test-1') {
+  constructor(id = 'test-1') {
     this.diagnostic = {
       id,
       source: 'eslint',

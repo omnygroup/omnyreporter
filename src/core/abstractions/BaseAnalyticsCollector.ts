@@ -4,8 +4,8 @@
  * @module core/abstractions/BaseAnalyticsCollector
  */
 
-import type { StatisticsBase } from '../types/index.js';
 import type { IAnalyticsCollector } from '../contracts/index.js';
+import type { StatisticsBase } from '../types/index.js';
 
 /**
  * Template method pattern for analytics collection

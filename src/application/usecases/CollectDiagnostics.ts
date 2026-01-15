@@ -4,11 +4,8 @@
  * @module application/usecases/CollectDiagnostics
  */
 
-import type { IDiagnosticSource, Diagnostic } from '../../core/index.js';
-import { DiagnosticError, ok, err } from '../../core/index.js';
-import type { Result } from '../../core/index.js';
-import type { CollectionConfig } from '../../domain/index.js';
-import { DiagnosticAggregator } from '../../domain/index.js';
+import { DiagnosticError, ok, err ,type  IDiagnosticSource,type  Diagnostic ,type  Result } from '../../core/index.js';
+import { type CollectionConfig , DiagnosticAggregator } from '../../domain/index.js';
 
 /**
  * Use-case for collecting diagnostics from multiple sources
@@ -27,7 +24,7 @@ export class CollectDiagnosticsUseCase {
   public async execute(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
     try {
       const results = await Promise.allSettled(
-        this.sources.map((source) => source.collect(config))
+        this.sources.map(async (source) => source.collect(config))
       );
 
       const diagnosticArrays: Diagnostic[][] = [];

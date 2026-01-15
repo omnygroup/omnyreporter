@@ -4,11 +4,12 @@
  * @module core/abstractions/BaseDiagnosticSource
  */
 
-import type { Diagnostic } from '../types/index.js';
-import type { IDiagnosticSource } from '../contracts/index.js';
+import { ok, err ,type  Result } from '../types/result.js';
+
 import type { CollectionConfig } from '../../domain/index.js';
-import { ok, err } from '../types/result.js';
-import type { Result } from '../types/result.js';
+import type { IDiagnosticSource } from '../contracts/index.js';
+import type { Diagnostic } from '../types/index.js';
+
 
 /**
  * Template method pattern for diagnostic source collection

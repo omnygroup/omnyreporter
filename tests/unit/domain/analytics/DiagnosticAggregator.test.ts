@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { DiagnosticAggregator } from '../../../../src/domain/analytics/diagnostics/index';
 import { createTestDiagnostics } from '../../../mocks/index';
 

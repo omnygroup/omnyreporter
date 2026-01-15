@@ -4,8 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { DiagnosticAnalytics } from '../../../../src/domain/analytics/diagnostics/index';
 import { createTestDiagnostics } from '../../../mocks/index';
+
 import type { Diagnostic } from '../../../../src/core/types';
 
 describe('DiagnosticAnalytics', () => {
@@ -30,7 +32,7 @@ describe('DiagnosticAnalytics', () => {
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'info' as const })),
       ];
 
-      diagnostics.forEach((d) => analytics.collect(d));
+      diagnostics.forEach((d) => { analytics.collect(d); });
 
       const stats = analytics.getSnapshot();
       expect(stats.totalCount).toBe(6);
@@ -47,7 +49,7 @@ describe('DiagnosticAnalytics', () => {
         ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'note' as const })),
       ];
 
-      diagnostics.forEach((d) => analytics.collect(d));
+      diagnostics.forEach((d) => { analytics.collect(d); });
 
       const stats = analytics.getSnapshot();
       expect(stats.errorCount).toBe(1);

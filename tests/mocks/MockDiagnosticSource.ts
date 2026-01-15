@@ -3,10 +3,12 @@
  * @module tests/mocks/MockDiagnosticSource
  */
 
-import type { Diagnostic, Result } from '../../src/core/types/index.js';
-import type { IDiagnosticSource } from '../../src/core/contracts/index.js';
-import type { CollectionConfig } from '../../src/domain/index.js';
 import { ok, err } from 'neverthrow';
+
+import type { IDiagnosticSource } from '../../src/core/contracts/index.js';
+import type { Diagnostic, Result } from '../../src/core/types/index.js';
+import type { CollectionConfig } from '../../src/domain/index.js';
+
 
 export class MockDiagnosticSource implements IDiagnosticSource {
   private name: string;
@@ -14,7 +16,7 @@ export class MockDiagnosticSource implements IDiagnosticSource {
   private errorToThrow: Error | null = null;
   private callCount = 0;
 
-  constructor(name: string = 'mock-source') {
+  constructor(name = 'mock-source') {
     this.name = name;
   }
 

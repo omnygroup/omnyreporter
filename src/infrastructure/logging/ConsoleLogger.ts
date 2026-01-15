@@ -52,7 +52,7 @@ export class ConsoleLogger implements ILogger {
       // Include stack when available to aid debugging
       console.error(`${message}${ctxStr} - ${error.stack ?? error.message}`);
     } else {
-      console.error(this.format(message, (error as LogContext) ?? context));
+      console.error(this.format(message, (error!) ?? context));
     }
   }
 

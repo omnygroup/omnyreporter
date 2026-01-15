@@ -5,10 +5,8 @@
 
 import { ESLint } from 'eslint';
 
-import type { Diagnostic, ILogger } from '../../core/index.js';
-import { DiagnosticError } from '../../core/index.js';
-import { DiagnosticMapper } from '../../domain/index.js';
-import type { RawDiagnosticData } from '../../domain/index.js';
+import { DiagnosticError ,type  Diagnostic,type  ILogger } from '../../core/index.js';
+import { DiagnosticMapper ,type  RawDiagnosticData } from '../../domain/index.js';
 
 /**
  * Adapter for ESLint API
@@ -46,7 +44,7 @@ export class EslintAdapter {
       const diagnostics: RawDiagnosticData[] = [];
 
       results.forEach((result) => {
-        result.messages.forEach((message) => {
+        result.messages.forEach((message: any) => {
           diagnostics.push({
             filePath: result.filePath,
             line: message.line,

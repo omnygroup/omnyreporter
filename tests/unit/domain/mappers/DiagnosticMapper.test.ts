@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { DiagnosticMapper } from '../../../../src/domain/mappers/index';
 import { createTestDiagnostics } from '../../../mocks/index';
 

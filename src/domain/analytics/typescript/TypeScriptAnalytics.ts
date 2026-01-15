@@ -4,10 +4,12 @@
  */
 
 import { injectable } from 'inversify';
-import type { Diagnostic } from '../../../core/index.js';
-import { BaseAnalyticsCollector } from '../../../core/index.js';
-import type { TypeScriptStatistics } from './types.js';
+
+import { BaseAnalyticsCollector ,type  Diagnostic } from '../../../core/index.js';
+
 import { TypeScriptStatisticsCalculator } from './TypeScriptStatisticsCalculator.js';
+
+import type { TypeScriptStatistics } from './types.js';
 
 /**
  * Analytics collector for TypeScript diagnostics

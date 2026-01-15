@@ -4,11 +4,11 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { CollectDiagnosticsUseCase } from '../../../src/application/usecases';
-import { MockDiagnosticSource } from '../../mocks';
 import { DiagnosticAggregator } from '../../../src/domain/analytics/diagnostics/DiagnosticAggregator';
 import { createTestConfig } from '../../helpers';
-import { createTestDiagnostics } from '../../mocks';
+import { MockDiagnosticSource , createTestDiagnostics } from '../../mocks';
 
 describe('CollectDiagnosticsUseCase', () => {
   let useCase: CollectDiagnosticsUseCase;

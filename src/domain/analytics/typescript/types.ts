@@ -14,6 +14,6 @@ export interface TypeScriptStatistics extends StatisticsBase {
   readonly infoCount: number;
   readonly filesWithErrors: Record<string, number>;
   readonly totalByCode: Record<string, number>;
-  readonly mostCommonErrorCodes: Array<{ readonly code: string; readonly count: number }>;
+  readonly mostCommonErrorCodes: { readonly code: string; readonly count: number }[];
 }
 

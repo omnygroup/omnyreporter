@@ -3,9 +3,10 @@
  * @module tests/mocks/MockWriter
  */
 
+import { ok, err } from 'neverthrow';
+
 import type { IWriter } from '../../src/core/contracts/index.js';
 import type { WriteStats, Result } from '../../src/core/types/index.js';
-import { ok, err } from 'neverthrow';
 
 export class MockWriter<TData> implements IWriter<TData> {
   private writtenData: TData[] = [];

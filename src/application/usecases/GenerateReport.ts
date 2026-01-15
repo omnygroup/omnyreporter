@@ -4,16 +4,14 @@
  * @module application/usecases/GenerateReport
  */
 
-import type {
-  IDiagnosticSource,
-  IWriter,
-  Diagnostic,
-  Result,
+import { DiagnosticError, ok, err ,type 
+  IDiagnosticSource,type 
+  IWriter,type 
+  Diagnostic,type 
+  Result,type 
   WriteStats,
 } from '../../core/index.js';
-import type { CollectionConfig } from '../../domain/index.js';
-import { DiagnosticError, ok, err } from '../../core/index.js';
-import { DiagnosticAnalytics, DiagnosticAggregator } from '../../domain/index.js';
+import { type CollectionConfig , DiagnosticAnalytics, DiagnosticAggregator } from '../../domain/index.js';
 
 /**
  * Result of report generation
@@ -42,7 +40,7 @@ export class GenerateReportUseCase {
     try {
       // Collect diagnostics from all sources
       const results = await Promise.allSettled(
-        this.sources.map((source) => source.collect(config))
+        this.sources.map(async (source) => source.collect(config))
       );
 
       const diagnosticArrays: Diagnostic[][] = [];
@@ -58,7 +56,7 @@ export class GenerateReportUseCase {
 
       // Calculate statistics
       const analytics = new DiagnosticAnalytics();
-      aggregated.forEach((d) => analytics.collect(d));
+      aggregated.forEach((d) => { analytics.collect(d); });
       const stats = analytics.getSnapshot();
 
       // Write report

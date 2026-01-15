@@ -4,11 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { GenerateReportUseCase } from '../../../src/application/usecases';
-import { MockWriter } from '../../mocks';
-import { MockFormatter } from '../../mocks';
-import { MockLogger } from '../../mocks';
-import { createTestDiagnostics } from '../../mocks';
+import { MockWriter , MockFormatter , MockLogger , createTestDiagnostics } from '../../mocks';
+
 import type { DiagnosticReport } from '../../../src/core/types';
 
 describe('GenerateReportUseCase', () => {

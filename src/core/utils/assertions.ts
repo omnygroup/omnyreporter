@@ -11,7 +11,7 @@
  */
 export function assertNotNullish<T>(
   value: T | null | undefined,
-  message: string = 'Value must not be null or undefined'
+  message = 'Value must not be null or undefined'
 ): asserts value is T {
   if (value === null || value === undefined) {
     throw new Error(message);
@@ -26,7 +26,7 @@ export function assertNotNullish<T>(
  */
 export function assertTrue(
   condition: unknown,
-  message: string = 'Assertion failed: condition must be true'
+  message = 'Assertion failed: condition must be true'
 ): asserts condition {
   if (!condition) {
     throw new Error(message);

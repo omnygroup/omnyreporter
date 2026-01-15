@@ -3,9 +3,7 @@
  * @module core/errors/BaseError
  */
 
-export interface ErrorContext {
-  readonly [key: string]: unknown;
-}
+export type ErrorContext = Readonly<Record<string, unknown>>;
 
 /**
  * Base error class extending Error with context support

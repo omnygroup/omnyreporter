@@ -3,12 +3,12 @@
  * @module infrastructure/filesystem/FileWriter
  */
 
-import { injectable } from 'inversify';
 import { resolve } from 'node:path';
-import fs from 'fs-extra';
 
-import type { IWriter, WriteOptions, WriteStats, Result } from '../../core/index.js';
-import { FileSystemError, ok, err } from '../../core/index.js';
+import fs from 'fs-extra';
+import { injectable } from 'inversify';
+
+import { FileSystemError, ok, err ,type  IWriter,type  WriteOptions,type  WriteStats,type  Result } from '../../core/index.js';
 
 /**
  * FileWriter - writes diagnostics (or arbitrary data) to a file

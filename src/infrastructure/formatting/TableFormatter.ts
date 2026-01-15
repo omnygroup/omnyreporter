@@ -3,18 +3,17 @@
  * @module infrastructure/formatting/TableFormatter
  */
 
-import { injectable } from 'inversify';
-import Table from 'cli-table3';
 import chalk from 'chalk';
+import Table from 'cli-table3';
+import { injectable } from 'inversify';
 
-import type { Diagnostic } from '../../core/index.js';
-import type { IFormatter } from '../../core/index.js';
+import { type Diagnostic ,type  IFormatter } from '../../core/index.js';
 
 /**
  * Table formatter for diagnostics
  */
 @injectable()
-export class TableFormatter implements IFormatter<readonly Diagnostic[], string> {
+export class TableFormatter implements IFormatter<readonly Diagnostic[]> {
   public format(diagnostics: readonly Diagnostic[]): string {
     const table = new Table({
       head: [

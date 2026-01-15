@@ -3,10 +3,12 @@
  * @module reporters/typescript/TypeScriptReporter
  */
 
-import { BaseDiagnosticSource } from '../../core/index.js';
-import type { ILogger } from '../../core/index.js';
-import type { CollectionConfig } from '../../domain/index.js';
+import { BaseDiagnosticSource ,type  ILogger } from '../../core/index.js';
+
 import { TypeScriptAdapter } from './TypeScriptAdapter.js';
+
+import type { CollectionConfig } from '../../domain/index.js';
+
 
 /**
  * TypeScript diagnostic source

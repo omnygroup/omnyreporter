@@ -3,8 +3,8 @@
  * @module domain/analytics/typescript/TypeScriptStatisticsCalculator
  */
 
-import type { Diagnostic } from '../../../core/index.js';
 import type { TypeScriptStatistics } from './types.js';
+import type { Diagnostic } from '../../../core/index.js';
 
 /**
  * Calculates TypeScript-specific statistics from diagnostics

@@ -3,8 +3,7 @@
  * @module domain/mappers/DiagnosticMapper
  */
 
-import { BaseMapper, createDiagnostic } from '../../core/index.js';
-import type { Diagnostic } from '../../core/index.js';
+import { BaseMapper, createDiagnostic ,type  Diagnostic } from '../../core/index.js';
 
 export interface RawDiagnosticData {
   readonly filePath: string;

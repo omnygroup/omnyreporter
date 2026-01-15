@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { ConfigValidator } from '../../../../src/domain/validation/index';
 import { createTestConfig } from '../../../helpers/index';
 
