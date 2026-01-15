@@ -126,24 +126,17 @@ export function setupContainer(): Container {
   // DiagnosticAnalytics used by the orchestrator - provide instance as constant
   container.bind(TOKENS.DiagnosticAnalytics).toConstantValue(new DiagnosticAnalytics());
 
-  // Register Use Cases as transient
-  // These would need proper configuration based on available sources
-  // For now, we'll configure them in the CLI handler
-  container
-    .bind(TOKENS.CollectDiagnosticsUseCase)
-    .to(CollectDiagnosticsUseCase)
-    .inTransientScope();
-
-  container
-    .bind(TOKENS.GenerateReportUseCase)
-    .to(GenerateReportUseCase)
-    .inTransientScope();
+  // Use-cases require runtime parameters (sources, writers) and are
+  // created by the application layer (CLI handlers). Do not bind them
+  // here to avoid accidental construction with incorrect dependencies.
 
   // Register orchestrator and facade
   container.bind(TOKENS.ReportingOrchestrator).to(ReportingOrchestrator).inTransientScope();
   // FileWriter requires basePath primitive - provide a default via factory
   container.bind(TOKENS.FileWriter).toDynamicValue(() => new FileWriter(process.cwd())).inTransientScope();
   container.bind(TOKENS.ReportingFacade).to(ReportingFacade).inSingletonScope();
+  // Also bind class identifier for tests that request the class directly
+  container.bind(ReportingFacade).to(ReportingFacade).inSingletonScope();
 
   return container;
 }
