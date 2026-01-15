@@ -10,7 +10,7 @@ import { DiagnosticAnalytics } from '../domain/analytics/diagnostics/DiagnosticA
 import { EslintAdapter } from './eslint/EslintAdapter.js';
 import { TypeScriptAdapter } from './typescript/TypeScriptAdapter.js';
 import { VitestAdapter } from './vitest/VitestAdapter.js';
-import { TOKENS } from '../container.js';
+import { TOKENS } from '../diTokens.js';
 import type { Diagnostic } from '../core/index.js';
 import type { TestResult } from './vitest/TaskProcessor.js';
 
@@ -73,6 +73,8 @@ export class ReportingOrchestrator {
     configPath?: string
   ): Promise<readonly Diagnostic[]> {
     try {
+      // Clear previous diagnostic analytics snapshot to ensure fresh run
+      this.diagnosticAnalytics.reset();
       const diagnostics = await this.eslintAdapter.lint(patterns, configPath);
       diagnostics.forEach((diagnostic) => {
         this.diagnosticAnalytics.collect(diagnostic);
@@ -91,6 +93,8 @@ export class ReportingOrchestrator {
    */
   public async runTypeScript(tsConfigPath: string): Promise<readonly Diagnostic[]> {
     try {
+      // Clear previous diagnostic analytics snapshot to ensure fresh run
+      this.diagnosticAnalytics.reset();
       const diagnostics = await this.typescriptAdapter.check(tsConfigPath);
       diagnostics.forEach((diagnostic) => {
         this.diagnosticAnalytics.collect(diagnostic);
