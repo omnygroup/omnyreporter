@@ -139,18 +139,54 @@ export class StructuredReportWriter {
 
   /**
    * Generate JSON file name from file path
-   * Replaces path separators and invalid characters with underscores
+   * Replaces path separators and invalid characters with underscores.
+   * Uses agnostic relative paths to avoid OS-specific prefixes like drive letters.
    * @param filePath File path (absolute or relative)
    * @returns JSON file name
    */
   private generateFileName(filePath: string): string {
-    // Convert to relative path if absolute to avoid drive letters (C:) and root prefixes
-    const relativePath = this.pathService.isAbsolute(filePath)
-      ? this.pathService.relative(process.cwd(), filePath)
-      : filePath;
+    const relativePath = this.toRelativePath(filePath);
+    const segments = this.splitPathSegments(relativePath);
+    const safeName = this.buildSafeName(segments);
 
-    // Normalize separators and replace both / and : with underscores
-    const normalized = this.pathService.normalize(relativePath).replace(/[:\/]/g, '_');
-    return `${normalized}.json`;
+    return `${safeName}.json`;
+  }
+
+  private toRelativePath(filePath: string): string {
+    const normalizedPath = this.pathService.normalize(filePath);
+    const normalizedCwd = this.pathService.normalize(process.cwd());
+    const relativePath = this.pathService.relative(normalizedCwd, normalizedPath);
+
+    return relativePath.length > 0 ? relativePath : '.';
+  }
+
+  private splitPathSegments(relativePath: string): string[] {
+    const rawSegments = relativePath.split('/');
+    const cleanedSegments: string[] = [];
+
+    for (const segment of rawSegments) {
+      if (!this.isValidSegment(segment)) {
+        continue;
+      }
+
+      const colonParts = segment.split(':');
+      for (const part of colonParts) {
+        if (!this.isValidSegment(part)) {
+          continue;
+        }
+        cleanedSegments.push(part);
+      }
+    }
+
+    return cleanedSegments;
+  }
+
+  private buildSafeName(segments: string[]): string {
+    const baseName = segments.join('_');
+    return baseName.length > 0 ? baseName : 'project-root';
+  }
+
+  private isValidSegment(segment: string): boolean {
+    return segment.length > 0 && segment !== '.' && segment !== '..';
   }
 }
