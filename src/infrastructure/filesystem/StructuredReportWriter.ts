@@ -59,7 +59,7 @@ export class StructuredReportWriter {
           totalBytes += result.value;
         }
 
-        this.logger.info(`Wrote ${fileReports.length} diagnostic files for ${source}`, {
+        this.logger.info(`Wrote ${String(fileReports.length)} diagnostic files for ${source}`, {
           source,
           count: fileReports.length,
         });

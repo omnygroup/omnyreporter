@@ -42,7 +42,7 @@ export class CollectDiagnosticsUseCase {
       for (const result of results) {
         if (result.status === 'fulfilled') {
           const value = result.value;
-          if (value && typeof value.isOk === 'function' && value.isOk()) {
+          if (value.isOk()) {
             diagnosticArrays.push([...value.value]);
             successCount += 1;
           }

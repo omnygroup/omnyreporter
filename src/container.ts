@@ -181,9 +181,8 @@ export function setupContainer(): Container {
  * @returns Global inversify container
  */
 export function getContainer(): Container {
-  if (!containerInstance) {
-    containerInstance = setupContainer();
-  }
+  // Use nullish coalescing assignment for brevity and clarity
+  containerInstance ??= setupContainer();
   return containerInstance;
 }
 

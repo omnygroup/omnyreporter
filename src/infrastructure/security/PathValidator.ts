@@ -7,7 +7,7 @@
 import { injectable } from 'inversify';
 import upath from 'upath';
 
-import { FileSystemError ,type  IPathService } from '../../core/index.js';
+import { FileSystemError, type IPathService } from '../../core/index.js';
 
 /**
  * Service for validating paths for security and normalization
@@ -32,7 +32,7 @@ export class PathValidator {
     }
 
     // If base path provided, ensure normalized path is within base
-    if (basePath) {
+    if (basePath != null && basePath !== '') {
       const normalizedBase = this.pathService.normalize(basePath);
       const relative = this.pathService.relative(normalizedBase, normalized);
 

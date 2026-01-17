@@ -28,7 +28,8 @@ export function assertTrue(
   condition: unknown,
   message = 'Assertion failed: condition must be true'
 ): asserts condition {
-  if (!condition) {
+  // Use explicit comparison to satisfy strict-boolean-expressions without extra boolean cast
+  if (condition !== true) {
     throw new Error(message);
   }
 }
