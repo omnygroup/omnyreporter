@@ -9,13 +9,13 @@ import type { Diagnostic } from '@core';
 /**
  * Calculates lint-specific statistics from diagnostics
  */
-export class LintStatisticsCalculator {
+export const LintStatisticsCalculator = {
   /**
    * Calculate lint statistics from diagnostics
    * @param diagnostics Array of diagnostics
    * @returns Lint statistics
    */
-  public static calculateLintStats(diagnostics: readonly Diagnostic[]): LintStatistics {
+  calculateLintStats(diagnostics: readonly Diagnostic[]): LintStatistics {
     const errorCount = diagnostics.filter((d) => d.severity === 'error').length;
     const warningCount = diagnostics.filter((d) => d.severity === 'warning').length;
     const infoCount = diagnostics.filter((d) => d.severity === 'info').length;
@@ -28,7 +28,8 @@ export class LintStatisticsCalculator {
     const filesByRule: Record<string, number> = {};
 
     diagnostics.forEach((d) => {
-      if (d.code) {
+      // Explicitly check for a non-empty string code to satisfy strict-boolean-expressions
+      if (typeof d.code === 'string' && d.code !== '') {
         ruleCount[d.code] = (ruleCount[d.code] ?? 0) + 1;
         const fileKey = d.code;
         filesByRule[fileKey] = (filesByRule[fileKey] ?? 0) + 1;
@@ -52,5 +53,5 @@ export class LintStatisticsCalculator {
       mostCommonRules,
       filesByRule,
     };
-  }
-}
+  },
+} as const;

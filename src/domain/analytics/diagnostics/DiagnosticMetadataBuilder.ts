@@ -12,14 +12,14 @@ import { DiagnosticAggregator } from './DiagnosticAggregator.js';
  * Builds metadata for diagnostic reports
  * Pure function (no state, no dependencies)
  */
-export class DiagnosticMetadataBuilder {
+export const DiagnosticMetadataBuilder = Object.freeze({
   /**
    * Build metadata from diagnostics
    * @param diagnostics Array of diagnostics for single file
    * @param instrument Diagnostic source (tool)
    * @returns Report metadata
    */
-  public static build(
+  build(
     diagnostics: readonly Diagnostic[],
     instrument: DiagnosticSource
   ): DiagnosticReportMetadata {
@@ -33,5 +33,5 @@ export class DiagnosticMetadataBuilder {
       warningCount: severityCount.warning,
       infoCount: severityCount.info + severityCount.note,
     };
-  }
-}
+  },
+});

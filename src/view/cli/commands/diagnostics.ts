@@ -19,8 +19,8 @@ import type { Arguments, CommandBuilder, Argv } from 'yargs';
 
 export interface DiagnosticsOptions extends Arguments {
   patterns?: string[];
-  eslint: boolean;
-  typescript: boolean;
+  eslint?: boolean;
+  typescript?: boolean;
   format: 'json' | 'pretty' | 'table';
   output?: string;
   verbose: boolean;
@@ -36,17 +36,15 @@ export const builder: CommandBuilder<unknown, DiagnosticsOptions> = (yargs: Argv
       describe: 'Glob patterns for files to check',
       type: 'string',
       array: true,
-      default: ['src/**/*.ts', 'src/**/*.tsx'],
+      default: ['.'],
     })
     .option('eslint', {
-      describe: 'Run ESLint',
+      describe: 'Run ESLint (defaults to true if no other tool specified)',
       type: 'boolean',
-      default: true,
     })
     .option('typescript', {
-      describe: 'Run TypeScript type checking',
+      describe: 'Run TypeScript checking (defaults to true if no other tool specified)',
       type: 'boolean',
-      default: true,
     })
     .option('format', {
       describe: 'Output format',
@@ -65,13 +63,17 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
   try {
     const container = getContainer();
     const logger = container.get<ILogger>(TOKENS.Logger);
-    const fileSystem = container.get<IFileSystem>(TOKENS.FileSystem);
+
+    // Filter tools based on user flags
+    // If no flags are provided, both run. If one is provided, only that one runs.
+    const runEslint = argv.eslint ?? argv.typescript !== true;
+    const runTypescript = argv.typescript ?? argv.eslint !== true;
 
     if (argv.verbose) {
       logger.info('Starting diagnostics collection', {
         patterns: argv.patterns,
-        eslint: argv.eslint,
-        typescript: argv.typescript,
+        eslint: runEslint,
+        typescript: runTypescript,
         format: argv.format,
       });
     }
@@ -84,17 +86,17 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
       timeout: 30000,
       cache: false,
       ignorePatterns: [],
-      eslint: argv.eslint,
-      typescript: argv.typescript,
+      eslint: runEslint,
+      typescript: runTypescript,
       configPath: undefined,
     };
 
     // Build list of diagnostic sources
     const sources = [];
-    if (argv.eslint) {
+    if (runEslint) {
       sources.push(new EslintReporter(logger));
     }
-    if (argv.typescript) {
+    if (runTypescript) {
       sources.push(new TypeScriptReporter(logger));
     }
 

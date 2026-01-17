@@ -137,7 +137,7 @@ export function createDiagnostic(
   message: string,
   options?: Partial<Omit<Diagnostic, 'id' | 'source' | 'filePath' | 'line' | 'column' | 'severity' | 'code' | 'message' | 'timestamp'>>
 ): Diagnostic {
-  const id = `${source}:${filePath}:${line}:${column}:${code}`;
+  const id = `${source}:${filePath}:${String(line)}:${String(column)}:${code}`;
 
   return {
     id,

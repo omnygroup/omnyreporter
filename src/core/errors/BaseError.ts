@@ -32,7 +32,7 @@ export abstract class BaseError extends Error {
    * @param type Error class to check
    * @returns True if error is of specified type
    */
-  public isInstanceOf<T extends BaseError>(type: new (...args: unknown[]) => T): boolean {
+  public isInstanceOf(type: new (...args: unknown[]) => BaseError): boolean {
     return this instanceof type;
   }
 
@@ -46,7 +46,7 @@ export abstract class BaseError extends Error {
       message: this.message,
       context: this.context,
       timestamp: this.timestamp.toISOString(),
-      originalError: this.originalError ? {
+      originalError: this.originalError !== undefined ? {
         name: this.originalError.name,
         message: this.originalError.message,
       } : undefined,

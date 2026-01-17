@@ -75,88 +75,88 @@ export function setupContainer(): Container {
 
   // Register Logger as singleton (use factory to avoid constructor metadata issues)
     container
-      .bind<ILogger>(TOKENS.Logger)
+      .bind<ILogger>(TOKENS.LOGGER)
       .toDynamicValue(() => new PinoLogger())
       .inSingletonScope();
   // Also provide a ConsoleLogger as an alternative singleton implementation
-  container.bind<ILogger>(TOKENS.ConsoleLogger).to(ConsoleLogger).inSingletonScope();
+  container.bind<ILogger>(TOKENS.CONSOLE_LOGGER).to(ConsoleLogger).inSingletonScope();
 
   // Register FileSystem as singleton
-  container.bind<IFileSystem>(TOKENS.FileSystem).to(NodeFileSystem).inSingletonScope();
+  container.bind<IFileSystem>(TOKENS.FILE_SYSTEM).to(NodeFileSystem).inSingletonScope();
 
   // Register PathService as singleton
-  container.bind<IPathService>(TOKENS.PathService).to(UpathService).inSingletonScope();
+  container.bind<IPathService>(TOKENS.PATH_SERVICE).to(UpathService).inSingletonScope();
 
   // Register Sanitizer as singleton
-  container.bind<ISanitizer>(TOKENS.Sanitizer).to(RedactSanitizer).inSingletonScope();
+  container.bind<ISanitizer>(TOKENS.SANITIZER).to(RedactSanitizer).inSingletonScope();
 
   // Register PathValidator as singleton
-  container.bind(TOKENS.PathValidator).toDynamicValue(() => new PathValidator(container.get(TOKENS.PathService))).inSingletonScope();
+  container.bind(TOKENS.PATH_VALIDATOR).toDynamicValue(() => new PathValidator(container.get(TOKENS.PATH_SERVICE))).inSingletonScope();
 
   // Register DirectoryService as singleton
-  container.bind(TOKENS.DirectoryService).toDynamicValue(() => new DirectoryService(container.get(TOKENS.FileSystem))).inSingletonScope();
+  container.bind(TOKENS.DIRECTORY_SERVICE).toDynamicValue(() => new DirectoryService(container.get(TOKENS.FILE_SYSTEM))).inSingletonScope();
 
   // Register Formatters
-  container.bind(TOKENS.ConsoleFormatter).to(ConsoleFormatter).inTransientScope();
-  container.bind(TOKENS.JsonFormatter).to(JsonFormatter).inTransientScope();
-  container.bind(TOKENS.TableFormatter).to(TableFormatter).inTransientScope();
+  container.bind(TOKENS.CONSOLE_FORMATTER).to(ConsoleFormatter).inTransientScope();
+  container.bind(TOKENS.JSON_FORMATTER).to(JsonFormatter).inTransientScope();
+  container.bind(TOKENS.TABLE_FORMATTER).to(TableFormatter).inTransientScope();
 
   // Register Writers as transient
-  container.bind(TOKENS.JsonWriter).toDynamicValue(() => new JsonWriter(container.get(TOKENS.FileSystem), process.cwd())).inTransientScope();
-  container.bind(TOKENS.StreamWriter).toDynamicValue(() => new StreamWriter(container.get(TOKENS.FileSystem), process.cwd())).inTransientScope();
+  container.bind(TOKENS.JSON_WRITER).toDynamicValue(() => new JsonWriter(container.get(TOKENS.FILE_SYSTEM), process.cwd())).inTransientScope();
+  container.bind(TOKENS.STREAM_WRITER).toDynamicValue(() => new StreamWriter(container.get(TOKENS.FILE_SYSTEM), process.cwd())).inTransientScope();
 
   // Register DiagnosticAggregator as constant (it only has static methods)
-  container.bind(TOKENS.DiagnosticAggregator).toConstantValue(DiagnosticAggregator);
+  container.bind(TOKENS.DIAGNOSTIC_AGGREGATOR).toConstantValue(DiagnosticAggregator);
 
   // Register ConfigValidator as singleton
-  container.bind(TOKENS.ConfigValidator).to(ConfigValidator).inSingletonScope();
+  container.bind(TOKENS.CONFIG_VALIDATOR).to(ConfigValidator).inSingletonScope();
 
   // Register Reporters as transient with logger injection using factories
   container
-    .bind(TOKENS.EslintAdapter)
-    .toDynamicValue(() => new EslintAdapter(container.get(TOKENS.Logger)))
+    .bind(TOKENS.ESLINT_ADAPTER)
+    .toDynamicValue(() => new EslintAdapter(container.get(TOKENS.LOGGER)))
     .inTransientScope();
 
   container
-    .bind(TOKENS.TypeScriptAdapter)
-    .toDynamicValue(() => new TypeScriptAdapter(container.get(TOKENS.Logger)))
+    .bind(TOKENS.TYPESCRIPT_ADAPTER)
+    .toDynamicValue(() => new TypeScriptAdapter(container.get(TOKENS.LOGGER)))
     .inTransientScope();
 
   container
-    .bind(TOKENS.VitestAdapter)
-    .toDynamicValue(() => new VitestAdapter(container.get(TOKENS.Logger)))
+    .bind(TOKENS.VITEST_ADAPTER)
+    .toDynamicValue(() => new VitestAdapter(container.get(TOKENS.LOGGER)))
     .inTransientScope();
 
   // Register analytics collectors as transient
-  container.bind(TOKENS.TypeScriptAnalytics).to(TypeScriptAnalytics).inTransientScope();
+  container.bind(TOKENS.TYPESCRIPT_ANALYTICS).to(TypeScriptAnalytics).inTransientScope();
   // DiagnosticAnalytics used by the orchestrator - provide instance as constant
-  container.bind(TOKENS.DiagnosticAnalytics).toConstantValue(new DiagnosticAnalytics());
+  container.bind(TOKENS.DIAGNOSTIC_ANALYTICS).toConstantValue(new DiagnosticAnalytics());
 
   // Register file content reader
-  container.bind(TOKENS.FileContentReader).to(FileContentReader).inTransientScope();
+  container.bind(TOKENS.FILE_CONTENT_READER).to(FileContentReader).inTransientScope();
 
   // Register diagnostic metadata builder as constant (stateless)
-  container.bind(TOKENS.DiagnosticMetadataBuilder).toConstantValue(DiagnosticMetadataBuilder);
+  container.bind(TOKENS.DIAGNOSTIC_METADATA_BUILDER).toConstantValue(DiagnosticMetadataBuilder);
 
   // Register file report assembler as constant (stateless)
-  container.bind(TOKENS.FileReportAssembler).toConstantValue(FileReportAssembler);
+  container.bind(TOKENS.FILE_REPORT_ASSEMBLER).toConstantValue(FileReportAssembler);
 
   // Register source code enricher
   // Construct SourceCodeEnricher via factory to avoid relying on constructor metadata
   container
-    .bind(TOKENS.SourceCodeEnricher)
-    .toDynamicValue(() => new SourceCodeEnricher(container.get(TOKENS.FileContentReader)))
+    .bind(TOKENS.SOURCE_CODE_ENRICHER)
+    .toDynamicValue(() => new SourceCodeEnricher(container.get(TOKENS.FILE_CONTENT_READER)))
     .inTransientScope();
 
   // Register structured report writer via factory to avoid relying on interface metadata
   container
-    .bind(TOKENS.StructuredReportWriter)
+    .bind(TOKENS.STRUCTURED_REPORT_WRITER)
     .toDynamicValue(() =>
       new StructuredReportWriter(
-        container.get(TOKENS.FileSystem),
-        container.get(TOKENS.PathService),
-        container.get(TOKENS.DirectoryService),
-        container.get(TOKENS.Logger)
+        container.get(TOKENS.FILE_SYSTEM),
+        container.get(TOKENS.PATH_SERVICE),
+        container.get(TOKENS.DIRECTORY_SERVICE),
+        container.get(TOKENS.LOGGER)
       )
     )
     .inTransientScope();
@@ -166,10 +166,10 @@ export function setupContainer(): Container {
   // here to avoid accidental construction with incorrect dependencies.
 
   // Register orchestrator and facade
-  container.bind(TOKENS.ReportingOrchestrator).to(ReportingOrchestrator).inTransientScope();
+  container.bind(TOKENS.REPORTING_ORCHESTRATOR).to(ReportingOrchestrator).inTransientScope();
   // FileWriter requires basePath primitive - provide a default via factory
-  container.bind(TOKENS.FileWriter).toDynamicValue(() => new FileWriter(process.cwd())).inTransientScope();
-  container.bind(TOKENS.ReportingFacade).to(ReportingFacade).inSingletonScope();
+  container.bind(TOKENS.FILE_WRITER).toDynamicValue(() => new FileWriter(process.cwd())).inTransientScope();
+  container.bind(TOKENS.REPORTING_FACADE).to(ReportingFacade).inSingletonScope();
   // Also bind class identifier for tests that request the class directly
   container.bind(ReportingFacade).to(ReportingFacade).inSingletonScope();
 

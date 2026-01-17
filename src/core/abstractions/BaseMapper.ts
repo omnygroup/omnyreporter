@@ -32,6 +32,6 @@ export abstract class BaseMapper<TInput, TOutput> {
    * @returns Optional transformed output
    */
   public mapOptional(input: TInput | undefined): TOutput | undefined {
-    return input ? this.map(input) : undefined;
+    return input !== undefined ? this.map(input) : undefined;
   }
 }

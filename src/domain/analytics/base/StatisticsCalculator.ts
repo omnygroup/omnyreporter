@@ -8,13 +8,13 @@ import type { Diagnostic, DiagnosticStatistics } from '@core';
 /**
  * Utility for calculating diagnostic statistics
  */
-export class StatisticsCalculator {
+export const StatisticsCalculator = {
   /**
    * Calculate statistics from diagnostics array
    * @param diagnostics Array of diagnostics
    * @returns Computed statistics
    */
-  public static calculateDiagnosticStats(
+  calculateDiagnosticStats(
     diagnostics: readonly Diagnostic[]
   ): DiagnosticStatistics {
     let errorCount = 0;
@@ -35,19 +35,19 @@ export class StatisticsCalculator {
       switch (d.severity) {
         case 'error':
           errorCount += 1;
-          totalBySeverity['error'] = (totalBySeverity['error']!) + 1;
+          totalBySeverity['error'] = (totalBySeverity['error'] ?? 0) + 1;
           break;
         case 'warning':
           warningCount += 1;
-          totalBySeverity['warning'] = (totalBySeverity['warning']!) + 1;
+          totalBySeverity['warning'] = (totalBySeverity['warning'] ?? 0) + 1;
           break;
         case 'info':
           infoCount += 1;
-          totalBySeverity['info'] = (totalBySeverity['info']!) + 1;
+          totalBySeverity['info'] = (totalBySeverity['info'] ?? 0) + 1;
           break;
         case 'note':
           noteCount += 1;
-          totalBySeverity['note'] = (totalBySeverity['note']!) + 1;
+          totalBySeverity['note'] = (totalBySeverity['note'] ?? 0) + 1;
           break;
       }
 
@@ -69,5 +69,5 @@ export class StatisticsCalculator {
       totalBySeverity,
       totalByCode,
     };
-  }
-}
+  },
+};
