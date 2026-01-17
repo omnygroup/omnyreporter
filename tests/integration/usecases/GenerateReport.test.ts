@@ -9,44 +9,39 @@ import { GenerateReportUseCase } from '../../../src/application/usecases';
 import { createTestConfig } from '../../helpers/index.js';
 import { MockDiagnosticSource, MockDirectoryService, createTestDiagnostics } from '../../mocks';
 
-import type { CollectionConfig } from '../../../src/core/types/index.js';
+import type { CollectionConfig } from '../../../src/domain/index.js';
+import type { SourceCodeEnricher } from '../../../src/domain/mappers/SourceCodeEnricher';
+import type { StructuredReportWriter } from '../../../src/infrastructure/filesystem/StructuredReportWriter';
 
 describe('GenerateReportUseCase', () => {
   let useCase: GenerateReportUseCase;
   let mockSource: MockDiagnosticSource;
   let mockDirectoryService: MockDirectoryService;
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const createMockEnricher = () => ({
-    enrichAll: vi.fn().mockResolvedValue({ isOk: () => true, value: new Map() }),
-  });
-
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const createMockWriter = () => ({
-    write: vi.fn().mockResolvedValue({
-      isOk: () => true,
-      value: {
-        filesWritten: 0,
-        bytesWritten: 0,
-        duration: 0,
-        timestamp: new Date(),
-      },
-    }),
-  });
-
   beforeEach(() => {
     mockSource = new MockDiagnosticSource('eslint');
     mockDirectoryService = new MockDirectoryService();
 
-    const enricher = createMockEnricher();
-    const writer = createMockWriter();
+    const enricher = {
+      enrichAll: vi.fn().mockResolvedValue({ isOk: () => true, value: new Map() }),
+    } as unknown as SourceCodeEnricher;
 
-    // Type cast is necessary for mocking third-party dependencies
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    const writer = {
+      write: vi.fn().mockResolvedValue({
+        isOk: () => true,
+        value: {
+          filesWritten: 0,
+          bytesWritten: 0,
+          duration: 0,
+          timestamp: new Date(),
+        },
+      }),
+    } as unknown as StructuredReportWriter;
+
     useCase = new GenerateReportUseCase(
       [mockSource],
-      enricher as any,
-      writer as any,
+      enricher,
+      writer,
       mockDirectoryService
     );
   });
@@ -103,14 +98,12 @@ describe('GenerateReportUseCase', () => {
       expect(mockSource.getCallCount()).toBe(1);
     });
 
-    it('should clear errors even if sources fail', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    it('should clear errors even if sources fail', async (): Promise<void> => {
       mockSource.setError(new Error('Collection failed'));
 
       const config = createTestConfig();
       await useCase.execute(config);
 
-      // Should still have cleared errors
       expect(mockDirectoryService.wasClearedAll()).toBe(true);
     });
   });
