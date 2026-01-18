@@ -8,12 +8,10 @@ export type {
   FileContent,
   DiagnosticReportMetadata,
   DiagnosticFileReport,
+  DiagnosticSeverity,
+  DiagnosticSource,
 } from './diagnostic.js';
 export { createDiagnostic } from './diagnostic.js';
-export { DiagnosticSeverity } from './DiagnosticSeverity.js';
-export { DiagnosticSource } from './DiagnosticSource.js';
-export type { DiagnosticSeverity as DiagnosticSeverityType } from './diagnostic.js';
-export type { DiagnosticSource as DiagnosticSourceType } from './diagnostic.js';
 
 export type {
   StatisticsBase,

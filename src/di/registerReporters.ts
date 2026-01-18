@@ -3,22 +3,24 @@
  * @module di/registerReporters
  */
 
-import type { Container } from 'inversify';
+
+import { EslintReporter } from '../reporters/eslint/EslintReporter.js';
+import { TypeScriptReporter } from '../reporters/typescript/TypeScriptReporter.js';
+import { VitestAdapter } from '../reporters/vitest/VitestAdapter.js';
 
 import { TOKENS } from './tokens.js';
-import { EslintAdapter } from '../reporters/eslint/EslintAdapter.js';
-import { TypeScriptAdapter } from '../reporters/typescript/TypeScriptAdapter.js';
-import { VitestAdapter } from '../reporters/vitest/VitestAdapter.js';
+
+import type { Container } from 'inversify';
 
 export function registerReporters(container: Container): void {
   container
-    .bind(TOKENS.ESLINT_ADAPTER)
-    .toDynamicValue(() => new EslintAdapter(container.get(TOKENS.LOGGER)))
+    .bind(TOKENS.ESLINT_REPORTER)
+    .toDynamicValue(() => new EslintReporter(container.get(TOKENS.LOGGER)))
     .inTransientScope();
 
   container
-    .bind(TOKENS.TYPESCRIPT_ADAPTER)
-    .toDynamicValue(() => new TypeScriptAdapter(container.get(TOKENS.LOGGER)))
+    .bind(TOKENS.TYPESCRIPT_REPORTER)
+    .toDynamicValue(() => new TypeScriptReporter(container.get(TOKENS.LOGGER)))
     .inTransientScope();
 
   container

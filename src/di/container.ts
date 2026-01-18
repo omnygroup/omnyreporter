@@ -6,16 +6,17 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 
-import { TOKENS } from './tokens.js';
-import { registerLogging } from './registerLogging.js';
-import { registerFilesystem } from './registerFilesystem.js';
-import { registerPaths } from './registerPaths.js';
-import { registerSecurity } from './registerSecurity.js';
-import { registerFormatting } from './registerFormatting.js';
-import { registerAnalytics } from './registerAnalytics.js';
 import { registerAggregation } from './registerAggregation.js';
-import { registerValidation } from './registerValidation.js';
+import { registerAnalytics } from './registerAnalytics.js';
+import { registerApplication } from './registerApplication.js';
+import { registerFilesystem } from './registerFilesystem.js';
+import { registerFormatting } from './registerFormatting.js';
+import { registerLogging } from './registerLogging.js';
+import { registerPaths } from './registerPaths.js';
 import { registerReporters } from './registerReporters.js';
+import { registerSecurity } from './registerSecurity.js';
+import { registerValidation } from './registerValidation.js';
+import { TOKENS } from './tokens.js';
 
 let containerInstance: Container | null = null;
 
@@ -36,6 +37,7 @@ export function setupContainer(): Container {
   registerAnalytics(container);
   registerValidation(container);
   registerReporters(container);
+  registerApplication(container);
 
   return container;
 }

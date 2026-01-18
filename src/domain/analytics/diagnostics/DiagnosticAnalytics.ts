@@ -1,90 +1,54 @@
 /**
- * Diagnostic analytics collector
+ * Diagnostic Analytics
+ * Collects and calculates diagnostic statistics
  * @module domain/analytics/diagnostics/DiagnosticAnalytics
  */
 
-import { BaseAnalyticsCollector, type Diagnostic, type DiagnosticStatistics } from '@core';
+import { type Diagnostic, type DiagnosticStatistics } from '@core';
+
+import { BaseAnalytics } from '../BaseAnalytics.js';
 
 /**
- * Analytics collector for diagnostics
- * Aggregates diagnostic data and calculates statistics
+ * Diagnostic analytics collector
+ * Simple implementation for diagnostic statistics
  */
-export class DiagnosticAnalytics extends BaseAnalyticsCollector<
-  Diagnostic,
-  DiagnosticStatistics
-> {
+export class DiagnosticAnalytics extends BaseAnalytics<Diagnostic, DiagnosticStatistics> {
+  private diagnostics: Diagnostic[] = [];
+
   public constructor() {
     super();
   }
 
   /**
-   * Collect multiple diagnostics and calculate statistics
-   * @param diagnostics Array of diagnostics to collect
+   * Collect single diagnostic
+   * @param input Diagnostic to collect
    */
-  public collectAll(diagnostics: readonly Diagnostic[]): void {
-    this.stats = this.calculateStats(diagnostics);
+  public collect(input: Diagnostic): void {
+    this.diagnostics.push(input);
+    this.recalculateStats();
   }
 
   /**
-   * Calculate statistics from diagnostics array
-   * @param diagnostics Array of diagnostics
-   * @returns Computed statistics
+   * Collect multiple diagnostics
+   * @param diagnostics Diagnostics array
    */
-  private calculateStats(diagnostics: readonly Diagnostic[]): DiagnosticStatistics {
-    let errorCount = 0;
-    let warningCount = 0;
-    let infoCount = 0;
-    let noteCount = 0;
-    const totalByFile: Record<string, number> = {};
-    const totalBySeverity: Record<string, number> = {
-      error: 0,
-      warning: 0,
-      info: 0,
-      note: 0,
-    };
-    const totalByCode: Record<string, number> = {};
-
-    for (const d of diagnostics) {
-      // Count by severity
-      switch (d.severity) {
-        case 'error':
-          errorCount += 1;
-          totalBySeverity['error'] = (totalBySeverity['error'] ?? 0) + 1;
-          break;
-        case 'warning':
-          warningCount += 1;
-          totalBySeverity['warning'] = (totalBySeverity['warning'] ?? 0) + 1;
-          break;
-        case 'info':
-          infoCount += 1;
-          totalBySeverity['info'] = (totalBySeverity['info'] ?? 0) + 1;
-          break;
-        case 'note':
-          noteCount += 1;
-          totalBySeverity['note'] = (totalBySeverity['note'] ?? 0) + 1;
-          break;
-      }
-
-      // Count by file
-      totalByFile[d.filePath] = (totalByFile[d.filePath] ?? 0) + 1;
-
-      // Count by code
-      totalByCode[d.code] = (totalByCode[d.code] ?? 0) + 1;
-    }
-
-    return {
-      timestamp: new Date(),
-      totalCount: diagnostics.length,
-      errorCount,
-      warningCount,
-      infoCount,
-      noteCount,
-      totalByFile,
-      totalBySeverity,
-      totalByCode,
-    };
+  public collectAll(diagnostics: readonly Diagnostic[]): void {
+    this.diagnostics.push(...diagnostics);
+    this.recalculateStats();
   }
 
+  /**
+   * Get collected diagnostics
+   * @returns Diagnostics array
+   */
+  public getDiagnostics(): readonly Diagnostic[] {
+    return [...this.diagnostics];
+  }
+
+  /**
+   * Create initial statistics
+   * @returns Initial stats
+   */
   protected createInitialStats(): DiagnosticStatistics {
     return {
       timestamp: new Date(),
@@ -102,5 +66,85 @@ export class DiagnosticAnalytics extends BaseAnalyticsCollector<
       },
       totalByCode: {},
     };
+  }
+
+  /**
+   * Recalculate statistics
+   */
+  private recalculateStats(): void {
+    this.stats = this.calculateStats(this.diagnostics);
+  }
+
+  /**
+   * Calculate statistics
+   * @param diagnostics Diagnostics array
+   * @returns Statistics
+   */
+  private calculateStats(diagnostics: readonly Diagnostic[]): DiagnosticStatistics {
+    const counts = this.countBySeverity(diagnostics);
+    const byFile = this.countByFile(diagnostics);
+    const byCode = this.countByCode(diagnostics);
+
+    return {
+      timestamp: new Date(),
+      totalCount: diagnostics.length,
+      errorCount: counts.error,
+      warningCount: counts.warning,
+      infoCount: counts.info,
+      noteCount: counts.note,
+      totalByFile: byFile,
+      totalBySeverity: counts,
+      totalByCode: byCode,
+    };
+  }
+
+  /**
+   * Count diagnostics by severity
+   * @param diagnostics Diagnostics array
+   * @returns Severity counts
+   */
+  private countBySeverity(diagnostics: readonly Diagnostic[]): Record<string, number> {
+    const counts: Record<string, number> = {
+      error: 0,
+      warning: 0,
+      info: 0,
+      note: 0,
+    };
+
+    for (const diagnostic of diagnostics) {
+      counts[diagnostic.severity] = (counts[diagnostic.severity] ?? 0) + 1;
+    }
+
+    return counts;
+  }
+
+  /**
+   * Count diagnostics by file
+   * @param diagnostics Diagnostics array
+   * @returns File counts
+   */
+  private countByFile(diagnostics: readonly Diagnostic[]): Record<string, number> {
+    const counts: Record<string, number> = {};
+
+    for (const diagnostic of diagnostics) {
+      counts[diagnostic.filePath] = (counts[diagnostic.filePath] ?? 0) + 1;
+    }
+
+    return counts;
+  }
+
+  /**
+   * Count diagnostics by code
+   * @param diagnostics Diagnostics array
+   * @returns Code counts
+   */
+  private countByCode(diagnostics: readonly Diagnostic[]): Record<string, number> {
+    const counts: Record<string, number> = {};
+
+    for (const diagnostic of diagnostics) {
+      counts[diagnostic.code] = (counts[diagnostic.code] ?? 0) + 1;
+    }
+
+    return counts;
   }
 }

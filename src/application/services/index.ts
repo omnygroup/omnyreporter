@@ -7,3 +7,5 @@ export {
   DiagnosticApplicationService,
   type DiagnosticReportingResult,
 } from './DiagnosticApplicationService.js';
+export { DiagnosticGrouper } from './DiagnosticGrouper.js';
+export { FileReportBuilder } from './FileReportBuilder.js';

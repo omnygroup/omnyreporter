@@ -71,28 +71,5 @@ export class ConfigValidator {
 
     return result.value;
   }
-
-  /**
-   * Validate configuration against schema (deprecated, use validateStatic instead)
-   * @param data Data to validate
-   * @param schema Zod schema to validate against
-   * @returns Validation result
-   * @deprecated Use validateStatic instead
-   */
-  public static validate<T>(data: unknown, schema: z.ZodType<T>): Result<T, ValidationError> {
-    return ConfigValidator.validateStatic<T>(data, schema);
-  }
-
-  /**
-   * Validate configuration and throw on error (deprecated, use validateOrThrowStatic instead)
-   * @param data Data to validate
-   * @param schema Zod schema to validate against
-   * @returns Validated data
-   * @throws ValidationError if validation fails
-   * @deprecated Use validateOrThrowStatic instead
-   */
-  public static validateOrThrow<T>(data: unknown, schema: z.ZodType<T>): T {
-    return ConfigValidator.validateOrThrowStatic<T>(data, schema);
-  }
 }
 

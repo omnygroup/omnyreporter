@@ -16,7 +16,7 @@ export class VerboseLogger implements ILogger {
 
   public constructor(
     private readonly underlying: ILogger,
-    private readonly verbose: boolean = false
+    private readonly verbose = false
   ) {
     this.originalStdoutWrite = process.stdout.write;
     this.originalStderrWrite = process.stderr.write;
@@ -75,5 +75,9 @@ export class VerboseLogger implements ILogger {
 
   public debug(message: string, context?: Record<string, unknown>): void {
     this.underlying.debug(message, context);
+  }
+
+  public child(context: Record<string, unknown>): ILogger {
+    return new VerboseLogger(this.underlying.child(context), this.verbose);
   }
 }

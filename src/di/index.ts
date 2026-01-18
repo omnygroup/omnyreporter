@@ -13,3 +13,4 @@ export { registerAnalytics } from './registerAnalytics.js';
 export { registerAggregation } from './registerAggregation.js';
 export { registerValidation } from './registerValidation.js';
 export { registerReporters } from './registerReporters.js';
+export { registerApplication } from './registerApplication.js';

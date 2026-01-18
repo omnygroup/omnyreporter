@@ -5,7 +5,7 @@
  */
 
 export { DiagnosticAnalytics } from './analytics/index.js';
-export { DiagnosticAggregator, type SeverityCount, type GroupedBySources } from './aggregation/index.js';
+export { DiagnosticAggregator } from './aggregation/index.js';
 
 export {
   ConfigValidator,

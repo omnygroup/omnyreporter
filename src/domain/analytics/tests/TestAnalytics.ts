@@ -3,18 +3,19 @@
  * @module domain/analytics/tests/TestAnalytics
  */
 
-import { BaseAnalyticsCollector ,type  TestStatistics } from '@core';
+import { type TestStatistics } from '@core';
+
+import { BaseAnalytics } from '../BaseAnalytics.js';
 
 import { TestStatisticsCalculator } from './TestStatisticsCalculator.js';
 
 import type { TestResult } from '@reporters/vitest/TaskProcessor';
 
-
 /**
  * Analytics collector for test results
- * Aggregates test data and calculates statistics
+ * Simple implementation for test statistics
  */
-export class TestAnalytics extends BaseAnalyticsCollector<TestResult, TestStatistics> {
+export class TestAnalytics extends BaseAnalytics<TestResult, TestStatistics> {
   private results: TestResult[] = [];
 
   public constructor() {
@@ -23,7 +24,15 @@ export class TestAnalytics extends BaseAnalyticsCollector<TestResult, TestStatis
 
   public collect(result: TestResult): void {
     this.results.push(result);
-    this.stats = TestStatisticsCalculator.calculateTestStats(this.results);
+    this.recalculateStats();
+  }
+
+  /**
+   * Get all collected test results
+   * @returns Array of test results
+   */
+  public getResults(): readonly TestResult[] {
+    return Object.freeze([...this.results]);
   }
 
   protected createInitialStats(): TestStatistics {
@@ -40,15 +49,9 @@ export class TestAnalytics extends BaseAnalyticsCollector<TestResult, TestStatis
   }
 
   /**
-   * Get all collected test results
-   * @returns Array of test results
+   * Recalculate statistics
    */
-  public getResults(): readonly TestResult[] {
-    return Object.freeze([...this.results]);
-  }
-
-  public override reset(): void {
-    this.results = [];
-    super.reset();
+  private recalculateStats(): void {
+    this.stats = TestStatisticsCalculator.calculateTestStats(this.results);
   }
 }

@@ -1,20 +1,31 @@
 /**
  * Diagnostic Application Service
  * High-level orchestrator for diagnostic reporting workflow
- * Coordinates report generation, analytics, and file writing
  * @module application/services/DiagnosticApplicationService
  */
 
 import { injectable, inject } from 'inversify';
 
 import { TOKENS } from '@/di/container';
-import { DiagnosticError, ok, err, type Result, type WriteStats, type ILogger, type DiagnosticSource, type DiagnosticFileReport } from '@core';
+import {
+  DiagnosticError,
+  ok,
+  err,
+  type Result,
+  type WriteStats,
+  type ILogger,
+  type DiagnosticFileReport,
+  type Diagnostic,
+  type DiagnosticSource,
+  type IFileSystem,
+} from '@core';
 import { type CollectionConfig } from '@domain';
 import { DirectoryService, StructuredReportWriter } from '@infrastructure/filesystem/index.js';
-import { EslintAdapter } from '@reporters/eslint/EslintAdapter.js';
-import { TypeScriptAdapter } from '@reporters/typescript/TypeScriptAdapter.js';
 
 import { GenerateReportUseCase, type ReportResult } from '../usecases/GenerateReport.js';
+
+import { DiagnosticGrouper } from './DiagnosticGrouper.js';
+import { FileReportBuilder } from './FileReportBuilder.js';
 
 /**
  * Complete diagnostic reporting result
@@ -24,24 +35,27 @@ export interface DiagnosticReportingResult extends ReportResult {
 }
 
 /**
- * Application service coordinating the complete diagnostic reporting workflow
- * Orchestrates: clear → collect → aggregate → analytics → write
- * Manages multiple diagnostic sources (ESLint, TypeScript) with configurable execution
+ * Application service coordinating diagnostic reporting workflow
  */
 @injectable()
 export class DiagnosticApplicationService {
+  private readonly grouper: DiagnosticGrouper;
+  private readonly reportBuilder: FileReportBuilder;
+
   public constructor(
     @inject(TOKENS.LOGGER) private readonly logger: ILogger,
-    @inject(TOKENS.ESLINT_ADAPTER) private readonly eslintAdapter: EslintAdapter,
-    @inject(TOKENS.TYPESCRIPT_ADAPTER) private readonly typescriptAdapter: TypeScriptAdapter,
-    @inject(TOKENS.GENERATE_REPORT_USE_CASE) private readonly generateReportUseCase: GenerateReportUseCase,
+    @inject(TOKENS.GENERATE_REPORT_USE_CASE)
+    private readonly generateReportUseCase: GenerateReportUseCase,
     @inject(TOKENS.STRUCTURED_REPORT_WRITER) private readonly writer: StructuredReportWriter,
-    @inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService
-  ) {}
+    @inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService,
+    @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem
+  ) {
+    this.grouper = new DiagnosticGrouper();
+    this.reportBuilder = new FileReportBuilder(fileSystem, logger);
+  }
 
   /**
    * Generate and write diagnostic report
-   * Complete workflow from collection to file output
    * @param config Collection configuration
    * @returns Result with diagnostics, stats, and write stats
    */
@@ -49,105 +63,173 @@ export class DiagnosticApplicationService {
     config: CollectionConfig
   ): Promise<Result<DiagnosticReportingResult, DiagnosticError>> {
     try {
-      // Step 1: Clear previous diagnostic errors
-      await this.directoryService.clearAllErrors();
+      this.logWorkflowStart(config);
+      await this.clearPreviousErrors();
 
-      // Step 2: Generate report (collect, aggregate, analytics)
-      const reportResult = await this.generateReportUseCase.execute(config);
-
+      const reportResult = await this.collectDiagnostics(config);
       if (!reportResult.isOk()) {
         return err(reportResult.error);
       }
 
-      const { diagnostics, stats } = reportResult.value;
+      const { diagnostics, stats, sourceStats } = reportResult.value;
+      this.logCollectionSuccess(diagnostics.length, stats, sourceStats);
 
-      // Step 3: Write structured reports
-      // TODO: Integrate with DiagnosticMapper to create enriched reports
-      // Currently passing empty map as writer expects Map<DiagnosticSource, DiagnosticFileReport[]>
-      const emptyMap = new Map<DiagnosticSource, readonly DiagnosticFileReport[]>();
-      const writeResult = await this.writer.write(emptyMap);
+      const rootPath = config.rootPath ?? '.';
+      const fileReports = await this.buildFileReports(diagnostics, rootPath);
 
+      const writeResult = await this.writeReports(fileReports);
       if (!writeResult.isOk()) {
-        return err(
-          new DiagnosticError(
-            'Failed to write report',
-            {},
-            writeResult.error instanceof Error ? writeResult.error : undefined
-          )
-        );
+        return this.handleWriteError(writeResult.error);
       }
+
+      this.logWorkflowSuccess(diagnostics.length, writeResult.value);
 
       return ok({
         diagnostics,
         stats,
+        sourceStats,
         writeStats: writeResult.value,
       });
     } catch (error) {
-      return err(
-        new DiagnosticError(
-          'Failed to generate and write report',
-          {},
-          error instanceof Error ? error : undefined
-        )
-      );
+      return this.handleUnexpectedError(error);
     }
   }
 
   /**
-   * Run ESLint analysis
-   * @param patterns Glob patterns for files
-   * @param configPath Optional path to eslint config
-   * @param verbose Enable verbose logging
+   * Log workflow start
    */
-  public async runEslint(
-    patterns: readonly string[],
-    configPath?: string,
-    verbose = false
-  ): Promise<Result<void, DiagnosticError>> {
-    try {
-      if (verbose) {
-        this.logger.info('Running ESLint analysis', { patterns });
-      }
-      await this.eslintAdapter.lint(patterns, configPath);
-      return ok(undefined);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.error('ESLint analysis failed', { error: message });
-      return err(
-        new DiagnosticError(
-          'ESLint analysis failed',
-          { patterns: patterns.join(', ') },
-          error instanceof Error ? error : undefined
-        )
-      );
-    }
+  private logWorkflowStart(config: CollectionConfig): void {
+    this.logger.info('Step 1/4: Starting diagnostic report generation', {
+      patterns: config.patterns.length,
+      eslint: config.eslint ?? true,
+      typescript: config.typescript ?? true,
+    });
   }
 
   /**
-   * Run TypeScript analysis
-   * @param tsConfigPath Path to tsconfig.json
-   * @param verbose Enable verbose logging
+   * Clear previous errors
    */
-  public async runTypeScript(
-    tsConfigPath: string,
-    verbose = false
-  ): Promise<Result<void, DiagnosticError>> {
-    try {
-      if (verbose) {
-        this.logger.info('Running TypeScript analysis', { tsConfigPath });
-      }
-      await this.typescriptAdapter.check(tsConfigPath);
-      return ok(undefined);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.error('TypeScript analysis failed', { error: message });
-      return err(
-        new DiagnosticError(
-          'TypeScript analysis failed',
-          { tsConfigPath },
-          error instanceof Error ? error : undefined
-        )
-      );
+  private async clearPreviousErrors(): Promise<void> {
+    this.logger.info('Step 2/4: Clearing previous errors');
+    await this.directoryService.clearAllErrors();
+  }
+
+  /**
+   * Collect diagnostics
+   */
+  private async collectDiagnostics(
+    config: CollectionConfig
+  ): Promise<Result<ReportResult, DiagnosticError>> {
+    this.logger.info('Step 3/4: Collecting and analyzing diagnostics');
+    return this.generateReportUseCase.execute(config);
+  }
+
+  /**
+   * Log collection success
+   */
+  private logCollectionSuccess(
+    count: number,
+    stats: ReportResult['stats'],
+    sourceStats: ReportResult['sourceStats']
+  ): void {
+    this.logger.info('Collection completed', {
+      totalDiagnostics: count,
+      errors: stats.errorCount,
+      warnings: stats.warningCount,
+      sources: {
+        successful: sourceStats.successful,
+        failed: sourceStats.failed,
+        timedOut: sourceStats.timedOut,
+      },
+    });
+  }
+
+  /**
+   * Build file reports
+   */
+  private async buildFileReports(
+    diagnostics: readonly Diagnostic[],
+    rootPath: string
+  ): Promise<Map<DiagnosticSource, readonly DiagnosticFileReport[]>> {
+    this.logger.info('Step 4/4: Building file reports');
+
+    const grouped = this.grouper.groupBySourceAndFile(diagnostics);
+    const result = new Map<DiagnosticSource, readonly DiagnosticFileReport[]>();
+
+    for (const [source, fileMap] of grouped) {
+      const reports = await this.buildReportsForSource(source, fileMap, rootPath);
+      result.set(source, reports);
     }
+
+    return result;
+  }
+
+  /**
+   * Build reports for single source
+   */
+  private async buildReportsForSource(
+    source: DiagnosticSource,
+    fileMap: Map<string, Diagnostic[]>,
+    rootPath: string
+  ): Promise<DiagnosticFileReport[]> {
+    const reports: DiagnosticFileReport[] = [];
+
+    for (const [filePath, fileDiagnostics] of fileMap) {
+      const report = await this.reportBuilder.buildReport(
+        source,
+        filePath,
+        fileDiagnostics,
+        rootPath
+      );
+      reports.push(report);
+    }
+
+    return reports;
+  }
+
+  /**
+   * Write reports to files
+   */
+  private async writeReports(
+    reports: Map<DiagnosticSource, readonly DiagnosticFileReport[]>
+  ): Promise<Result<WriteStats, Error>> {
+    return this.writer.write(reports);
+  }
+
+  /**
+   * Handle write error
+   */
+  private handleWriteError(error: Error): Result<DiagnosticReportingResult, DiagnosticError> {
+    return err(
+      new DiagnosticError('Failed to write report', {}, error instanceof Error ? error : undefined)
+    );
+  }
+
+  /**
+   * Log workflow success
+   */
+  private logWorkflowSuccess(count: number, writeStats: WriteStats): void {
+    this.logger.info('Diagnostic report completed successfully', {
+      diagnosticCount: count,
+      filesWritten: writeStats.filesWritten,
+      duration: writeStats.duration,
+    });
+  }
+
+  /**
+   * Handle unexpected error
+   */
+  private handleUnexpectedError(error: unknown): Result<DiagnosticReportingResult, DiagnosticError> {
+    this.logger.error('Failed to generate and write report', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return err(
+      new DiagnosticError(
+        'Failed to generate and write report',
+        {},
+        error instanceof Error ? error : undefined
+      )
+    );
   }
 }

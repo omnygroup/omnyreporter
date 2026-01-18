@@ -3,11 +3,13 @@
  * @module di/registerPaths
  */
 
-import type { Container } from 'inversify';
+
+import { UpathService } from '../infrastructure/paths/UpathService.js';
 
 import { TOKENS } from './tokens.js';
-import { UpathService } from '../infrastructure/paths/UpathService.js';
+
 import type { IPathService } from '../core/index.js';
+import type { Container } from 'inversify';
 
 export function registerPaths(container: Container): void {
   container.bind<IPathService>(TOKENS.PATH_SERVICE).to(UpathService).inSingletonScope();

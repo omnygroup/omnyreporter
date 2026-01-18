@@ -1,6 +1,6 @@
 /**
- * Integration tests for TypeScriptAdapter
- * @module tests/integration/reporters/TypeScriptAdapter
+ * Integration tests for TypeScriptReporter
+ * @module tests/integration/reporters/TypeScriptReporter
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

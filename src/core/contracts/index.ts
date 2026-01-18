@@ -11,3 +11,4 @@ export type { IFormatter } from './IFormatter.js';
 export type { IWriter } from './IWriter.js';
 export type { IDiagnosticSource } from './IDiagnosticSource.js';
 export type { IAnalyticsCollector } from './IAnalyticsCollector.js';
+export type { IDiagnosticAggregator } from './IDiagnosticAggregator.js';

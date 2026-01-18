@@ -1,23 +1,24 @@
 /**
- * Diagnostics aggregator
- * Combines and processes diagnostics from multiple sources
- * @module domain/analytics/diagnostics/DiagnosticAggregator
+ * Diagnostic Aggregator
+ * Aggregates diagnostics from multiple sources
+ * @module domain/aggregation/DiagnosticAggregator
  */
 
 import { injectable } from 'inversify';
 
 import type { Diagnostic, Result } from '@core';
+import type { IDiagnosticAggregator } from '@core/contracts/IDiagnosticAggregator';
 
 /**
- * Diagnostic aggregator service
- * Central domain service for aggregating and processing diagnostics
+ * Diagnostic aggregator
+ * Simple aggregation of diagnostic results
  */
 @injectable()
-export class DiagnosticAggregator {
+export class DiagnosticAggregator implements IDiagnosticAggregator {
   /**
-   * Aggregate diagnostics from multiple arrays
-   * @param sources Arrays of diagnostics from different collectors
-   * @returns Combined array of all diagnostics
+   * Aggregate diagnostic arrays
+   * @param sources Diagnostic arrays
+   * @returns Combined diagnostics
    */
   public aggregate(sources: readonly (readonly Diagnostic[])[]): readonly Diagnostic[] {
     const results: Diagnostic[] = [];
@@ -30,26 +31,51 @@ export class DiagnosticAggregator {
   }
 
   /**
-   * Aggregate results from Promise.allSettled
-   * Extracts successful diagnostic collections and flattens them
-   * @param results PromiseSettledResult array from diagnostic collection
+   * Aggregate Promise.allSettled results
+   * @param results Promise results
    * @returns Aggregated diagnostics and success count
    */
   public aggregateResults(
     results: readonly PromiseSettledResult<Result<readonly Diagnostic[], Error>>[]
   ): { diagnostics: readonly Diagnostic[]; successCount: number } {
-    const diagnosticArrays: Diagnostic[][] = [];
-    let successCount = 0;
+    const successful = this.extractSuccessfulResults(results);
+    const diagnostics = this.aggregate(successful.diagnostics);
+
+    return {
+      diagnostics,
+      successCount: successful.count,
+    };
+  }
+
+  /**
+   * Extract successful results
+   * @param results Promise results
+   * @returns Successful diagnostics and count
+   */
+  private extractSuccessfulResults(
+    results: readonly PromiseSettledResult<Result<readonly Diagnostic[], Error>>[]
+  ): { diagnostics: Diagnostic[][]; count: number } {
+    const diagnostics: Diagnostic[][] = [];
+    let count = 0;
 
     for (const result of results) {
-      if (result.status === 'fulfilled' && result.value.isOk()) {
-        diagnosticArrays.push([...result.value.value]);
-        successCount += 1;
+      if (this.isSuccessfulResult(result)) {
+        diagnostics.push([...result.value.value]);
+        count += 1;
       }
     }
 
-    const aggregated = this.aggregate(diagnosticArrays);
+    return { diagnostics, count };
+  }
 
-    return { diagnostics: aggregated, successCount };
+  /**
+   * Check if result is successful
+   * @param result Promise result
+   * @returns True if successful
+   */
+  private isSuccessfulResult(
+    result: PromiseSettledResult<Result<readonly Diagnostic[], Error>>
+  ): result is PromiseFulfilledResult<Result<readonly Diagnostic[], Error>> {
+    return result.status === 'fulfilled' && result.value.isOk();
   }
 }

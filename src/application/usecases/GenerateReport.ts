@@ -4,31 +4,48 @@
  * @module application/usecases/GenerateReport
  */
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 
-import { DiagnosticError, ok, err, type IDiagnosticSource, type Diagnostic, type Result } from '@core';
+import { TOKENS } from '@/di/tokens.js';
+import { DiagnosticError, ok, err, type IDiagnosticSource, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger } from '@core';
 import { type CollectionConfig } from '@domain';
 import { DiagnosticAnalytics } from '@domain/analytics/diagnostics/index.js';
-import { DiagnosticAggregator } from '@domain/aggregation/index.js';
+
+/**
+ * Source statistics
+ */
+export interface SourceStatistics {
+  readonly total: number;
+  readonly successful: number;
+  readonly failed: number;
+  readonly timedOut: number;
+}
 
 /**
  * Result of report generation
  */
 export interface ReportResult {
   readonly diagnostics: readonly Diagnostic[];
-  readonly stats: ReturnType<DiagnosticAnalytics['getSnapshot']>;
+  readonly stats: DiagnosticStatistics;
+  readonly sourceStats: SourceStatistics;
 }
 
 /**
  * Use-case for generating diagnostic reports
  * Returns data without writing - writing handled by ApplicationService
+ *
+ * Dependencies:
+ * - sources: Diagnostic sources (ESLint, TypeScript reporters)
+ * - aggregator: Combines results from multiple sources (uses IDiagnosticAggregator interface)
+ * - analytics: Calculates statistics (uses DiagnosticAnalytics for collectAll batch method)
  */
 @injectable()
 export class GenerateReportUseCase {
   public constructor(
     private readonly sources: readonly IDiagnosticSource[],
-    private readonly aggregator: DiagnosticAggregator,
-    private readonly analytics: DiagnosticAnalytics
+    private readonly aggregator: IDiagnosticAggregator,
+    private readonly analytics: DiagnosticAnalytics,
+    @inject(TOKENS.LOGGER) private readonly logger: ILogger
   ) {}
 
   /**
@@ -39,10 +56,39 @@ export class GenerateReportUseCase {
    */
   public async execute(config: CollectionConfig): Promise<Result<ReportResult, DiagnosticError>> {
     try {
-      // Collect diagnostics from all sources
+      // Filter sources based on configuration
+      const activeSources = this.filterActiveSources(config);
+
+      if (activeSources.length === 0) {
+        return err(
+          new DiagnosticError(
+            'No diagnostic sources enabled',
+            { config: { eslint: config.eslint, typescript: config.typescript } }
+          )
+        );
+      }
+
+      this.logger.info('Collecting diagnostics from sources', {
+        sources: activeSources.map((s) => s.getName()),
+        total: activeSources.length,
+      });
+
+      // Collect diagnostics from all active sources with timeout
       const results = await Promise.allSettled(
-        this.sources.map(async (source) => source.collect(config))
+        activeSources.map(async (source) => this.collectWithTimeout(source, config))
       );
+
+      // Track timeout statistics
+      let timedOutCount = 0;
+      for (const result of results) {
+        if (
+          result.status === 'rejected' &&
+          result.reason instanceof Error &&
+          result.reason.message.includes('timeout')
+        ) {
+          timedOutCount += 1;
+        }
+      }
 
       // Aggregate successful results
       const { diagnostics: aggregated, successCount } = this.aggregator.aggregateResults(results);
@@ -52,10 +98,17 @@ export class GenerateReportUseCase {
         return err(
           new DiagnosticError(
             'All diagnostic sources failed',
-            { sources: this.sources.map((s) => s.getName()).join(', ') }
+            { sources: activeSources.map((s) => s.getName()).join(', ') }
           )
         );
       }
+
+      this.logger.info('Diagnostic collection completed', {
+        collected: aggregated.length,
+        successful: successCount,
+        failed: activeSources.length - successCount,
+        timedOut: timedOutCount,
+      });
 
       // Calculate statistics
       this.analytics.reset();
@@ -65,6 +118,12 @@ export class GenerateReportUseCase {
       return ok({
         diagnostics: aggregated,
         stats,
+        sourceStats: {
+          total: activeSources.length,
+          successful: successCount,
+          failed: activeSources.length - successCount,
+          timedOut: timedOutCount,
+        },
       });
     } catch (error) {
       return err(
@@ -75,6 +134,75 @@ export class GenerateReportUseCase {
         )
       );
     }
+  }
+
+  /**
+   * Filter sources based on configuration flags
+   * @param config Collection configuration
+   * @returns Active sources
+   */
+  private filterActiveSources(config: CollectionConfig): readonly IDiagnosticSource[] {
+    return this.sources.filter((source) => {
+      const name = source.getName().toLowerCase();
+
+      // Check ESLint flag
+      if (name.includes('eslint')) {
+        return !config.eslint ? false : true;
+      }
+
+      // Check TypeScript flag
+      if (name.includes('typescript')) {
+        return !config.typescript ? false : true;
+      }
+
+      // Include other sources (vitest, etc.) by default
+      return true;
+    });
+  }
+
+  /**
+   * Collect diagnostics from source with timeout
+   * @param source Diagnostic source
+   * @param config Collection configuration
+   * @returns Promise that resolves with Result or rejects on timeout
+   */
+  private async collectWithTimeout(
+    source: IDiagnosticSource,
+    config: CollectionConfig
+  ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
+    const timeout = config.timeout ?? 30000;
+    const hasTimeout = timeout > 0;
+
+    if (!hasTimeout) {
+      return source.collect(config);
+    }
+
+    return Promise.race([
+      source.collect(config),
+      this.createTimeoutPromise(timeout, source.getName()),
+    ]);
+  }
+
+  /**
+   * Create timeout promise that rejects after specified duration
+   * @param ms Timeout in milliseconds
+   * @param sourceName Source name for error message
+   * @returns Promise that rejects on timeout
+   */
+  private async createTimeoutPromise(
+    ms: number,
+    sourceName: string
+  ): Promise<never> {
+    return new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new DiagnosticError(
+            `Source ${sourceName} timed out after ${String(ms)}ms`,
+            { source: sourceName, timeout: ms }
+          )
+        );
+      }, ms);
+    });
   }
 }
 

@@ -3,12 +3,14 @@
  * @module di/registerLogging
  */
 
-import type { Container } from 'inversify';
 
-import { TOKENS } from './tokens.js';
 import { ConsoleLogger } from '../infrastructure/logging/ConsoleLogger.js';
 import { PinoLogger } from '../infrastructure/logging/PinoLogger.js';
+
+import { TOKENS } from './tokens.js';
+
 import type { ILogger } from '../core/index.js';
+import type { Container } from 'inversify';
 
 export function registerLogging(container: Container): void {
   container
