@@ -16,9 +16,9 @@ import type { CollectionConfig } from '../../domain/index.js';
 export class TypeScriptReporter extends BaseDiagnosticSource {
 	private adapter: TypeScriptAdapter;
 
-	public constructor(logger: ILogger) {
+	public constructor(logger: ILogger, private readonly verbose: boolean = false) {
 		super('typescript');
-		this.adapter = new TypeScriptAdapter(logger);
+		this.adapter = new TypeScriptAdapter(logger, verbose);
 	}
 
 	protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {

@@ -14,7 +14,10 @@ import { DiagnosticMapper, type RawDiagnosticData } from '../../domain/index.js'
 export class EslintAdapter {
   private eslint: ESLint | null = null;
 
-  public constructor(private readonly logger: ILogger) {}
+  public constructor(
+    private readonly logger: ILogger,
+    private readonly verbose: boolean = false
+  ) {}
 
   /**
    * Run ESLint on patterns

@@ -15,7 +15,7 @@ describe('EslintReporter', () => {
 
   beforeEach(() => {
     mockLogger = new MockLogger();
-    reporter = new EslintReporter(mockLogger);
+    reporter = new EslintReporter(mockLogger, false);
   });
 
   describe('getName', () => {

@@ -7,7 +7,7 @@
 import { injectable, inject } from 'inversify';
 
 import { DiagnosticError, ok, err, type ILogger, type IWriter, type Diagnostic, type Result, type DiagnosticStatistics, type TestStatistics } from '../core/index.js';
-import { TOKENS } from '../DI.js';
+import { TOKENS } from '../di/container.js';
 
 import { ReportingOrchestrator } from './ReportingOrchestrator.js';
 

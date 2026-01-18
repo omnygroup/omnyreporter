@@ -9,5 +9,5 @@ export { NodeFileSystem } from './NodeFileSystem.js';
 export { DirectoryService } from './DirectoryService.js';
 export { JsonWriter } from './JsonWriter.js';
 export { StreamWriter } from './StreamWriter.js';
-export { FileWriter } from './FileWriter.js';export { FileContentReader } from './FileContentReader.js';
+export { FileWriter } from './FileWriter.js';
 export { StructuredReportWriter } from './StructuredReportWriter.js';

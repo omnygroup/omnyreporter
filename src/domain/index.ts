@@ -4,11 +4,8 @@
  * @module domain
  */
 
-export {
-  StatisticsCalculator,
-  DiagnosticAnalytics,
-  DiagnosticAggregator,
-} from './analytics/index.js';
+export { DiagnosticAnalytics } from './analytics/index.js';
+export { DiagnosticAggregator, type SeverityCount, type GroupedBySources } from './aggregation/index.js';
 
 export {
   ConfigValidator,

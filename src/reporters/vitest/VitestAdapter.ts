@@ -18,7 +18,10 @@ import type { ILogger, TestStatistics } from '@core';
 export class VitestAdapter {
   private analytics: TestAnalytics;
 
-  public constructor(private readonly logger: ILogger) {
+  public constructor(
+    private readonly logger: ILogger,
+    private readonly verbose: boolean = false
+  ) {
     this.analytics = new TestAnalytics();
   }
 

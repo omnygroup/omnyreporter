@@ -1,8 +1,11 @@
 /**
  * Application layer barrel export
- * Coordinates between layers with use-cases
+ * Coordinates between layers with use-cases and services
  * @module application
  */
 
-export { CollectDiagnosticsUseCase } from './usecases/index.js';
 export { GenerateReportUseCase, type ReportResult } from './usecases/index.js';
+export {
+  DiagnosticApplicationService,
+  type DiagnosticReportingResult,
+} from './services/index.js';

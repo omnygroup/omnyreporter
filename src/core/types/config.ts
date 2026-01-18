@@ -16,6 +16,7 @@ export interface CollectionConfig extends BaseConfig {
   readonly concurrency?: number;
   readonly configPath?: string;
   readonly ignorePatterns?: readonly string[];
+  readonly verboseLogging?: boolean;
 }
 
 /** Options for file operations (low-level) */

@@ -6,7 +6,7 @@
 
 import { injectable, inject } from 'inversify';
 
-import { TOKENS } from '@/DI';
+import { TOKENS } from '@/di/container';
 import { type ILogger, type DiagnosticStatistics, type TestStatistics ,type  Diagnostic } from '@core';
 import { DiagnosticAnalytics } from '@domain/analytics/diagnostics/DiagnosticAnalytics';
 import { EslintAdapter } from '@reporters/eslint/EslintAdapter';

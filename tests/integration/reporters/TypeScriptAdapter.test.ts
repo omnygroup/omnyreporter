@@ -15,7 +15,7 @@ describe('TypeScriptReporter', () => {
 
   beforeEach(() => {
     mockLogger = new MockLogger();
-    reporter = new TypeScriptReporter(mockLogger);
+    reporter = new TypeScriptReporter(mockLogger, false);
   });
 
   describe('getName', () => {

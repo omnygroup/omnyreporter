@@ -16,9 +16,9 @@ import type { CollectionConfig } from '../../domain/index.js';
 export class EslintReporter extends BaseDiagnosticSource {
 	private adapter: EslintAdapter;
 
-	public constructor(logger: ILogger) {
+	public constructor(logger: ILogger, private readonly verbose: boolean = false) {
 		super('eslint');
-		this.adapter = new EslintAdapter(logger);
+		this.adapter = new EslintAdapter(logger, verbose);
 	}
 
 	protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {

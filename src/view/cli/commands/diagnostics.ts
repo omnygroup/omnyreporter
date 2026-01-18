@@ -3,8 +3,7 @@
  * @module view/cli/commands/diagnostics
  */
 
-import { getContainer } from '@/container';
-import { TOKENS } from '@/DI';
+import { getContainer, TOKENS } from '@/di/container';
 import { GenerateReportUseCase } from '@application/usecases/GenerateReport';
 import { type ILogger, type Diagnostic, type IFormatter } from '@core';
 import { SourceCodeEnricher } from '@domain/mappers/SourceCodeEnricher';
@@ -87,15 +86,16 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
       eslint: runEslint,
       typescript: runTypescript,
       configPath: undefined,
+      verboseLogging: argv.verbose,
     };
 
     // Build list of diagnostic sources
     const sources = [];
     if (runEslint) {
-      sources.push(new EslintReporter(logger));
+      sources.push(new EslintReporter(logger, argv.verbose));
     }
     if (runTypescript) {
-      sources.push(new TypeScriptReporter(logger));
+      sources.push(new TypeScriptReporter(logger, argv.verbose));
     }
 
     if (sources.length === 0) {

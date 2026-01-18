@@ -57,6 +57,11 @@ export const CollectionConfigSchema = z.object({
     .boolean()
     .default(true)
     .describe('Enable TypeScript checking'),
+
+  verboseLogging: z
+    .boolean()
+    .default(false)
+    .describe('Enable verbose logging output from tools'),
 });
 
 export type CollectionConfig = z.infer<typeof CollectionConfigSchema>;

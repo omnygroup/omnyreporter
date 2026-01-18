@@ -12,7 +12,10 @@ import { DiagnosticMapper ,type  RawDiagnosticData } from '../../domain/index.js
  * Adapter for TypeScript Compiler API
  */
 export class TypeScriptAdapter {
-  public constructor(private readonly logger: ILogger) {}
+  public constructor(
+    private readonly logger: ILogger,
+    private readonly verbose: boolean = false
+  ) {}
 
   /**
    * Check TypeScript files
