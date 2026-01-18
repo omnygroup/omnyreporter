@@ -3,15 +3,7 @@
  * @module core/types
  */
 
-export type {
-  Diagnostic,
-  FileContent,
-  DiagnosticReportMetadata,
-  DiagnosticFileReport,
-  DiagnosticSeverity,
-  DiagnosticSource,
-} from './diagnostic.js';
-export { createDiagnostic } from './diagnostic.js';
+export * from './diagnostic/index';
 
 export type {
   StatisticsBase,

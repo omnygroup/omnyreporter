@@ -4,7 +4,7 @@
  * @module application/services/DiagnosticGrouper
  */
 
-import type { Diagnostic, DiagnosticSource } from '@core';
+import type { Diagnostic, DiagnosticIntegration } from '@core';
 
 /**
  * Groups diagnostics for structured reporting
@@ -18,8 +18,8 @@ export class DiagnosticGrouper {
    */
   public groupBySourceAndFile(
     diagnostics: readonly Diagnostic[]
-  ): Map<DiagnosticSource, Map<string, Diagnostic[]>> {
-    const grouped = new Map<DiagnosticSource, Map<string, Diagnostic[]>>();
+  ): Map<DiagnosticIntegration, Map<string, Diagnostic[]>> {
+    const grouped = new Map<DiagnosticIntegration, Map<string, Diagnostic[]>>();
 
     for (const diagnostic of diagnostics) {
       this.addDiagnosticToGroup(grouped, diagnostic);
@@ -34,7 +34,7 @@ export class DiagnosticGrouper {
    * @param diagnostic Diagnostic to add
    */
   private addDiagnosticToGroup(
-    grouped: Map<DiagnosticSource, Map<string, Diagnostic[]>>,
+    grouped: Map<DiagnosticIntegration, Map<string, Diagnostic[]>>,
     diagnostic: Diagnostic
   ): void {
     const fileMap = this.getOrCreateFileMap(grouped, diagnostic.source);
@@ -50,8 +50,8 @@ export class DiagnosticGrouper {
    * @returns File map
    */
   private getOrCreateFileMap(
-    grouped: Map<DiagnosticSource, Map<string, Diagnostic[]>>,
-    source: DiagnosticSource
+    grouped: Map<DiagnosticIntegration, Map<string, Diagnostic[]>>,
+    source: DiagnosticIntegration
   ): Map<string, Diagnostic[]> {
     let fileMap = grouped.get(source);
     

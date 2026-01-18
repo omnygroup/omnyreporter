@@ -3,13 +3,13 @@
  * @module tests/mocks/MockDirectoryService
  */
 
-import type { DiagnosticSource } from '../../src/core/types';
+import type { DiagnosticIntegration } from '../../src/core/types';
 
 /**
  * Mock DirectoryService for testing
  */
 export class MockDirectoryService {
-  private clearedErrors: DiagnosticSource[] = [];
+  private clearedErrors: DiagnosticIntegration[] = [];
   private clearedAll = false;
 
   public async ensureDirectories(): Promise<void> {
@@ -34,15 +34,15 @@ export class MockDirectoryService {
     return '.omnyreporter/temp';
   }
 
-  public getInstrumentDirectory(source: DiagnosticSource): string {
+  public getInstrumentDirectory(source: DiagnosticIntegration): string {
     return `.omnyreporter/${source}`;
   }
 
-  public getInstrumentErrorsDirectory(source: DiagnosticSource): string {
+  public getInstrumentErrorsDirectory(source: DiagnosticIntegration): string {
     return `.omnyreporter/${source}/errors`;
   }
 
-  public async clearInstrumentErrors(source: DiagnosticSource): Promise<void> {
+  public async clearInstrumentErrors(source: DiagnosticIntegration): Promise<void> {
     await Promise.resolve();
     this.clearedErrors.push(source);
   }
@@ -57,7 +57,7 @@ export class MockDirectoryService {
     return this.clearedAll;
   }
 
-  public getClearedErrors(): DiagnosticSource[] {
+  public getClearedErrors(): DiagnosticIntegration[] {
     return [...this.clearedErrors];
   }
 

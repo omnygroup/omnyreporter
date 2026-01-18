@@ -101,19 +101,4 @@ export class DiagnosticMapper extends BaseMapper<RawDiagnosticData, Diagnostic> 
 
     return diagnostic;
   }
-
-  /**
-   * Backwards-compatible static helper used by tests and old callers
-   * Maps a single raw diagnostic to domain Diagnostic
-   */
-  public static toDomain(input: RawDiagnosticData | Diagnostic): Diagnostic {
-    // If input already looks like a Diagnostic (has id and timestamp), return as-is
-    const maybeDiagnostic = input as Diagnostic;
-    if (maybeDiagnostic.id !== undefined && maybeDiagnostic.timestamp !== undefined) {
-      return maybeDiagnostic;
-    }
-
-    // Otherwise map from raw diagnostic-like shape
-    return new DiagnosticMapper().map(input as RawDiagnosticData);
-  }
 }

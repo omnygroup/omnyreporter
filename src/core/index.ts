@@ -8,8 +8,7 @@
 export type {
   Diagnostic,
   DiagnosticSeverity,
-  DiagnosticSource,
-  FileContent,
+  DiagnosticIntegration,
   DiagnosticReportMetadata,
   DiagnosticFileReport,
   StatisticsBase,

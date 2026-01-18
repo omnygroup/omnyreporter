@@ -4,7 +4,7 @@
  * @module core/contracts/IDiagnosticAggregator
  */
 
-import type { Diagnostic } from '@core/types/diagnostic';
+import type { Diagnostic } from '@/core/types/diagnostic';
 import type { Result } from '@core/types/result';
 
 /**

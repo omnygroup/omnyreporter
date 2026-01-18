@@ -10,10 +10,6 @@ import { BaseReportGenerator } from '@/application/usecases/BaseReportGenerator.
 import { DiagnosticError, ok, err, type Diagnostic, type Result, type ILogger } from '@core';
 import { type CollectionConfig, DiagnosticMapper, type RawDiagnosticData } from '@domain';
 
-/**
- * ESLint diagnostic reporter
- * Extends BaseReportGenerator with ESLint-specific logic
- */
 export class EslintReporter extends BaseReportGenerator {
   private readonly mapper: DiagnosticMapper;
 

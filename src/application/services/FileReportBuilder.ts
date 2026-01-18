@@ -4,7 +4,7 @@
  * @module application/services/FileReportBuilder
  */
 
-import type { Diagnostic, DiagnosticFileReport, DiagnosticSource, IFileSystem, ILogger } from '@core';
+import type { Diagnostic, DiagnosticFileReport, DiagnosticIntegration, IFileSystem, ILogger } from '@core';
 
 /**
  * Builds enriched file reports from diagnostics
@@ -25,7 +25,7 @@ export class FileReportBuilder {
    * @returns Diagnostic file report
    */
   public async buildReport(
-    source: DiagnosticSource,
+    source: DiagnosticIntegration,
     filePath: string,
     diagnostics: readonly Diagnostic[],
     rootPath: string

@@ -6,7 +6,7 @@
 
 import { injectable } from 'inversify';
 
-import { FileSystemError, type DiagnosticFileReport, type DiagnosticSource, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
+import { FileSystemError, type DiagnosticFileReport, type DiagnosticIntegration, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
 import { DiagnosticMapper } from '@domain/mappers/index.js';
 
 import { DirectoryService } from './DirectoryService.js';
@@ -30,7 +30,7 @@ export class StructuredReportWriter {
    * @returns Result with write statistics
    */
   public async write(
-    reports: Map<DiagnosticSource, readonly DiagnosticFileReport[]>
+    reports: Map<DiagnosticIntegration, readonly DiagnosticFileReport[]>
   ): Promise<Result<WriteStats, Error>> {
     const startTime = Date.now();
     let totalFiles = 0;
@@ -86,7 +86,7 @@ export class StructuredReportWriter {
    * @returns Result with bytes written
    */
   private async writeFileReport(
-    _source: DiagnosticSource,
+    _source: DiagnosticIntegration,
     report: DiagnosticFileReport,
     errorsDir: string
   ): Promise<Result<number, Error>> {
