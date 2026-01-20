@@ -4,12 +4,11 @@
  * @module application/usecases/GenerateReport
  */
 
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 
-import { TOKENS } from '@/di/tokens.js';
 import { DiagnosticError, ok, err, type IDiagnosticSource, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger } from '@core';
 import { type CollectionConfig } from '@domain';
-import { DiagnosticAnalytics } from '@domain/analytics/diagnostics/index.js';
+import { DiagnosticAnalytics } from '@domain/analytics/DiagnosticAnalytics.js';
 
 /**
  * Source statistics
@@ -45,7 +44,7 @@ export class GenerateReportUseCase {
     private readonly sources: readonly IDiagnosticSource[],
     private readonly aggregator: IDiagnosticAggregator,
     private readonly analytics: DiagnosticAnalytics,
-    @inject(TOKENS.LOGGER) private readonly logger: ILogger
+    private readonly logger: ILogger
   ) {}
 
   /**
@@ -170,7 +169,7 @@ export class GenerateReportUseCase {
     source: IDiagnosticSource,
     config: CollectionConfig
   ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    const timeout = config.timeout ?? 30000;
+    const timeout = config.timeout;
     const hasTimeout = timeout > 0;
 
     if (!hasTimeout) {

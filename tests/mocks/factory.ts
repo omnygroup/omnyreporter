@@ -3,21 +3,41 @@
  * @module tests/mocks/factory
  */
 
-import type { Diagnostic, Statistics } from '../../src/core/types/index.js';
+import { Diagnostic, DiagnosticIntegration } from '../../src/core/types/diagnostic/index.js';
 
-export function createTestDiagnostic(overrides?: Partial<Diagnostic>): Diagnostic {
-  return {
-    id: 'test-diag-1',
-    source: 'eslint',
-    filePath: '/test/file.ts',
-    line: 1,
-    column: 1,
-    severity: 'error',
-    code: 'test-rule',
-    message: 'Test diagnostic message',
-    timestamp: new Date(),
-    ...overrides,
-  };
+import type { Statistics } from '../../src/core/types/index.js';
+
+function mapSource(source: 'eslint' | 'typescript' | 'vitest'): DiagnosticIntegration {
+  switch (source) {
+    case 'eslint':
+      return DiagnosticIntegration.ESLint;
+    case 'typescript':
+      return DiagnosticIntegration.TypeScript;
+    case 'vitest':
+      return DiagnosticIntegration.Vitest;
+  }
+}
+
+export function createTestDiagnostic(overrides?: {
+  id?: string;
+  source?: 'eslint' | 'typescript' | 'vitest';
+  filePath?: string;
+  line?: number;
+  column?: number;
+  severity?: 'error' | 'warning' | 'info' | 'note';
+  code?: string;
+  message?: string;
+}): Diagnostic {
+  const source = overrides?.source ?? 'eslint';
+  return new Diagnostic({
+    source: mapSource(source),
+    filePath: overrides?.filePath ?? '/test/file.ts',
+    line: overrides?.line ?? 1,
+    column: overrides?.column ?? 1,
+    severity: overrides?.severity ?? 'error',
+    code: overrides?.code ?? 'test-rule',
+    message: overrides?.message ?? 'Test diagnostic message',
+  });
 }
 
 export function createTestStatistics(overrides?: Partial<Statistics>): Statistics {
@@ -36,7 +56,6 @@ export function createTestStatistics(overrides?: Partial<Statistics>): Statistic
 export function createTestDiagnostics(count: number, source: 'eslint' | 'typescript' | 'vitest' = 'eslint'): Diagnostic[] {
   return Array.from({ length: count }, (_, i) =>
     createTestDiagnostic({
-      id: `test-diag-${String(i)}`,
       source,
       filePath: `/test/file-${String(i)}.ts`,
       line: i + 1,

@@ -7,7 +7,6 @@
 import { injectable } from 'inversify';
 
 import { FileSystemError, type DiagnosticFileReport, type DiagnosticIntegration, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
-import { DiagnosticMapper } from '@domain/mappers/index.js';
 
 import { DirectoryService } from './DirectoryService.js';
 
@@ -95,10 +94,8 @@ export class StructuredReportWriter {
       const fileName = this.generateFileName(report.filePath);
       const filePath = `${errorsDir}/${fileName}`;
 
-      // Serialize diagnostics using existing mapper
-      const persistedDiagnostics = report.diagnostics.map((d) =>
-        DiagnosticMapper.toPersistence(d)
-      );
+      // Serialize diagnostics to JSON format
+      const persistedDiagnostics = report.diagnostics.map((d) => d.toJSON());
 
       // Create report payload
       const payload = {

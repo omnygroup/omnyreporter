@@ -1,13 +1,5 @@
-/**
- * Diagnostic collection-related errors
- * @module core/errors/DiagnosticError
- */
-
 import { BaseError, type ErrorContext } from './BaseError.js';
 
-/**
- * Thrown when diagnostic collection fails
- */
 export class DiagnosticError extends BaseError {
   public readonly source?: string;
 

@@ -6,9 +6,9 @@
 
 // Types
 export type {
-  Diagnostic,
+  DiagnosticProps,
+  PersistentDiagnostic,
   DiagnosticSeverity,
-  DiagnosticIntegration,
   DiagnosticReportMetadata,
   DiagnosticFileReport,
   StatisticsBase,
@@ -25,7 +25,8 @@ export type {
 } from './types/index.js';
 
 export {
-  createDiagnostic,
+  Diagnostic,
+  DiagnosticIntegration,
   ok,
   err,
 } from './types/index.js';
@@ -43,13 +44,6 @@ export type {
   IDiagnosticAggregator,
   IAnalyticsCollector,
 } from './contracts/index.js';
-
-// Abstractions
-export {
-  BaseDiagnosticSource,
-  BaseAnalyticsCollector,
-  BaseMapper,
-} from './abstractions/index.js';
 
 // Errors
 export type { ErrorContext } from './errors/index.js';

@@ -1,10 +1,7 @@
-/**
- * Backward compatibility barrel export
- * This file re-exports types that have been split into separate files
- */
-
-export type {
+export {
   Diagnostic,
+  type DiagnosticProps,
+  type PersistentDiagnostic,
 } from './Diagnostic.js';
 
 export type {
@@ -20,9 +17,6 @@ export type {
   DiagnosticSeverity,
 } from './DiagnosticSeverity.js';
 
-export type {
+export {
   DiagnosticIntegration,
 } from './DiagnosticIntegration.js';
-
-export { createDiagnostic } from './createDiagnostic.js';
-

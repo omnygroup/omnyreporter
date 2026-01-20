@@ -3,7 +3,7 @@
  * @module di/registerAnalytics
  */
 
-import { DiagnosticAnalytics } from '../domain/analytics/diagnostics/DiagnosticAnalytics.js';
+import { DiagnosticAnalytics } from '../domain/analytics/DiagnosticAnalytics.js';
 
 import { TOKENS } from './tokens.js';
 

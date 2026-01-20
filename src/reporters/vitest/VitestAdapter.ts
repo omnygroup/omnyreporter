@@ -4,9 +4,9 @@
  * @module reporters/vitest/VitestAdapter
  */
 
-import { TestAnalytics } from '@domain/analytics/tests/TestAnalytics';
-
 import { TaskProcessor ,type  TestResult } from './TaskProcessor.js';
+import { TestAnalytics } from './TestAnalytics.js';
+
 
 import type { ILogger, TestStatistics } from '@core';
 

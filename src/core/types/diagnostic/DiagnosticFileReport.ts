@@ -1,3 +1,4 @@
+import type { Diagnostic } from './Diagnostic.js';
 import type { DiagnosticIntegration } from './DiagnosticIntegration.js';
 
 /** Enriched diagnostic report with source code for AI agents */
@@ -21,7 +22,7 @@ export interface DiagnosticFileReport {
   readonly size: number;
 
   /** Diagnostics for this file */
-  readonly diagnostics: readonly any[];
+  readonly diagnostics: readonly Diagnostic[];
 
   /** Report metadata */
   readonly metadata: {

@@ -1,9 +1,3 @@
-/**
- * Diagnostic Grouper
- * Groups diagnostics by source and file
- * @module application/services/DiagnosticGrouper
- */
-
 import type { Diagnostic, DiagnosticIntegration } from '@core';
 
 /**
@@ -11,11 +5,6 @@ import type { Diagnostic, DiagnosticIntegration } from '@core';
  * Single responsibility: organize diagnostics by source and file
  */
 export class DiagnosticGrouper {
-  /**
-   * Group diagnostics by source and file
-   * @param diagnostics All diagnostics
-   * @returns Map of source to file map
-   */
   public groupBySourceAndFile(
     diagnostics: readonly Diagnostic[]
   ): Map<DiagnosticIntegration, Map<string, Diagnostic[]>> {
@@ -28,11 +17,6 @@ export class DiagnosticGrouper {
     return grouped;
   }
 
-  /**
-   * Add diagnostic to grouped structure
-   * @param grouped Grouped map
-   * @param diagnostic Diagnostic to add
-   */
   private addDiagnosticToGroup(
     grouped: Map<DiagnosticIntegration, Map<string, Diagnostic[]>>,
     diagnostic: Diagnostic
@@ -43,12 +27,6 @@ export class DiagnosticGrouper {
     diagnosticList.push(diagnostic);
   }
 
-  /**
-   * Get or create file map for source
-   * @param grouped Grouped map
-   * @param source Diagnostic source
-   * @returns File map
-   */
   private getOrCreateFileMap(
     grouped: Map<DiagnosticIntegration, Map<string, Diagnostic[]>>,
     source: DiagnosticIntegration
@@ -63,12 +41,6 @@ export class DiagnosticGrouper {
     return fileMap;
   }
 
-  /**
-   * Get or create diagnostic list for file
-   * @param fileMap File map
-   * @param filePath File path
-   * @returns Diagnostic list
-   */
   private getOrCreateDiagnosticList(
     fileMap: Map<string, Diagnostic[]>,
     filePath: string

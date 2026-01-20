@@ -1,11 +1,10 @@
 /**
  * Domain layer barrel export
- * Exports business logic, analytics, validation, and mappers
  * @module domain
  */
 
-export { DiagnosticAnalytics } from './analytics/index.js';
-export { DiagnosticAggregator } from './aggregation/index.js';
+export { DiagnosticAnalytics } from './analytics/DiagnosticAnalytics.js';
+export { DiagnosticAggregator } from './aggregation/DiagnosticAggregator.js';
 
 export {
   ConfigValidator,
@@ -14,5 +13,3 @@ export {
   type CollectionConfig,
   type ReportingConfig,
 } from './validation/index.js';
-
-export { DiagnosticMapper, type RawDiagnosticData } from './mappers/index.js';

@@ -5,10 +5,9 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { DiagnosticAnalytics } from '../../../../src/domain/analytics/diagnostics/index';
-import { createTestDiagnostics } from '../../../mocks/index';
-
-import type { Diagnostic } from '../../../../src/core/types';
+import { DiagnosticIntegration } from '../../../../src/core/types/diagnostic/index';
+import { DiagnosticAnalytics } from '../../../../src/domain/analytics/DiagnosticAnalytics';
+import { createTestDiagnostic, createTestDiagnostics } from '../../../mocks/index';
 
 describe('DiagnosticAnalytics', () => {
   let analytics: DiagnosticAnalytics;
@@ -26,13 +25,22 @@ describe('DiagnosticAnalytics', () => {
     });
 
     it('should calculate correct statistics for mixed severity diagnostics', () => {
-      const diagnostics = [
-        ...createTestDiagnostics(2, 'eslint').map((d) => ({ ...d, severity: 'error' as const })),
-        ...createTestDiagnostics(3, 'eslint').map((d) => ({ ...d, severity: 'warning' as const })),
-        ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'info' as const })),
+      // Create diagnostics with different severities
+      const errors = [
+        createTestDiagnostic({ severity: 'error' }),
+        createTestDiagnostic({ severity: 'error' }),
       ];
+      const warnings = [
+        createTestDiagnostic({ severity: 'warning' }),
+        createTestDiagnostic({ severity: 'warning' }),
+        createTestDiagnostic({ severity: 'warning' }),
+      ];
+      const infos = [createTestDiagnostic({ severity: 'info' })];
 
-      diagnostics.forEach((d) => { analytics.collect(d); });
+      const allDiagnostics = [...errors, ...warnings, ...infos];
+      allDiagnostics.forEach((d) => {
+        analytics.collect(d);
+      });
 
       const stats = analytics.getSnapshot();
       expect(stats.totalCount).toBe(6);
@@ -42,14 +50,10 @@ describe('DiagnosticAnalytics', () => {
     });
 
     it('should handle all severity levels', () => {
-      const diagnostics: Diagnostic[] = [
-        ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'error' as const })),
-        ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'warning' as const })),
-        ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'info' as const })),
-        ...createTestDiagnostics(1, 'eslint').map((d) => ({ ...d, severity: 'note' as const })),
-      ];
-
-      diagnostics.forEach((d) => { analytics.collect(d); });
+      analytics.collect(createTestDiagnostic({ severity: 'error' }));
+      analytics.collect(createTestDiagnostic({ severity: 'warning' }));
+      analytics.collect(createTestDiagnostic({ severity: 'info' }));
+      analytics.collect(createTestDiagnostic({ severity: 'note' }));
 
       const stats = analytics.getSnapshot();
       expect(stats.errorCount).toBe(1);
@@ -68,11 +72,33 @@ describe('DiagnosticAnalytics', () => {
       expect(stats.timestamp.getTime()).toBeLessThanOrEqual(afterTime.getTime());
     });
 
-    it('should set source to eslint on collected diagnostics', () => {
+    it('should set source to ESLint on collected diagnostics', () => {
       analytics.collect(createTestDiagnostics(1, 'eslint')[0]);
 
       const collected = analytics.getDiagnostics();
-      expect(collected[0].source).toBe('eslint');
+      expect(collected[0].source).toBe(DiagnosticIntegration.ESLint);
+    });
+  });
+
+  describe('collectAll', () => {
+    it('should collect multiple diagnostics at once', () => {
+      const diagnostics = createTestDiagnostics(5, 'eslint');
+      analytics.collectAll(diagnostics);
+
+      const stats = analytics.getSnapshot();
+      expect(stats.totalCount).toBe(5);
+    });
+  });
+
+  describe('reset', () => {
+    it('should clear all collected diagnostics', () => {
+      analytics.collectAll(createTestDiagnostics(5, 'eslint'));
+      expect(analytics.getSnapshot().totalCount).toBe(5);
+
+      analytics.reset();
+
+      expect(analytics.getSnapshot().totalCount).toBe(0);
+      expect(analytics.getDiagnostics()).toHaveLength(0);
     });
   });
 });

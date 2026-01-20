@@ -1,48 +1,56 @@
 /**
  * Tests for DiagnosticAggregator
- * @module tests/unit/domain/analytics/DiagnosticAggregator
+ * @module tests/unit/domain/aggregation/DiagnosticAggregator
  */
 
-import { describe, it, expect } from 'vitest';
+import { ok, err } from 'neverthrow';
+import { describe, it, expect, beforeEach } from 'vitest';
 
-import { DiagnosticAggregator } from '../../../../src/domain/analytics/diagnostics/index';
+import { DiagnosticIntegration } from '../../../../src/core/types/diagnostic/index';
+import { DiagnosticAggregator } from '../../../../src/domain/aggregation/DiagnosticAggregator';
 import { createTestDiagnostics } from '../../../mocks/index';
 
 describe('DiagnosticAggregator', () => {
+  let aggregator: DiagnosticAggregator;
+
+  beforeEach(() => {
+    aggregator = new DiagnosticAggregator();
+  });
+
   describe('aggregate', () => {
     it('should merge diagnostics from multiple sources', () => {
       const eslintDiags = createTestDiagnostics(2, 'eslint');
       const typescriptDiags = createTestDiagnostics(3, 'typescript');
 
-      const result = DiagnosticAggregator.aggregate([eslintDiags, typescriptDiags]);
+      const result = aggregator.aggregate([eslintDiags, typescriptDiags]);
 
       expect(result).toHaveLength(5);
     });
 
     it('should preserve all diagnostic properties', () => {
       const eslintDiags = createTestDiagnostics(1, 'eslint');
-      const result = DiagnosticAggregator.aggregate([eslintDiags]);
+      const result = aggregator.aggregate([eslintDiags]);
 
       const firstDiag = result[0];
       expect(firstDiag.id).toBeDefined();
-      expect(firstDiag.source).toBe('eslint');
+      expect(firstDiag.source).toBe(DiagnosticIntegration.ESLint);
       expect(firstDiag.filePath).toBeDefined();
       expect(firstDiag.message).toBeDefined();
     });
 
     it('should handle empty arrays', () => {
-      const result = DiagnosticAggregator.aggregate([]);
+      const result = aggregator.aggregate([]);
       expect(result).toHaveLength(0);
     });
 
     it('should handle multiple empty arrays', () => {
-      const result = DiagnosticAggregator.aggregate([[], [], []]);
+      const result = aggregator.aggregate([[], [], []]);
       expect(result).toHaveLength(0);
     });
 
     it('should preserve order within each source', () => {
       const diagnostics = createTestDiagnostics(3, 'eslint');
-      const result = DiagnosticAggregator.aggregate([diagnostics]);
+      const result = aggregator.aggregate([diagnostics]);
 
       expect(result[0].id).toBe(diagnostics[0].id);
       expect(result[1].id).toBe(diagnostics[1].id);
@@ -50,50 +58,45 @@ describe('DiagnosticAggregator', () => {
     });
   });
 
-  describe('countBySeverity', () => {
-    it('should count diagnostics by severity', () => {
-      const diagnostics = [
-        ...createTestDiagnostics(2, 'eslint').map((d) => ({ ...d, severity: 'error' as const })),
-        ...createTestDiagnostics(3, 'eslint').map((d) => ({ ...d, severity: 'warning' as const })),
+  describe('aggregateResults', () => {
+    it('should aggregate successful results', () => {
+      const eslintDiags = createTestDiagnostics(2, 'eslint');
+      const typescriptDiags = createTestDiagnostics(3, 'typescript');
+
+      const results: PromiseSettledResult<{ isOk(): boolean; value: readonly typeof eslintDiags[number][] }>[] = [
+        { status: 'fulfilled', value: ok(eslintDiags) },
+        { status: 'fulfilled', value: ok(typescriptDiags) },
       ];
 
-      const counts = DiagnosticAggregator.countBySeverity(diagnostics);
+      const { diagnostics, successCount } = aggregator.aggregateResults(results);
 
-      expect(counts.error).toBe(2);
-      expect(counts.warning).toBe(3);
-      expect(counts.info).toBe(0);
-      expect(counts.note).toBe(0);
+      expect(diagnostics).toHaveLength(5);
+      expect(successCount).toBe(2);
     });
 
-    it('should return zero counts for empty array', () => {
-      const counts = DiagnosticAggregator.countBySeverity([]);
-
-      expect(counts.error).toBe(0);
-      expect(counts.warning).toBe(0);
-      expect(counts.info).toBe(0);
-      expect(counts.note).toBe(0);
-    });
-  });
-
-  describe('groupBySource', () => {
-    it('should group diagnostics by source', () => {
+    it('should skip failed results', () => {
       const eslintDiags = createTestDiagnostics(2, 'eslint');
-      const typescriptDiags = createTestDiagnostics(1, 'typescript');
-      const all = [...eslintDiags, ...typescriptDiags];
 
-      const grouped = DiagnosticAggregator.groupBySource(all);
+      const results: PromiseSettledResult<{ isOk(): boolean; value?: readonly typeof eslintDiags[number][] }>[] = [
+        { status: 'fulfilled', value: ok(eslintDiags) },
+        { status: 'fulfilled', value: err(new Error('Failed')) },
+      ];
 
-      expect(grouped.eslint).toHaveLength(2);
-      expect(grouped.typescript).toHaveLength(1);
-      expect(grouped.vitest).toHaveLength(0);
+      const { diagnostics, successCount } = aggregator.aggregateResults(results);
+
+      expect(diagnostics).toHaveLength(2);
+      expect(successCount).toBe(1);
     });
 
-    it('should return empty groups for empty array', () => {
-      const grouped = DiagnosticAggregator.groupBySource([]);
+    it('should handle rejected promises', () => {
+      const results: PromiseSettledResult<unknown>[] = [
+        { status: 'rejected', reason: new Error('Promise rejected') },
+      ];
 
-      expect(grouped.eslint).toHaveLength(0);
-      expect(grouped.typescript).toHaveLength(0);
-      expect(grouped.vitest).toHaveLength(0);
+      const { diagnostics, successCount } = aggregator.aggregateResults(results);
+
+      expect(diagnostics).toHaveLength(0);
+      expect(successCount).toBe(0);
     });
   });
 });

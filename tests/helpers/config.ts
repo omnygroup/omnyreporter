@@ -9,6 +9,8 @@ export function createTestConfig(overrides?: Partial<CollectionConfig>): Collect
   return {
     patterns: ['src/**/*.ts'],
     ignorePatterns: ['dist/**', 'node_modules/**'],
+    eslint: true,
+    typescript: true,
     ...overrides,
   };
 }

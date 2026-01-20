@@ -1,2 +1,6 @@
-/** Integration source of the diagnostic (ESLint, TypeScript, Vitest, etc.) */
-export type DiagnosticIntegration = 'eslint' | 'typescript' | 'vitest';
+export enum DiagnosticIntegration {
+    ESLint = 'ESLint',
+    TypeScript = 'TypeScript',
+    Vitest = 'Vitest'
+}
+
