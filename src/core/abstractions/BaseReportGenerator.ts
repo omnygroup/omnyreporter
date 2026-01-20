@@ -1,11 +1,15 @@
-import { DiagnosticError, ok, err, type Diagnostic, type Result, type ILogger, DiagnosticIntegration } from '@core';
-
-import type { CollectionConfig } from '@domain';
-
 /**
  * Abstract base class for report generation
  * Implements Template Method pattern for diagnostic collection
+ * @module core/abstractions/BaseReportGenerator
  */
+
+import { DiagnosticError } from '../errors/index.js';
+import { DiagnosticIntegration, ok, err, type Diagnostic, type Result } from '../types/index.js';
+
+import type { ILogger } from '../contracts/index.js';
+import type { CollectionConfig } from '@domain';
+
 export abstract class BaseReportGenerator {
   protected constructor(
     protected readonly logger: ILogger

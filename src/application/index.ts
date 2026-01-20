@@ -4,8 +4,7 @@
  * @module application
  */
 
-export { GenerateReportUseCase, type ReportResult } from './usecases/index.js';
-export {
-  DiagnosticApplicationService,
-  type DiagnosticReportingResult,
-} from './services/index.js';
+export { GenerateReportUseCase, type ReportResult, type SourceStatistics } from './GenerateReportUseCase.js';
+export { DiagnosticApplicationService, type DiagnosticReportingResult } from './DiagnosticApplicationService.js';
+export { DiagnosticGrouper } from './DiagnosticGrouper.js';
+export { FileReportBuilder } from './FileReportBuilder.js';

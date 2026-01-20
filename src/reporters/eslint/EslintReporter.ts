@@ -1,7 +1,6 @@
 import { ESLint } from 'eslint';
 
-import { BaseReportGenerator } from '@/application/usecases/BaseReportGenerator.js';
-import { DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
+import { BaseReportGenerator, DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
 
 import { EslintLintResult } from './EslintLintResult.js';
 

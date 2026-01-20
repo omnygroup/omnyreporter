@@ -1,7 +1,7 @@
 /**
  * Diagnostic Application Service
  * High-level orchestrator for diagnostic reporting workflow
- * @module application/services/DiagnosticApplicationService
+ * @module application/DiagnosticApplicationService
  */
 
 import { injectable, inject } from 'inversify';
@@ -22,10 +22,9 @@ import {
 import { type CollectionConfig } from '@domain';
 import { DirectoryService, StructuredReportWriter } from '@infrastructure/filesystem/index.js';
 
-import { GenerateReportUseCase, type ReportResult } from '../usecases/GenerateReport.js';
-
 import { DiagnosticGrouper } from './DiagnosticGrouper.js';
 import { FileReportBuilder } from './FileReportBuilder.js';
+import { GenerateReportUseCase, type ReportResult } from './GenerateReportUseCase.js';
 
 /**
  * Complete diagnostic reporting result
@@ -101,8 +100,8 @@ export class DiagnosticApplicationService {
   private logWorkflowStart(config: CollectionConfig): void {
     this.logger.info('Step 1/4: Starting diagnostic report generation', {
       patterns: config.patterns.length,
-      eslint: config.eslint ?? true,
-      typescript: config.typescript ?? true,
+      eslint: config.eslint,
+      typescript: config.typescript,
     });
   }
 

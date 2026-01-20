@@ -5,8 +5,8 @@
  */
 
 
-import { DiagnosticApplicationService } from '../application/services/DiagnosticApplicationService.js';
-import { GenerateReportUseCase } from '../application/usecases/GenerateReport.js';
+import { DiagnosticApplicationService } from '../application/DiagnosticApplicationService.js';
+import { GenerateReportUseCase } from '../application/GenerateReportUseCase.js';
 
 import { TOKENS } from './tokens.js';
 

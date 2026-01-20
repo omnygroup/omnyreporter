@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { GenerateReportUseCase } from '../../../src/application/usecases';
+import { GenerateReportUseCase } from '../../../src/application/GenerateReportUseCase';
 import { DiagnosticAggregator } from '../../../src/domain/aggregation/DiagnosticAggregator';
 import { DiagnosticAnalytics } from '../../../src/domain/analytics/DiagnosticAnalytics';
 import { createTestConfig } from '../../helpers/index.js';

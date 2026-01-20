@@ -1,3 +1,9 @@
+/**
+ * Diagnostic Grouper
+ * Groups diagnostics for structured reporting
+ * @module application/DiagnosticGrouper
+ */
+
 import type { Diagnostic, DiagnosticIntegration } from '@core';
 
 /**
@@ -23,7 +29,7 @@ export class DiagnosticGrouper {
   ): void {
     const fileMap = this.getOrCreateFileMap(grouped, diagnostic.source);
     const diagnosticList = this.getOrCreateDiagnosticList(fileMap, diagnostic.filePath);
-    
+
     diagnosticList.push(diagnostic);
   }
 
@@ -32,12 +38,12 @@ export class DiagnosticGrouper {
     source: DiagnosticIntegration
   ): Map<string, Diagnostic[]> {
     let fileMap = grouped.get(source);
-    
+
     if (fileMap === undefined) {
       fileMap = new Map<string, Diagnostic[]>();
       grouped.set(source, fileMap);
     }
-    
+
     return fileMap;
   }
 
@@ -46,12 +52,12 @@ export class DiagnosticGrouper {
     filePath: string
   ): Diagnostic[] {
     let diagnosticList = fileMap.get(filePath);
-    
+
     if (diagnosticList === undefined) {
       diagnosticList = [];
       fileMap.set(filePath, diagnosticList);
     }
-    
+
     return diagnosticList;
   }
 }

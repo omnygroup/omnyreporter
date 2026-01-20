@@ -69,3 +69,6 @@ export {
   assertTrue,
   assertType,
 } from './utils/index.js';
+
+// Abstractions
+export { BaseReportGenerator } from './abstractions/index.js';

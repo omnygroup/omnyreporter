@@ -1,7 +1,7 @@
 /**
  * Generate report use-case
  * Orchestrates diagnostic collection, aggregation, and analytics
- * @module application/usecases/GenerateReport
+ * @module application/GenerateReportUseCase
  */
 
 import { injectable } from 'inversify';
@@ -204,4 +204,3 @@ export class GenerateReportUseCase {
     });
   }
 }
-

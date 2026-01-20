@@ -5,8 +5,7 @@
 
 import ts from 'typescript';
 
-import { BaseReportGenerator } from '@/application/usecases/BaseReportGenerator.js';
-import { DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
+import { BaseReportGenerator, DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
 
 import { TypeScriptDiagnosticResult } from './TypeScriptDiagnosticResult.js';
 

@@ -4,7 +4,7 @@
  */
 
 import { getContainer, TOKENS } from '@/di/container';
-import { DiagnosticApplicationService } from '@application/services/DiagnosticApplicationService';
+import { DiagnosticApplicationService } from '@application/DiagnosticApplicationService';
 import { type ILogger, type Diagnostic, type IFormatter } from '@core';
 
 import type { CollectionConfig } from '@domain/index.js';

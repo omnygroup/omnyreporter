@@ -3,4 +3,4 @@
  * @module core/abstractions
  */
 
-// Currently empty - abstractions removed as unused
+export { BaseReportGenerator } from './BaseReportGenerator.js';

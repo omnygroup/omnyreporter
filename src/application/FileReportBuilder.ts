@@ -1,7 +1,7 @@
 /**
  * File Report Builder
  * Builds diagnostic file reports with source code
- * @module application/services/FileReportBuilder
+ * @module application/FileReportBuilder
  */
 
 import type { Diagnostic, DiagnosticFileReport, DiagnosticIntegration, IFileSystem, ILogger } from '@core';
@@ -65,7 +65,7 @@ export class FileReportBuilder {
     try {
       const content = await this.fileSystem.readFile(filePath);
       const lineCount = this.countLines(content);
-      
+
       return {
         content,
         encoding: 'utf-8',
@@ -77,7 +77,7 @@ export class FileReportBuilder {
         filePath,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       return {
         content: '',
         encoding: 'utf-8',
@@ -107,7 +107,7 @@ export class FileReportBuilder {
     if (filePath.startsWith('/')) {
       return filePath;
     }
-    
+
     return `${rootPath}/${filePath}`;
   }
 
