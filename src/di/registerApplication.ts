@@ -25,7 +25,8 @@ export function registerApplication(container: Container): void {
       return new GenerateReportUseCase(
         sources,
         container.get(TOKENS.DIAGNOSTIC_AGGREGATOR),
-        container.get(TOKENS.DIAGNOSTIC_ANALYTICS)
+        container.get(TOKENS.DIAGNOSTIC_ANALYTICS),
+        container.get(TOKENS.LOGGER)
       );
     })
     .inTransientScope();

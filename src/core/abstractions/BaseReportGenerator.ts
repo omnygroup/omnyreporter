@@ -7,13 +7,29 @@
 import { DiagnosticError } from '../errors/index.js';
 import { DiagnosticIntegration, ok, err, type Diagnostic, type Result } from '../types/index.js';
 
-import type { ILogger } from '../contracts/index.js';
+import type { ILogger, IDiagnosticSource } from '../contracts/index.js';
 import type { CollectionConfig } from '@domain';
 
-export abstract class BaseReportGenerator {
+export abstract class BaseReportGenerator implements IDiagnosticSource {
   protected constructor(
     protected readonly logger: ILogger
   ) {}
+
+  /**
+   * Get name of the diagnostic source
+   * Required by IDiagnosticSource interface
+   */
+  public getName(): string {
+    return this.getIntegrationName();
+  }
+
+  /**
+   * Collect diagnostics from source
+   * Required by IDiagnosticSource interface
+   */
+  public async collect(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
+    return this.execute(config);
+  }
 
   public async execute(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
     this.logStart(config);
