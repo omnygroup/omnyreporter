@@ -4,4 +4,3 @@
  */
 
 export { EslintReporter } from './EslintReporter.js';
-export type { EslintConfig } from './types.js';

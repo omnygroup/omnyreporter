@@ -24,20 +24,20 @@ let containerInstance: Container | null = null;
  * @returns Configured inversify container
  */
 export function setupContainer(): Container {
-  const container = new Container({ defaultScope: 'Singleton' });
+	const container = new Container({ defaultScope: 'Singleton' });
 
-  // Register all services
-  registerLogging(container);
-  registerPaths(container);
-  registerSecurity(container);
-  registerFilesystem(container);
-  registerFormatting(container);
-  registerAnalytics(container);
-  registerValidation(container);
-  registerReporters(container);
-  registerApplication(container);
+	// Register all services
+	registerLogging(container);
+	registerPaths(container);
+	registerSecurity(container);
+	registerFilesystem(container);
+	registerFormatting(container);
+	registerAnalytics(container);
+	registerValidation(container);
+	registerReporters(container);
+	registerApplication(container);
 
-  return container;
+	return container;
 }
 
 /**
@@ -45,15 +45,8 @@ export function setupContainer(): Container {
  * @returns Global inversify container
  */
 export function getContainer(): Container {
-  containerInstance ??= setupContainer();
-  return containerInstance;
-}
-
-/**
- * Reset the container (useful for testing)
- */
-export function resetContainer(): void {
-  containerInstance = null;
+	containerInstance ??= setupContainer();
+	return containerInstance;
 }
 
 export { TOKENS };

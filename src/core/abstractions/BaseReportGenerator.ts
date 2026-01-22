@@ -11,113 +11,80 @@ import type { ILogger, DiagnosticIntegration } from '../contracts/index.js';
 import type { CollectionConfig } from '@domain';
 
 export abstract class BaseReportGenerator implements DiagnosticIntegration {
-  protected constructor(
-    protected readonly logger: ILogger
-  ) {}
+	protected constructor(protected readonly logger: ILogger) {}
 
-  /**
-   * Get name of the diagnostic source
-   * Required by DiagnosticIntegration interface
-   */
-  public getName(): IntegrationName {
-    return this.getIntegrationName();
-  }
+	/**
+	 * Get name of the diagnostic integration
+	 * Required by DiagnosticIntegration interface
+	 */
+	public getName(): IntegrationName {
+		return this.getIntegrationName();
+	}
 
-  /**
-   * Collect diagnostics from source
-   * Required by DiagnosticIntegration interface
-   */
-  public async collect(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    return this.execute(config);
-  }
+	/**
+	 * Collect diagnostics from integration
+	 * Required by DiagnosticIntegration interface
+	 */
+	public async collect(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
+		return this.execute(config);
+	}
 
-  public async execute(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    this.logStart(config);
+	public async execute(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
+		this.logStart(config);
 
-    const result = await this.collectDiagnostics(config);
+		const result = await this.collectDiagnostics(config);
 
-    this.logCompletion(result);
+		this.logCompletion(result);
 
-    return result;
-  }
+		return result;
+	}
 
-  protected abstract collectDiagnostics(
-    config: CollectionConfig
-  ): Promise<Result<readonly Diagnostic[], DiagnosticError>>;
+	protected abstract collectDiagnostics(
+		config: CollectionConfig
+	): Promise<Result<readonly Diagnostic[], DiagnosticError>>;
 
-  protected abstract getIntegrationName(): IntegrationName;
+	protected abstract getIntegrationName(): IntegrationName;
 
-  private logStart(config: CollectionConfig): void {
-    const integration: string = this.getIntegrationName();
-    this.logger.info(`Starting ${integration} diagnostic collection`, {
-      source: integration,
-      patterns: config.patterns.length,
-    });
-  }
+	private logStart(config: CollectionConfig): void {
+		const integrationName: string = this.getIntegrationName();
+		this.logger.info(`Starting ${integrationName} diagnostic collection`, {
+			integration: integrationName,
+			patterns: config.patterns.length,
+		});
+	}
 
-  private logCompletion(result: Result<readonly Diagnostic[], DiagnosticError>): void {
-    const integration: string = this.getIntegrationName();
-    if (result.isOk()) {
-      this.logger.info(`${integration} collection completed`, {
-        source: integration,
-        count: result.value.length,
-      });
-    } else {
-      this.logger.error(`${integration} collection failed`, {
-        source: integration,
-        error: result.error.message,
-      });
-    }
-  }
+	private logCompletion(result: Result<readonly Diagnostic[], DiagnosticError>): void {
+		const integrationName: string = this.getIntegrationName();
+		if (result.isOk()) {
+			this.logger.info(`${integrationName} collection completed`, {
+				integration: integrationName,
+				count: result.value.length,
+			});
+		} else {
+			this.logger.error(`${integrationName} collection failed`, {
+				integration: integrationName,
+				error: result.error.message,
+			});
+		}
+	}
 
-  protected createDiagnosticError(message: string, cause?: unknown): DiagnosticError {
-    return new DiagnosticError(
-      message,
-      { source: this.getIntegrationName() },
-      cause instanceof Error ? cause : undefined
-    );
-  }
+	protected createDiagnosticError(message: string, cause?: unknown): DiagnosticError {
+		return new DiagnosticError(
+			message,
+			{ integration: this.getIntegrationName() },
+			cause instanceof Error ? cause : undefined
+		);
+	}
 
-  protected async runReporter<T>(
-    operation: () => Promise<T>,
-    errorMessage: string
-  ): Promise<Result<T, DiagnosticError>> {
-    try {
-      const result = await operation();
-      return ok(result);
-    } catch (error) {
-      return err(this.createDiagnosticError(errorMessage, error));
-    }
-  }
-
-
-  public static async collectFromSources(
-    sources: readonly DiagnosticIntegration[],
-    config: CollectionConfig
-  ): Promise<{ diagnostics: readonly Diagnostic[]; successCount: number }> {
-    const results = await Promise.allSettled(
-      sources.map(async (source) => source.collect(config))
-    );
-
-    return this.aggregateSettledResults(results);
-  }
-
-  private static aggregateSettledResults(
-    settledResults: readonly PromiseSettledResult<Result<readonly Diagnostic[], Error>>[]
-  ): { diagnostics: readonly Diagnostic[]; successCount: number } {
-    const diagnostics: Diagnostic[] = [];
-    let successCount = 0;
-
-    for (const settledResult of settledResults) {
-      if (settledResult.status === 'fulfilled') {
-        const sourceResult = settledResult.value;
-        if (sourceResult.isOk()) {
-          diagnostics.push(...sourceResult.value);
-          successCount += 1;
-        }
-      }
-    }
-
-    return { diagnostics, successCount };
-  }
+	protected async runReporter<T>(
+		operation: () => Promise<T>,
+		errorMessage: string
+	): Promise<Result<T, DiagnosticError>> {
+		try {
+			const result = await operation();
+			return ok(result);
+		} catch (error) {
+			return err(this.createDiagnosticError(errorMessage, error));
+		}
+	}
 }

@@ -5,7 +5,7 @@
 
 export { MockLogger } from './MockLogger.js';
 export { MockFileSystem } from './MockFileSystem.js';
-export { MockDiagnosticSource } from './MockDiagnosticSource.js';
+export { MockDiagnosticIntegration } from './MockDiagnosticSource.js';
 export { MockWriter } from './MockWriter.js';
 export { MockFormatter } from './MockFormatter.js';
 export { MockDirectoryService } from './MockDirectoryService.js';

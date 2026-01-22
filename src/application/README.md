@@ -1,51 +1,71 @@
 # Application Module
 
-Слой оркестрации: use-cases и сервисы, координирующие domain и infrastructure.
+Слой оркестрации: сервисы, координирующие domain и infrastructure.
 
 ## Содержимое
 
-### `services/`
-- `DiagnosticApplicationService` — главный оркестратор диагностического workflow
+### `DiagnosticApplicationService`
 
-### `usecases/`
-- `GenerateReportUseCase` — сбор диагностик, агрегация, расчёт статистики
+Главный оркестратор диагностического workflow:
+
+- Очистка предыдущих ошибок
+- Сбор диагностик через ReportGenerator
+- Построение файловых отчётов
+- Запись структурированных отчётов
+
+### `ReportGeneratorManager`
+
+Управление генерацией отчётов:
+
+- Координация интеграций (ESLint, TypeScript)
+- Агрегация диагностик
+- Расчёт статистики
 
 ## Принципы
 
 - Оркестрация domain и infrastructure
 - Бизнес-логика делегируется в domain
-- Dependency Injection
-- Result-типы для обработки ошибок
+- Dependency Injection (Inversify)
+- Result-типы для обработки ошибок (neverthrow)
 
 ## Архитектура
 
 ```
 ┌──────────────────┐
-│ CLI              │
+│ CLI / View       │
 ├──────────────────┤
 │ APPLICATION      │ ← Этот слой
 │ - Services       │
-│ - Use Cases      │
 ├──────────────────┤
 │ REPORTERS        │
 ├──────────────────┤
 │ DOMAIN           │
 ├──────────────────┤
 │ INFRASTRUCTURE   │
+├──────────────────┤
+│ CORE             │
 └──────────────────┘
 ```
 
 ## Workflow
 
 ```
-DiagnosticApplicationService.generateAndWriteReport()
-    ├─► Очистка предыдущих ошибок
-    ├─► Генерация отчёта (GenerateReportUseCase)
-    │       ├─► Сбор из ESLint/TypeScript
-    │       ├─► Агрегация результатов
-    │       └─► Расчёт статистики
-    └─► Запись структурированных отчётов
+DiagnosticApplicationService.run()
+    ├─► Очистка предыдущих ошибок (DirectoryService)
+    ├─► Сбор диагностик (ReportGenerator)
+    │       ├─► ESLint интеграция
+    │       ├─► TypeScript интеграция
+    │       └─► Агрегация и статистика
+    ├─► Группировка по интеграции и файлу (DiagnosticGrouper)
+    ├─► Построение файловых отчётов (FileReportBuilder)
+    └─► Запись отчётов (StructuredReportWriter)
 ```
+
+## Зависимости
+
+- `@core` — типы, контракты, ошибки
+- `@domain` — DiagnosticGrouper, FileReportBuilder, ConfigValidator
+- `@infrastructure` — DirectoryService, StructuredReportWriter
 
 ---
 

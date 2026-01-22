@@ -15,35 +15,35 @@ import * as diagnosticsCommand from './commands/diagnostics.js';
  * @returns Configured yargs instance
  */
 export function getCliApp(): ReturnType<typeof yargs> {
-    return yargs(hideBin(process.argv))
-    .command({
-      command: diagnosticsCommand.command,
-      describe: diagnosticsCommand.describe,
-      builder: diagnosticsCommand.builder,
-      handler: diagnosticsCommand.handler,
-    })
-    .option('verbose', {
-      alias: 'v',
-      describe: 'Enable verbose logging',
-      type: 'boolean',
-      default: false,
-    })
-    .option('quiet', {
-      alias: 'q',
-      describe: 'Suppress non-error output',
-      type: 'boolean',
-      default: false,
-    })
-    .help()
-    .alias('help', 'h')
-    .version(false)
-    .strict();
+	return yargs(hideBin(process.argv))
+		.command({
+			command: diagnosticsCommand.command,
+			describe: diagnosticsCommand.describe,
+			builder: diagnosticsCommand.builder,
+			handler: diagnosticsCommand.handler,
+		})
+		.option('verbose', {
+			alias: 'v',
+			describe: 'Enable verbose logging',
+			type: 'boolean',
+			default: false,
+		})
+		.option('quiet', {
+			alias: 'q',
+			describe: 'Suppress non-error output',
+			type: 'boolean',
+			default: false,
+		})
+		.help()
+		.alias('help', 'h')
+		.version(false)
+		.strict();
 }
 
 /**
  * Run the CLI application
  */
 export async function runCli(): Promise<void> {
-  const app = getCliApp();
-  await app.argv;
+	const app = getCliApp();
+	await app.argv;
 }

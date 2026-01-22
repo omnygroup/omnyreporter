@@ -26,16 +26,16 @@
  * @see registerLogging.ts, registerFilesystem.ts, registerPaths.ts, registerSecurity.ts
  */
 const CORE = {
-  /** Primary application logger (ILogger interface) */
-  LOGGER: Symbol.for('ILogger'),
-  /** File system abstraction (IFileSystem interface) */
-  FILE_SYSTEM: Symbol.for('IFileSystem'),
-  /** Path manipulation service (IPathService interface) */
-  PATH_SERVICE: Symbol.for('IPathService'),
-  /** Data sanitization service (ISanitizer interface) */
-  SANITIZER: Symbol.for('ISanitizer'),
-  /** Base path for file operations (defaults to cwd) */
-  BASE_PATH: Symbol.for('BasePath'),
+	/** Primary application logger (ILogger interface) */
+	LOGGER: Symbol.for('ILogger'),
+	/** File system abstraction (IFileSystem interface) */
+	FILE_SYSTEM: Symbol.for('IFileSystem'),
+	/** Path manipulation service (IPathService interface) */
+	PATH_SERVICE: Symbol.for('IPathService'),
+	/** Data sanitization service (ISanitizer interface) */
+	SANITIZER: Symbol.for('ISanitizer'),
+	/** Base path for file operations (defaults to cwd) */
+	BASE_PATH: Symbol.for('BasePath'),
 } as const;
 
 /**
@@ -43,16 +43,16 @@ const CORE = {
  * @see registerFilesystem.ts
  */
 const FILESYSTEM = {
-  /** Directory operations service */
-  DIRECTORY_SERVICE: Symbol.for('DirectoryService'),
-  /** JSON file writer */
-  JSON_WRITER: Symbol.for('JsonWriter'),
-  /** Stream-based file writer */
-  STREAM_WRITER: Symbol.for('StreamWriter'),
-  /** General file writer */
-  FILE_WRITER: Symbol.for('FileWriter'),
-  /** Structured report writer with directory management */
-  STRUCTURED_REPORT_WRITER: Symbol.for('StructuredReportWriter'),
+	/** Directory operations service */
+	DIRECTORY_SERVICE: Symbol.for('DirectoryService'),
+	/** JSON file writer */
+	JSON_WRITER: Symbol.for('JsonWriter'),
+	/** Stream-based file writer */
+	STREAM_WRITER: Symbol.for('StreamWriter'),
+	/** General file writer */
+	FILE_WRITER: Symbol.for('FileWriter'),
+	/** Structured report writer with directory management */
+	STRUCTURED_REPORT_WRITER: Symbol.for('StructuredReportWriter'),
 } as const;
 
 /**
@@ -60,8 +60,8 @@ const FILESYSTEM = {
  * @see registerLogging.ts
  */
 const LOGGING = {
-  /** Console logger implementation (alternative to PinoLogger) */
-  CONSOLE_LOGGER: Symbol.for('ConsoleLogger'),
+	/** Console logger implementation (alternative to PinoLogger) */
+	CONSOLE_LOGGER: Symbol.for('ConsoleLogger'),
 } as const;
 
 /**
@@ -69,12 +69,12 @@ const LOGGING = {
  * @see registerFormatting.ts
  */
 const FORMATTING = {
-  /** Console output formatter */
-  CONSOLE_FORMATTER: Symbol.for('ConsoleFormatter'),
-  /** JSON output formatter */
-  JSON_FORMATTER: Symbol.for('JsonFormatter'),
-  /** Table output formatter */
-  TABLE_FORMATTER: Symbol.for('TableFormatter'),
+	/** Console output formatter */
+	CONSOLE_FORMATTER: Symbol.for('ConsoleFormatter'),
+	/** JSON output formatter */
+	JSON_FORMATTER: Symbol.for('JsonFormatter'),
+	/** Table output formatter */
+	TABLE_FORMATTER: Symbol.for('TableFormatter'),
 } as const;
 
 /**
@@ -82,8 +82,8 @@ const FORMATTING = {
  * @see registerSecurity.ts
  */
 const SECURITY = {
-  /** Path traversal validator */
-  PATH_VALIDATOR: Symbol.for('PathValidator'),
+	/** Path traversal validator */
+	PATH_VALIDATOR: Symbol.for('PathValidator'),
 } as const;
 
 // ============================================================================
@@ -95,8 +95,8 @@ const SECURITY = {
  * @see registerAnalytics.ts
  */
 const ANALYTICS = {
-  /** Diagnostic statistics calculator */
-  DIAGNOSTIC_ANALYTICS: Symbol.for('DiagnosticAnalytics'),
+	/** Diagnostic statistics calculator */
+	DIAGNOSTIC_ANALYTICS: Symbol.for('DiagnosticAnalytics'),
 } as const;
 
 /**
@@ -104,8 +104,19 @@ const ANALYTICS = {
  * @see registerValidation.ts
  */
 const VALIDATION = {
-  /** Configuration validator (zod-based) */
-  CONFIG_VALIDATOR: Symbol.for('ConfigValidator'),
+	/** Configuration validator (zod-based) */
+	CONFIG_VALIDATOR: Symbol.for('ConfigValidator'),
+} as const;
+
+/**
+ * Configuration domain tokens - Project config loading
+ * @see registerValidation.ts
+ */
+const CONFIG = {
+	/** Project configuration loader */
+	CONFIG_LOADER: Symbol.for('ConfigLoader'),
+	/** Loaded project configuration */
+	PROJECT_CONFIG: Symbol.for('ProjectConfig'),
 } as const;
 
 // ============================================================================
@@ -118,14 +129,14 @@ const VALIDATION = {
  * @see registerReporters.ts
  */
 const REPORTERS = {
-  /** ESLint diagnostic reporter */
-  ESLINT_REPORTER: Symbol.for('EslintReporter'),
-  /** TypeScript diagnostic reporter */
-  TYPESCRIPT_REPORTER: Symbol.for('TypeScriptReporter'),
-  /** Vitest test reporter adapter */
-  VITEST_ADAPTER: Symbol.for('VitestAdapter'),
-  /** Multi-inject token for all diagnostic integrations */
-  DIAGNOSTIC_INTEGRATION: Symbol.for('DiagnosticIntegration'),
+	/** ESLint diagnostic reporter */
+	ESLINT_REPORTER: Symbol.for('EslintReporter'),
+	/** TypeScript diagnostic reporter */
+	TYPESCRIPT_REPORTER: Symbol.for('TypeScriptReporter'),
+	/** Vitest test reporter adapter */
+	VITEST_ADAPTER: Symbol.for('VitestAdapter'),
+	/** Multi-inject token for all diagnostic integrations */
+	DIAGNOSTIC_INTEGRATION: Symbol.for('DiagnosticIntegration'),
 } as const;
 
 // ============================================================================
@@ -137,10 +148,10 @@ const REPORTERS = {
  * @see registerApplication.ts
  */
 const APPLICATION = {
-  /** Main report generator */
-  REPORT_GENERATOR: Symbol.for('ReportGenerator'),
-  /** Diagnostic application service facade */
-  DIAGNOSTIC_APPLICATION_SERVICE: Symbol.for('DiagnosticApplicationService'),
+	/** Main report generator */
+	REPORT_GENERATOR: Symbol.for('ReportGenerator'),
+	/** Diagnostic application service facade */
+	DIAGNOSTIC_APPLICATION_SERVICE: Symbol.for('DiagnosticApplicationService'),
 } as const;
 
 // ============================================================================
@@ -152,13 +163,14 @@ const APPLICATION = {
  * Use: TOKENS.TOKEN_NAME to access individual symbols
  */
 export const TOKENS = {
-  ...CORE,
-  ...FILESYSTEM,
-  ...LOGGING,
-  ...FORMATTING,
-  ...SECURITY,
-  ...ANALYTICS,
-  ...VALIDATION,
-  ...REPORTERS,
-  ...APPLICATION,
+	...CORE,
+	...FILESYSTEM,
+	...LOGGING,
+	...FORMATTING,
+	...SECURITY,
+	...ANALYTICS,
+	...VALIDATION,
+	...CONFIG,
+	...REPORTERS,
+	...APPLICATION,
 } as const;

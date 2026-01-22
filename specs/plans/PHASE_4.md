@@ -7,6 +7,7 @@
 ## Задачи
 
 ### 1. Интеграционные тесты (3-4 часа)
+
 ```
 tests/integration/:
   - usecases/CollectDiagnostics.test.ts
@@ -22,6 +23,7 @@ tests/integration/:
 ```
 
 ### 2. Документация API (2 часа)
+
 ```
 - JSDoc для всех публичных методов
   * @param описания
@@ -38,6 +40,7 @@ tests/integration/:
 ```
 
 ### 3. Migration guide (1-2 часа)
+
 ```
 MIGRATION.md:
 - Как использовать новую архитектуру
@@ -48,6 +51,7 @@ MIGRATION.md:
 ```
 
 ### 4. Полная верификация
+
 ```
 - npm run build → 0 errors
 - npm test → все тесты проходят
@@ -61,11 +65,12 @@ MIGRATION.md:
 ✅ Все публичные методы документированы  
 ✅ Migration guide доступен  
 ✅ ADRs описаны  
-✅ Проект ready for production v2  
+✅ Проект ready for production v2
 
 ## Следующее: PHASE 5 (OPTIONAL)
 
 ### Опциональные улучшения
+
 - Performance profiling
 - Benchmarks
 - e2e тесты

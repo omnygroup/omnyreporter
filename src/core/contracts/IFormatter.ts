@@ -4,10 +4,5 @@
  */
 
 export interface IFormatter<TInput, TOutput = string> {
-  /**
-   * Format input data to output format
-   * @param input Data to format
-   * @returns Formatted output
-   */
-  format(input: TInput): TOutput;
+	format(input: TInput): TOutput;
 }

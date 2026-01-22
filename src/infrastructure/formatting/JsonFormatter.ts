@@ -12,13 +12,13 @@ import type { IFormatter } from '../../core/index.js';
  */
 @injectable()
 export class JsonFormatter<T> implements IFormatter<T> {
-  private readonly indentation: number;
+	private readonly indentation: number;
 
-  public constructor(indentation = 2) {
-    this.indentation = indentation;
-  }
+	public constructor(indentation = 2) {
+		this.indentation = indentation;
+	}
 
-  public format(data: T): string {
-    return JSON.stringify(data, null, this.indentation);
-  }
+	public format(data: T): string {
+		return JSON.stringify(data, null, this.indentation);
+	}
 }

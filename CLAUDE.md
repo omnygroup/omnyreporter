@@ -1,6 +1,7 @@
 # Claude Code Instructions
 
 ## Project Overview
+
 OmnyReporter - CLI tool for aggregating and reporting diagnostics from ESLint, TypeScript, and Vitest.
 
 - **Language**: TypeScript (ES Modules)
@@ -12,6 +13,7 @@ OmnyReporter - CLI tool for aggregating and reporting diagnostics from ESLint, T
 ## Autonomous Operations (ALLOWED without asking)
 
 ### Safe to run automatically:
+
 - `npm run build` - build the project
 - `npm run test` - run all tests
 - `npm run test:unit` - run unit tests
@@ -24,6 +26,7 @@ OmnyReporter - CLI tool for aggregating and reporting diagnostics from ESLint, T
 - Editing files in `src/`, `tests/`, `docs/`, `plans/`
 
 ### File operations:
+
 - Create/edit test files in `tests/`
 - Create/edit source files in `src/`
 - Update configuration files (`tsconfig.json`, `vite.config.ts`, etc.)
@@ -31,6 +34,7 @@ OmnyReporter - CLI tool for aggregating and reporting diagnostics from ESLint, T
 ## Restricted Operations (ASK before executing)
 
 ### Always ask before:
+
 - `git push`, `git commit` - any write git operations
 - `npm install`, `npm uninstall` - modifying dependencies
 - Deleting files
@@ -68,6 +72,7 @@ plans/           # Implementation plans
 ## Testing Workflow
 
 Before completing any code changes:
+
 1. Run `npm run build` to ensure compilation succeeds
 2. Run `npm run test` to verify all tests pass
 3. Run `npm run lint` to check code style
@@ -75,12 +80,14 @@ Before completing any code changes:
 ## Common Tasks
 
 ### Adding a new reporter
+
 1. Create file in `src/reporters/`
 2. Implement reporter interface
 3. Register in DI container
 4. Add tests in `tests/unit/reporters/`
 
 ### Adding a new CLI command
+
 1. Create command in `src/cli/`
 2. Register in main CLI entry point
 3. Add integration tests

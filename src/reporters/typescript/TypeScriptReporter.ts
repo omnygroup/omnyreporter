@@ -7,7 +7,14 @@ import { injectable, inject } from 'inversify';
 import ts from 'typescript';
 
 import { TOKENS } from '@/di/tokens.js';
-import { BaseReportGenerator, IntegrationName, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
+import {
+	BaseReportGenerator,
+	IntegrationName,
+	DiagnosticError,
+	type Diagnostic,
+	type Result,
+	type ILogger,
+} from '@core';
 
 import { TypeScriptDiagnosticResult } from './TypeScriptDiagnosticResult.js';
 
@@ -15,41 +22,42 @@ import type { CollectionConfig } from '@domain';
 
 @injectable()
 export class TypeScriptReporter extends BaseReportGenerator {
-  public constructor(@inject(TOKENS.LOGGER) logger: ILogger) {
-    super(logger);
-  }
+	public constructor(@inject(TOKENS.LOGGER) logger: ILogger) {
+		super(logger);
+	}
 
-  protected getIntegrationName(): IntegrationName {
-    return IntegrationName.TypeScript;
-  }
+	protected getIntegrationName(): IntegrationName {
+		return IntegrationName.TypeScript;
+	}
 
-  protected async collectDiagnostics(
-    config: CollectionConfig
-  ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    return this.runReporter(async () => {
-      const configPath = config.configPath ?? 'tsconfig.json';
-      const tsConfig = this.readConfig(configPath);
-      const program = ts.createProgram(tsConfig.fileNames, tsConfig.options);
-      const tsDiagnostics = ts.getPreEmitDiagnostics(program);
+	protected async collectDiagnostics(
+		config: CollectionConfig
+	): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
+		return this.runReporter(async () => {
+			const configPath = config.configPath ?? 'tsconfig.json';
+			const tsConfig = this.readConfig(configPath);
+			const program = ts.createProgram(tsConfig.fileNames, tsConfig.options);
+			const tsDiagnostics = ts.getPreEmitDiagnostics(program);
 
-      return await Promise.resolve(
-        tsDiagnostics
-          .filter((d): d is ts.Diagnostic & { file: ts.SourceFile; start: number } =>
-            d.file !== undefined && d.start !== undefined
-          )
-          .map((d) => new TypeScriptDiagnosticResult(d).diagnostic)
-      );
-    }, 'TypeScript compilation check failed');
-  }
+			return await Promise.resolve(
+				tsDiagnostics
+					.filter(
+						(d): d is ts.Diagnostic & { file: ts.SourceFile; start: number } =>
+							d.file !== undefined && d.start !== undefined
+					)
+					.map((d) => new TypeScriptDiagnosticResult(d).diagnostic)
+			);
+		}, 'TypeScript compilation check failed');
+	}
 
-  private readConfig(configPath: string): ts.ParsedCommandLine {
-    const configFile = ts.readConfigFile(configPath, ts.sys.readFile.bind(ts.sys));
+	private readConfig(configPath: string): ts.ParsedCommandLine {
+		const configFile = ts.readConfigFile(configPath, ts.sys.readFile.bind(ts.sys));
 
-    if (configFile.error !== undefined) {
-      throw this.createDiagnosticError('Failed to read tsconfig.json');
-    }
+		if (configFile.error !== undefined) {
+			throw this.createDiagnosticError('Failed to read tsconfig.json');
+		}
 
-    const configDir = configPath.replace(/[^\\/]+$/, '');
-    return ts.parseJsonConfigFileContent(configFile.config, ts.sys, configDir === '' ? './' : configDir);
-  }
+		const configDir = configPath.replace(/[^\\/]+$/, '');
+		return ts.parseJsonConfigFileContent(configFile.config, ts.sys, configDir === '' ? './' : configDir);
+	}
 }

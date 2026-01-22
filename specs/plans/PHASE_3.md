@@ -7,6 +7,7 @@
 ## Задачи
 
 ### 1. Обновить Vitest Reporter (1.5 часа)
+
 ```
 - Раскомментировать Vitest API в TaskProcessor, VitestAdapter
 - Проверить совместимость с текущей версией Vitest
@@ -16,6 +17,7 @@
 ```
 
 ### 2. Завершить Analytics слой (2 часа)
+
 ```
 - Создать TestAnalytics (по паттерну DiagnosticAnalytics)
   * Implements IAnalyticsCollector<TestResult, TestStatistics>
@@ -25,6 +27,7 @@
 ```
 
 ### 3. Полная реализация ReportingFacade (2-3 часа)
+
 ```
 - Сейчас: stubs для обратной совместимости
 - Нужно: полная координация всех reporters
@@ -37,6 +40,7 @@
 ```
 
 ### 4. Полная реализация ReportingOrchestrator
+
 ```
 - Координация между reporters
 - Управление зависимостями
@@ -50,6 +54,6 @@
 ✅ Все analytics имплементированы  
 ✅ ReportingFacade полностью функциональна  
 ✅ Все 3 инструмента собирают статистику  
-✅ Результаты правильно агрегируются  
+✅ Результаты правильно агрегируются
 
 ## Следующее: PHASE 4

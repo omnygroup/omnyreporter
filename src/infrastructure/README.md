@@ -1,160 +1,136 @@
 # Infrastructure Module
 
-The **infrastructure** module implements the contracts defined in the core module using external libraries and concrete implementations.
+Реализация контрактов из core с использованием внешних библиотек.
 
-## Contents
+## Содержимое
 
-### `filesystem/` - File Operations
-Implements `IFileSystem` contract using `fs-extra`:
+### `filesystem/` — Файловые операции
 
-- `NodeFileSystem` - Main file system interface
-- `DirectoryService` - Directory operations
-- `JsonWriter` - JSON file writing
-- `StreamWriter` - Stream-based writing
+| Класс                    | Описание                          |
+| ------------------------ | --------------------------------- |
+| `NodeFileSystem`         | Реализация IFileSystem (fs-extra) |
+| `DirectoryService`       | Операции с директориями           |
+| `StructuredReportWriter` | Запись структурированных отчётов  |
+| `JsonWriter`             | Запись JSON-файлов                |
+| `StreamWriter`           | Потоковая запись                  |
+| `FileWriter`             | Базовая запись файлов             |
 
-### `logging/` - Logging
-Implements `ILogger` contract using Pino:
+### `logging/` — Логирование
 
-- `PinoLogger` - Structured logging with Pino
+| Класс           | Описание                             |
+| --------------- | ------------------------------------ |
+| `PinoLogger`    | Структурированное логирование (Pino) |
+| `ConsoleLogger` | Простой консольный логгер            |
+| `VerboseLogger` | Расширенное логирование              |
 
-### `formatting/` - Output Formatting
-Implements `IFormatter` contract for different output formats:
+### `formatting/` — Форматирование вывода
 
-- `ConsoleFormatter` - CLI output with colors/tables (chalk, ora, cli-table3)
-- `JsonFormatter` - JSON output
-- `TableFormatter` - ASCII table output
+| Класс              | Описание                    |
+| ------------------ | --------------------------- |
+| `ConsoleFormatter` | CLI-вывод с цветами (chalk) |
+| `JsonFormatter`    | JSON-форматирование         |
+| `TableFormatter`   | ASCII-таблицы (cli-table3)  |
 
-### `paths/` - Path Operations
-Implements `IPathService` contract:
+### `paths/` — Работа с путями
 
-- `UpathService` - Cross-platform path handling using upath
+| Класс          | Описание                        |
+| -------------- | ------------------------------- |
+| `UpathService` | Кроссплатформенные пути (upath) |
 
-### `security/` - Security & Validation
-Security-related implementations:
+### `security/` — Безопасность
 
-- `RedactSanitizer` - Implements `ISanitizer` for sensitive data redaction
-- `PathValidator` - Path security validation
+| Класс             | Описание                             |
+| ----------------- | ------------------------------------ |
+| `RedactSanitizer` | Редактирование чувствительных данных |
+| `PathValidator`   | Валидация безопасности путей         |
 
-## Key Principles
+## Принципы
 
-1. **Contract Implementation** - Implements interfaces from core
-2. **External Library Wrapping** - Isolates external dependencies
-3. **Dependency Injection** - All services injected, not hard-coded
-4. **Single Responsibility** - One service per concern
+1. **Реализация контрактов** — имплементация интерфейсов из core
+2. **Изоляция зависимостей** — внешние библиотеки обёрнуты
+3. **Dependency Injection** — все сервисы инъектируются
+4. **Single Responsibility** — один сервис на одну задачу
 
-## Usage Examples
+## Примеры
 
-### File System
+### Файловая система
+
 ```typescript
-import { NodeFileSystem } from '@/infrastructure/filesystem';
+import { NodeFileSystem } from '@infrastructure/filesystem';
 
 const fs = new NodeFileSystem();
-
-// Read file
 const content = await fs.readFile('/path/to/file.ts');
-
-// Write with parent directory creation
 await fs.writeFile('/path/to/new/file.json', JSON.stringify(data));
-
-// Write JSON
-await fs.writeJson('/config.json', { key: 'value' });
-
-// Ensure directory exists
 await fs.ensureDir('/path/to/create');
 ```
 
-### Logging
+### Логирование
+
 ```typescript
-import { PinoLogger } from '@/infrastructure/logging';
+import { PinoLogger } from '@infrastructure/logging';
 
 const logger = new PinoLogger();
-
 logger.info('Starting analysis', { patterns: ['src/**'] });
-logger.warn('Missing configuration', { field: 'timeout' });
-logger.error('Collection failed', error, { source: 'eslint' });
-
-// Create child logger with context
-const childLogger = logger.child({ requestId: 'req-123' });
-childLogger.info('Processing request');
+logger.warn('Missing config', { field: 'timeout' });
+logger.error('Failed', { error: err.message });
 ```
 
-### Formatting
-```typescript
-import { JsonFormatter, ConsoleFormatter } from '@/infrastructure/formatting';
+### Форматирование
 
-// JSON output
+```typescript
+import { JsonFormatter, ConsoleFormatter } from '@infrastructure/formatting';
+
 const jsonFormatter = new JsonFormatter();
 const json = jsonFormatter.format(diagnostics);
 
-// Console output with colors
 const consoleFormatter = new ConsoleFormatter();
 const pretty = consoleFormatter.format(diagnostics);
 ```
 
-### Path Operations
+### Пути
+
 ```typescript
-import { UpathService } from '@/infrastructure/paths';
+import { UpathService } from '@infrastructure/paths';
 
 const pathService = new UpathService();
-
-// Cross-platform normalization
 const normalized = pathService.normalize('/path/to\\file.ts');
-
-// Relative paths
 const relative = pathService.relative('/root', '/root/src/file.ts');
-
-// Joining paths
-const joined = pathService.join('/src', 'domain', 'file.ts');
 ```
 
-## Architecture
-
-Infrastructure sits between Domain and External World:
+## Архитектура
 
 ```
 ┌──────────────────┐
 │ APPLICATION      │
 ├──────────────────┤
-│ DOMAIN           │ (needs ILogger, IFileSystem, etc.)
+│ DOMAIN           │
 ├──────────────────┤
-│ INFRASTRUCTURE   │ ← You are here (implements contracts)
+│ INFRASTRUCTURE   │ ← Этот слой (реализация контрактов)
+│ - filesystem/    │
+│ - logging/       │
+│ - formatting/    │
+│ - paths/         │
+│ - security/      │
 ├──────────────────┤
 │ CORE (contracts) │
 └──────────────────┘
        ↓
   [External Libraries]
-  fs-extra, pino, chalk, ora, cli-table3, upath
+  fs-extra, pino, chalk, cli-table3, upath
 ```
 
-## External Dependencies
+## Внешние зависимости
 
-| Library | Purpose | Used In |
-|---------|---------|----------|
-| `fs-extra` | Enhanced file system | filesystem |
-| `pino` | Structured logging | logging |
-| `chalk` | Terminal colors | formatting |
-| `ora` | Spinners/loaders | formatting |
-| `cli-table3` | ASCII tables | formatting |
-| `upath` | Cross-platform paths | paths |
-| `@pinojs/redact` | Sensitive data redaction | security |
+| Библиотека   | Назначение                    | Модуль     |
+| ------------ | ----------------------------- | ---------- |
+| `fs-extra`   | Файловая система              | filesystem |
+| `pino`       | Структурированное логирование | logging    |
+| `chalk`      | Цвета в терминале             | formatting |
+| `cli-table3` | ASCII-таблицы                 | formatting |
+| `upath`      | Кроссплатформенные пути       | paths      |
 
-## Testing
+## Заменяемость реализаций
 
-Infrastructure should be tested with:
-1. Mock implementations from `tests/mocks/`
-2. Integration tests with real file system
-3. Error case testing
-
-```bash
-# Run infrastructure tests
-npm run test:unit -- tests/unit/infrastructure
-```
-
-## Swappable Implementations
-
-One of the main benefits of the infrastructure layer is that implementations can be swapped:
-
-### Example: Different Logger
 ```typescript
 // Production
 const logger: ILogger = new PinoLogger();
@@ -162,68 +138,9 @@ const logger: ILogger = new PinoLogger();
 // Testing
 const logger: ILogger = new MockLogger();
 
-// Both implement the same interface
+// Оба реализуют один интерфейс
 ```
-
-### Example: Different File System
-```typescript
-// Production (Node.js)
-const fs: IFileSystem = new NodeFileSystem();
-
-// Testing (In-memory)
-const fs: IFileSystem = new MockFileSystem();
-
-// Development (Virtual FS)
-const fs: IFileSystem = new VirtualFileSystem();
-```
-
-## Adding New Infrastructure
-
-To add a new implementation:
-
-1. **Define contract in Core** - Create interface in `src/core/contracts/`
-2. **Implement in Infrastructure** - Create service in appropriate directory
-3. **Export from index** - Add to barrel exports
-4. **Create tests** - Mock and integration tests
-5. **Update documentation** - Add to README
-
-Example: Adding a new storage type:
-
-```typescript
-// src/core/contracts/IStorageService.ts
-export interface IStorageService {
-  save(path: string, data: unknown): Promise<void>;
-  load(path: string): Promise<unknown>;
-}
-
-// src/infrastructure/storage/S3Storage.ts
-export class S3Storage implements IStorageService {
-  // AWS SDK implementation
-}
-
-// src/infrastructure/storage/index.ts
-export { S3Storage } from './S3Storage.js';
-```
-
-## Configuration
-
-Infrastructure services may need configuration:
-
-```typescript
-interface LoggerConfig {
-  level: 'debug' | 'info' | 'warn' | 'error';
-  pretty?: boolean;
-}
-
-const logger = new PinoLogger(config);
-```
-
-## Performance Considerations
-
-- **Logging:** Pino is fast, use child loggers for context
-- **File System:** fs-extra is optimized, batch operations when possible
-- **Formatting:** Cache formatters if used repeatedly
 
 ---
 
-See [../../specs/architecture.md](../../specs/architecture.md) for architecture overview.
+См. [specs/architecture.md](../../specs/architecture.md)

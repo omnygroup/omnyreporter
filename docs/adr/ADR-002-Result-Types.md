@@ -2,17 +2,19 @@
 
 **Status:** Accepted  
 **Date:** January 2026  
-**Author:** OmnyReporter Team  
+**Author:** OmnyReporter Team
 
 ## Context
 
 The codebase needed a way to handle errors that:
+
 1. Cannot be silently ignored
 2. Are type-safe (no `any` types)
 3. Compose well with async/await
 4. Work without runtime exceptions
 
 Traditional try/catch error handling in TypeScript has issues:
+
 - Uncaught exceptions terminate processes
 - Error types are `unknown` in catch blocks
 - Doesn't force handling of error cases
@@ -23,7 +25,7 @@ Traditional try/catch error handling in TypeScript has issues:
 We adopted **neverthrow** library implementing the **Result pattern**:
 
 ```typescript
-type Result<T, E> = Ok<T> | Err<E>
+type Result<T, E> = Ok<T> | Err<E>;
 ```
 
 All functions that can fail return `Result<Success, Failure>` instead of throwing.
@@ -31,70 +33,72 @@ All functions that can fail return `Result<Success, Failure>` instead of throwin
 ## Usage Examples
 
 ### Before (Exceptions)
+
 ```typescript
 try {
-  const diagnostics = await eslint.collect(config);
-  const stats = await analytics.calculate(diagnostics);
-  return stats;
+	const diagnostics = await eslint.collect(config);
+	const stats = await analytics.calculate(diagnostics);
+	return stats;
 } catch (error) {
-  // Error type is 'unknown' - need to check it
-  if (error instanceof ValidationError) {
-    // ...
-  }
+	// Error type is 'unknown' - need to check it
+	if (error instanceof ValidationError) {
+		// ...
+	}
 }
 ```
 
 ### After (Result Types)
+
 ```typescript
-const result = await eslint.collect(config)
-  .andThen(diags => analytics.calculate(diags));
+const result = await eslint.collect(config).andThen((diags) => analytics.calculate(diags));
 
 if (result.isOk()) {
-  return result.value;
+	return result.value;
 } else {
-  // Error type is known: 'Error'
-  logger.error('Failed', result.error);
+	// Error type is known: 'Error'
+	logger.error('Failed', result.error);
 }
 ```
 
 ## Benefits
 
 ### 1. Type Safety
+
 ```typescript
 const result = await reporter.collect(config);
 if (result.isOk()) {
-  const diagnostics: readonly Diagnostic[] = result.value; // ✅ Type safe
-  const length = diagnostics.length; // ✅ Autocomplete works
+	const diagnostics: readonly Diagnostic[] = result.value; // ✅ Type safe
+	const length = diagnostics.length; // ✅ Autocomplete works
 } else {
-  const error: Error = result.error; // ✅ Always Error
-  console.error(error.message);
+	const error: Error = result.error; // ✅ Always Error
+	console.error(error.message);
 }
 ```
 
 ### 2. Forced Error Handling
+
 ```typescript
 // ❌ Wrong - TypeScript error
 const diags = result.value;
 
 // ✅ Correct - explicitly check for error
 if (result.isOk()) {
-  const diags = result.value;
+	const diags = result.value;
 }
 ```
 
 ### 3. Composable Operations
+
 ```typescript
-const result = await collect(config)
-  .andThen(validate)
-  .andThen(analyze)
-  .andThen(format);
+const result = await collect(config).andThen(validate).andThen(analyze).andThen(format);
 
 if (result.isOk()) {
-  report(result.value);
+	report(result.value);
 }
 ```
 
 ### 4. No Silent Failures
+
 ```typescript
 // Each step is handled
 const step1 = await operation1();
@@ -104,55 +108,55 @@ const step2 = await operation2();
 if (step2.isErr()) return err(step2.error);
 
 // Or use andThen for cleaner code
-return operation1()
-  .andThen(operation2)
-  .andThen(operation3);
+return operation1().andThen(operation2).andThen(operation3);
 ```
 
 ### 5. Works with Async/Await
+
 ```typescript
 async function process(config: Config): Promise<Result<Report, Error>> {
-  const collectResult = await useCase.collect(config);
-  if (collectResult.isErr()) return collectResult;
-  
-  const generateResult = await useCase.generate(collectResult.value);
-  return generateResult;
+	const collectResult = await useCase.collect(config);
+	if (collectResult.isErr()) return collectResult;
+
+	const generateResult = await useCase.generate(collectResult.value);
+	return generateResult;
 }
 ```
 
 ## Error Handling Patterns
 
 ### Pattern 1: Simple Check
+
 ```typescript
 const result = await collect(config);
 if (result.isErr()) {
-  logger.error('Failed', result.error);
-  return;
+	logger.error('Failed', result.error);
+	return;
 }
 ```
 
 ### Pattern 2: Transform Error
+
 ```typescript
-const result = await collect(config)
-  .mapErr(error => new ConfigurationError(error.message));
+const result = await collect(config).mapErr((error) => new ConfigurationError(error.message));
 ```
 
 ### Pattern 3: Provide Default
+
 ```typescript
-const diagnostics = await collect(config)
-  .unwrapOr([]); // Return empty array on error
+const diagnostics = await collect(config).unwrapOr([]); // Return empty array on error
 ```
 
 ### Pattern 4: Chain Operations
+
 ```typescript
-const report = await collect(config)
-  .andThen(validate)
-  .andThen(analyze);
+const report = await collect(config).andThen(validate).andThen(analyze);
 ```
 
 ## Consequences
 
 ### Positive
+
 - ✅ **No thrown exceptions** - process never crashes unexpectedly
 - ✅ **Type-safe errors** - error handling is explicit and typed
 - ✅ **Composable** - chain operations with andThen/map
@@ -160,11 +164,13 @@ const report = await collect(config)
 - ✅ **Functional** - works well with pure functions
 
 ### Negative
+
 - ❌ **More verbose** - explicit error checks instead of try/catch
 - ❌ **Different from Node.js conventions** - most async code uses exceptions
 - ❌ **Learning curve** - developers need to understand Result pattern
 
 ### Mitigation
+
 - Clear documentation with examples
 - Consistent patterns across codebase
 - TypeScript enforces error handling
@@ -173,6 +179,7 @@ const report = await collect(config)
 ## When NOT to Use Result
 
 Some operations can still throw exceptions:
+
 - **Third-party library errors:** Wrap in Result using try/catch
 - **Logic errors:** Should be assertions or return invalid Result
 - **Timeouts:** Return Err instead of throwing
@@ -184,6 +191,7 @@ Some operations can still throw exceptions:
 3. **Optional chaining** - Doesn't distinguish between errors
 
 neverthrow won because it's:
+
 - Most explicit about error handling
 - Best for composition
 - Widely used in functional TypeScript communities

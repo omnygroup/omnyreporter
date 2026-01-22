@@ -15,52 +15,52 @@ import type { ILogger, LogContext } from '../../core/index.js';
  */
 @injectable()
 export class ConsoleLogger implements ILogger {
-  private readonly context: LogContext;
+	private readonly context: LogContext;
 
-  public constructor(context: LogContext = {}) {
-    this.context = context;
-  }
+	public constructor(context: LogContext = {}) {
+		this.context = context;
+	}
 
-  /**
-   * Format message with merged context
-   * @param message Human readable message
-   * @param ctx Optional per-call context
-   * @returns Formatted message string
-   */
-  private format(message: string, ctx?: LogContext): string {
-    const merged: LogContext = { ...this.context, ...(ctx ?? {}) };
-    const ctxStr: string = Object.keys(merged).length > 0 ? ` ${JSON.stringify(merged)}` : '';
-    return `${message}${ctxStr}`;
-  }
+	/**
+	 * Format message with merged context
+	 * @param message Human readable message
+	 * @param ctx Optional per-call context
+	 * @returns Formatted message string
+	 */
+	private format(message: string, ctx?: LogContext): string {
+		const merged: LogContext = { ...this.context, ...(ctx ?? {}) };
+		const ctxStr: string = Object.keys(merged).length > 0 ? ` ${JSON.stringify(merged)}` : '';
+		return `${message}${ctxStr}`;
+	}
 
-  public debug(message: string, context?: LogContext): void {
-    // Using warn for debug/info levels to comply with linting rules that allow only warn/error
-    console.warn(this.format(message, context));
-  }
+	public debug(message: string, context?: LogContext): void {
+		// Using warn for debug/info levels to comply with linting rules that allow only warn/error
+		console.warn(this.format(message, context));
+	}
 
-  public info(message: string, context?: LogContext): void {
-    // Using warn for debug/info levels to comply with linting rules that allow only warn/error
-    console.warn(this.format(message, context));
-  }
+	public info(message: string, context?: LogContext): void {
+		// Using warn for debug/info levels to comply with linting rules that allow only warn/error
+		console.warn(this.format(message, context));
+	}
 
-  public warn(message: string, context?: LogContext): void {
-    console.warn(this.format(message, context));
-  }
+	public warn(message: string, context?: LogContext): void {
+		console.warn(this.format(message, context));
+	}
 
-  public error(message: string, error?: Error | LogContext, context?: LogContext): void {
-    if (error instanceof Error) {
-      const merged: LogContext = { ...this.context, ...(context ?? {}) };
-      const ctxStr: string = Object.keys(merged).length > 0 ? ` ${JSON.stringify(merged)}` : '';
-      // Include stack when available to aid debugging
-      console.error(`${message}${ctxStr} - ${error.stack ?? error.message}`);
-    } else {
-      // error here is either LogContext or undefined; choose context explicitly to satisfy strict rules
-      const ctx: LogContext | undefined = error ?? context;
-      console.error(this.format(message, ctx));
-    }
-  }
+	public error(message: string, error?: Error | LogContext, context?: LogContext): void {
+		if (error instanceof Error) {
+			const merged: LogContext = { ...this.context, ...(context ?? {}) };
+			const ctxStr: string = Object.keys(merged).length > 0 ? ` ${JSON.stringify(merged)}` : '';
+			// Include stack when available to aid debugging
+			console.error(`${message}${ctxStr} - ${error.stack ?? error.message}`);
+		} else {
+			// error here is either LogContext or undefined; choose context explicitly to satisfy strict rules
+			const ctx: LogContext | undefined = error ?? context;
+			console.error(this.format(message, ctx));
+		}
+	}
 
-  public child(context: LogContext): ILogger {
-    return new ConsoleLogger({ ...this.context, ...context });
-  }
+	public child(context: LogContext): ILogger {
+		return new ConsoleLogger({ ...this.context, ...context });
+	}
 }

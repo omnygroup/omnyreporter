@@ -3,12 +3,11 @@
  * @module domain/validation/schemas
  */
 
+export { CollectionConfigSchema, type CollectionConfig } from './collectionConfig.schema.js';
+export { SanitizationConfigSchema, type SanitizationConfig } from './sanitizationConfig.schema.js';
 export {
-  CollectionConfigSchema,
-  type CollectionConfig,
-} from './collectionConfig.schema.js';
-
-export {
-  ReportingConfigSchema,
-  type ReportingConfig,
-} from './reportingConfig.schema.js';
+	OmnyReporterConfigSchema,
+	type OmnyReporterConfig,
+	type ReportingConfig,
+	type OutputFormat,
+} from './omnyReporterConfig.schema.js';

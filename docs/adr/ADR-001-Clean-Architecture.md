@@ -2,11 +2,12 @@
 
 **Status:** Accepted  
 **Date:** January 2026  
-**Author:** OmnyReporter Team  
+**Author:** OmnyReporter Team
 
 ## Context
 
 OmnyReporter needed a scalable architecture that could:
+
 1. Support multiple diagnostic sources (ESLint, TypeScript, Vitest, etc.)
 2. Be testable without external dependencies
 3. Allow easy addition of new reporters
@@ -27,6 +28,7 @@ Each layer has clear boundaries and dependencies only point inward (toward CORE)
 ## Layers Explained
 
 ### 1. CORE (Foundation)
+
 - **Types:** All TypeScript interfaces and types
 - **Contracts:** 8 core interfaces (ILogger, IFileSystem, IDiagnosticSource, etc.)
 - **Abstractions:** Base classes with Template Method pattern
@@ -34,31 +36,37 @@ Each layer has clear boundaries and dependencies only point inward (toward CORE)
 - **Zero external dependencies** - all other layers depend on this
 
 ### 2. INFRASTRUCTURE (Implementations)
+
 - Implements CORE contracts using external libraries
 - Examples: PinoLogger, NodeFileSystem, ConsoleFormatter
 - Can be swapped without affecting other layers
 
 ### 3. DOMAIN (Business Logic)
+
 - Pure business logic independent of frameworks
 - Examples: DiagnosticAnalytics, ConfigValidator, DiagnosticAggregator
 - Uses contracts from CORE, not aware of HTTP/UI/DB
 
 ### 4. APPLICATION (Orchestration)
+
 - Use-cases that coordinate DOMAIN + INFRASTRUCTURE
 - Examples: CollectDiagnosticsUseCase, GenerateReportUseCase
 - No direct knowledge of UI or external tools
 
 ### 5. REPORTERS (Adapters)
+
 - Adapts external tools to core contracts
 - Each reporter is isolated (ESLint, TypeScript, Vitest)
 - Implements IDiagnosticSource interface
 
 ### 6. APPLICATION (CLI)
+
 - User-facing command-line interface
 - Minimal logic - delegates to use-cases
 - Uses yargs for argument parsing
 
 ### 7. VIEW (Presentation)
+
 - Formatting for different output types
 - Implements IFormatter interface
 - Examples: JsonFormatter, TableFormatter, ConsoleFormatter
@@ -66,6 +74,7 @@ Each layer has clear boundaries and dependencies only point inward (toward CORE)
 ## Consequences
 
 ### Positive
+
 - ✅ **Testability:** Easy to mock dependencies via interfaces
 - ✅ **Scalability:** New reporters can be added without touching existing code
 - ✅ **Maintainability:** Clear separation of concerns
@@ -74,11 +83,13 @@ Each layer has clear boundaries and dependencies only point inward (toward CORE)
 - ✅ **Independence:** Domain logic has zero external dependencies
 
 ### Negative
+
 - ❌ **More files:** 120+ files vs monolithic structure
 - ❌ **Initial overhead:** More boilerplate for simple features
 - ❌ **Learning curve:** Developers need to understand layering
 
 ### Mitigation
+
 - Clear documentation and examples
 - Comprehensive test coverage (70-80%)
 - CI/CD checks for architecture violations

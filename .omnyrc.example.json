@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/@omnygroup/omnyreporter/schema.json",
+  "sanitization": {
+    "enabled": true,
+    "paths": true,
+    "messages": true,
+    "objects": true,
+    "redactPaths": [
+      "password",
+      "token",
+      "secret",
+      "apiKey",
+      "*.password",
+      "*.token"
+    ],
+    "censor": "[REDACTED]"
+  },
+  "collection": {
+    "patterns": ["src/**/*.ts"],
+    "ignorePatterns": ["node_modules/**", "dist/**"],
+    "concurrency": 4,
+    "timeout": 30000,
+    "eslint": true,
+    "typescript": true
+  },
+  "reporting": {
+    "outputDir": ".omnyreporter",
+    "formats": ["console"],
+    "includeSource": true
+  },
+  "verbose": false,
+  "quiet": false
+}

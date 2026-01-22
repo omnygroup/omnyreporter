@@ -7,184 +7,196 @@
 import { injectable, inject } from 'inversify';
 
 import { TOKENS } from '@/di/tokens.js';
-import { FileSystemError, type DiagnosticFileReport, type IntegrationName, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
+import {
+	FileSystemError,
+	type DiagnosticFileReport,
+	type IntegrationName,
+	type IFileSystem,
+	type ILogger,
+	type IPathService,
+	type ISanitizer,
+	type Result,
+	type WriteStats,
+	err,
+	ok,
+} from '@core';
 
 import { DirectoryService } from './DirectoryService.js';
 
 /**
  * Writes diagnostic file reports to structured directory layout
  * Organizes reports by instrument (eslint/typescript/vitest) and file
+ * Sanitizes sensitive data (paths) before writing
  */
 @injectable()
 export class StructuredReportWriter {
-  public constructor(
-    @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem,
-    @inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService,
-    @inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService,
-    @inject(TOKENS.LOGGER) private readonly logger: ILogger
-  ) {}
+	public constructor(
+		@inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem,
+		@inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService,
+		@inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService,
+		@inject(TOKENS.LOGGER) private readonly logger: ILogger,
+		@inject(TOKENS.SANITIZER) private readonly sanitizer: ISanitizer
+	) {}
 
-  /**
-   * Write enriched diagnostic reports to structured files
-   * @param reports Map of instrument to diagnostic reports
-   * @returns Result with write statistics
-   */
-  public async write(
-    reports: Map<IntegrationName, readonly DiagnosticFileReport[]>
-  ): Promise<Result<WriteStats, Error>> {
-    const startTime = Date.now();
-    let totalFiles = 0;
-    let totalBytes = 0;
+	/**
+	 * Write enriched diagnostic reports to structured files
+	 * @param reports Map of instrument to diagnostic reports
+	 * @returns Result with write statistics
+	 */
+	public async write(
+		reports: Map<IntegrationName, readonly DiagnosticFileReport[]>
+	): Promise<Result<WriteStats, Error>> {
+		const startTime = Date.now();
+		let totalFiles = 0;
+		let totalBytes = 0;
 
-    try {
-      for (const [source, fileReports] of reports) {
-        // Skip if no reports for this source
-        if (fileReports.length === 0) {
-          continue;
-        }
+		try {
+			for (const [integration, fileReports] of reports) {
+				// Skip if no reports for this integration
+				if (fileReports.length === 0) {
+					continue;
+				}
 
-        // Ensure errors directory exists
-        const errorsDir = this.directoryService.getInstrumentErrorsDirectory(source);
-        await this.fileSystem.ensureDir(errorsDir);
+				// Ensure errors directory exists
+				const errorsDir = this.directoryService.getInstrumentErrorsDirectory(integration);
+				await this.fileSystem.ensureDir(errorsDir);
 
-        // Write each file report
-        for (const report of fileReports) {
-          const result = await this.writeFileReport(source, report, errorsDir);
+				// Write each file report
+				for (const report of fileReports) {
+					const result = await this.writeFileReport(integration, report, errorsDir);
 
-          if (!result.isOk()) {
-            return err(result.error);
-          }
+					if (!result.isOk()) {
+						return err(result.error);
+					}
 
-          totalFiles += 1;
-          totalBytes += result.value;
-        }
+					totalFiles += 1;
+					totalBytes += result.value;
+				}
 
-        this.logger.info(`Wrote ${String(fileReports.length)} diagnostic files for ${source}`, {
-          source,
-          count: fileReports.length,
-        });
-      }
+				this.logger.info(`Wrote ${String(fileReports.length)} diagnostic files for ${integration}`, {
+					integration,
+					count: fileReports.length,
+				});
+			}
 
-      return ok({
-        filesWritten: totalFiles,
-        bytesWritten: totalBytes,
-        duration: Date.now() - startTime,
-        timestamp: new Date(),
-      });
-    } catch (error) {
-      return err(
-        new FileSystemError('Failed to write structured reports', {}, error as Error)
-      );
-    }
-  }
+			return ok({
+				filesWritten: totalFiles,
+				bytesWritten: totalBytes,
+				duration: Date.now() - startTime,
+				timestamp: new Date(),
+			});
+		} catch (error) {
+			return err(new FileSystemError('Failed to write structured reports', {}, error as Error));
+		}
+	}
 
-  /**
-   * Write single file report
-   * @param source Diagnostic source
-   * @param report File report to write
-   * @param errorsDir Target errors directory
-   * @returns Result with bytes written
-   */
-  private async writeFileReport(
-    _source: IntegrationName,
-    report: DiagnosticFileReport,
-    errorsDir: string
-  ): Promise<Result<number, Error>> {
-    try {
-      // Generate file name from path (replace slashes with underscores)
-      const fileName = this.generateFileName(report.filePath);
-      const filePath = `${errorsDir}/${fileName}`;
+	/**
+	 * Write single file report
+	 * @param integration Diagnostic integration
+	 * @param report File report to write
+	 * @param errorsDir Target errors directory
+	 * @returns Result with bytes written
+	 */
+	private async writeFileReport(
+		_integration: IntegrationName,
+		report: DiagnosticFileReport,
+		errorsDir: string
+	): Promise<Result<number, Error>> {
+		try {
+			// Generate file name from path (replace slashes with underscores)
+			const fileName = this.generateFileName(report.filePath);
+			const filePath = `${errorsDir}/${fileName}`;
 
-      // Serialize diagnostics to JSON format
-      const persistedDiagnostics = report.diagnostics.map((d) => d.toJSON());
+			// Serialize diagnostics to JSON format
+			const persistedDiagnostics = report.diagnostics.map((d) => d.toJSON());
 
-      // Create report payload
-      const payload = {
-        filePath: report.filePath,
-        absolutePath: report.absolutePath,
-        sourceCode: report.sourceCode,
-        encoding: report.encoding,
-        lineCount: report.lineCount,
-        size: report.size,
-        diagnostics: persistedDiagnostics,
-        metadata: {
-          instrument: report.metadata.instrument,
-          timestamp: report.metadata.timestamp.toISOString(),
-          diagnosticCount: report.metadata.diagnosticCount,
-          errorCount: report.metadata.errorCount,
-          warningCount: report.metadata.warningCount,
-          infoCount: report.metadata.infoCount,
-        },
-      };
+			// Create report payload with sanitized paths
+			const payload = {
+				filePath: this.sanitizer.sanitizePath(report.filePath),
+				absolutePath: this.sanitizer.sanitizePath(report.absolutePath),
+				sourceCode: report.sourceCode,
+				encoding: report.encoding,
+				lineCount: report.lineCount,
+				size: report.size,
+				diagnostics: persistedDiagnostics,
+				metadata: {
+					instrument: report.metadata.instrument,
+					timestamp: report.metadata.timestamp.toISOString(),
+					diagnosticCount: report.metadata.diagnosticCount,
+					errorCount: report.metadata.errorCount,
+					warningCount: report.metadata.warningCount,
+					infoCount: report.metadata.infoCount,
+				},
+			};
 
-      // Write JSON file
-      const stats = await this.fileSystem.writeJson(filePath, payload, {
-        atomic: true,
-        ensureDir: true,
-      });
+			// Write JSON file
+			const stats = await this.fileSystem.writeJson(filePath, payload, {
+				atomic: true,
+				ensureDir: true,
+			});
 
-      return ok(stats.bytesWritten);
-    } catch (error) {
-      return err(
-        new FileSystemError(
-          `Failed to write file report for ${report.filePath}`,
-          { filePath: report.filePath },
-          error as Error
-        )
-      );
-    }
-  }
+			return ok(stats.bytesWritten);
+		} catch (error) {
+			return err(
+				new FileSystemError(
+					`Failed to write file report for ${report.filePath}`,
+					{ filePath: report.filePath },
+					error as Error
+				)
+			);
+		}
+	}
 
-  /**
-   * Generate JSON file name from file path
-   * Replaces path separators and invalid characters with underscores.
-   * Uses agnostic relative paths to avoid OS-specific prefixes like drive letters.
-   * @param filePath File path (absolute or relative)
-   * @returns JSON file name
-   */
-  private generateFileName(filePath: string): string {
-    const relativePath = this.toRelativePath(filePath);
-    const segments = this.splitPathSegments(relativePath);
-    const safeName = this.buildSafeName(segments);
+	/**
+	 * Generate JSON file name from file path
+	 * Replaces path separators and invalid characters with underscores.
+	 * Uses agnostic relative paths to avoid OS-specific prefixes like drive letters.
+	 * @param filePath File path (absolute or relative)
+	 * @returns JSON file name
+	 */
+	private generateFileName(filePath: string): string {
+		const relativePath = this.toRelativePath(filePath);
+		const segments = this.splitPathSegments(relativePath);
+		const safeName = this.buildSafeName(segments);
 
-    return `${safeName}.json`;
-  }
+		return `${safeName}.json`;
+	}
 
-  private toRelativePath(filePath: string): string {
-    const normalizedPath = this.pathService.normalize(filePath);
-    const normalizedCwd = this.pathService.normalize(process.cwd());
-    const relativePath = this.pathService.relative(normalizedCwd, normalizedPath);
+	private toRelativePath(filePath: string): string {
+		const normalizedPath = this.pathService.normalize(filePath);
+		const normalizedCwd = this.pathService.normalize(process.cwd());
+		const relativePath = this.pathService.relative(normalizedCwd, normalizedPath);
 
-    return relativePath.length > 0 ? relativePath : '.';
-  }
+		return relativePath.length > 0 ? relativePath : '.';
+	}
 
-  private splitPathSegments(relativePath: string): string[] {
-    const rawSegments = relativePath.split('/');
-    const cleanedSegments: string[] = [];
+	private splitPathSegments(relativePath: string): string[] {
+		const rawSegments = relativePath.split('/');
+		const cleanedSegments: string[] = [];
 
-    for (const segment of rawSegments) {
-      if (!this.isValidSegment(segment)) {
-        continue;
-      }
+		for (const segment of rawSegments) {
+			if (!this.isValidSegment(segment)) {
+				continue;
+			}
 
-      const colonParts = segment.split(':');
-      for (const part of colonParts) {
-        if (!this.isValidSegment(part)) {
-          continue;
-        }
-        cleanedSegments.push(part);
-      }
-    }
+			const colonParts = segment.split(':');
+			for (const part of colonParts) {
+				if (!this.isValidSegment(part)) {
+					continue;
+				}
+				cleanedSegments.push(part);
+			}
+		}
 
-    return cleanedSegments;
-  }
+		return cleanedSegments;
+	}
 
-  private buildSafeName(segments: string[]): string {
-    const baseName = segments.join('_');
-    return baseName.length > 0 ? baseName : 'project-root';
-  }
+	private buildSafeName(segments: string[]): string {
+		const baseName = segments.join('_');
+		return baseName.length > 0 ? baseName : 'project-root';
+	}
 
-  private isValidSegment(segment: string): boolean {
-    return segment.length > 0 && segment !== '.' && segment !== '..';
-  }
+	private isValidSegment(segment: string): boolean {
+		return segment.length > 0 && segment !== '.' && segment !== '..';
+	}
 }

@@ -14,12 +14,14 @@ npm run lint           # Check code style
 ## Code Style
 
 ### Requirements
+
 - **ESLint:** Must pass with 0 warnings (`npm run lint`)
 - **TypeScript:** Strict mode enabled (`npm run build`)
 - **Tests:** All must pass (`npm test`)
 - **Coverage:** Must meet 70% threshold
 
 ### Standards
+
 - No `any` types (use `unknown` with type guards)
 - All public APIs documented with JSDoc
 - @example tags for complex methods
@@ -27,6 +29,7 @@ npm run lint           # Check code style
 - Constructor injection for dependencies
 
 Example:
+
 ```typescript
 /**
  * Process diagnostics
@@ -44,6 +47,7 @@ async process(diagnostics: readonly Diagnostic[]): Promise<Result<Report, Error>
 ## Architecture Rules
 
 ✅ **DO:**
+
 - Inject dependencies via constructor
 - Return Result types for errors
 - Implement contracts from core/
@@ -51,6 +55,7 @@ async process(diagnostics: readonly Diagnostic[]): Promise<Result<Report, Error>
 - Document all public APIs
 
 ❌ **DON'T:**
+
 - Throw exceptions in business logic
 - Use `any` types
 - Create hard dependencies
@@ -60,6 +65,7 @@ async process(diagnostics: readonly Diagnostic[]): Promise<Result<Report, Error>
 ## Testing
 
 ### Run Tests
+
 ```bash
 npm test                  # All tests
 npm run test:unit        # Unit tests only
@@ -69,20 +75,21 @@ npm run test:watch       # Watch mode
 ```
 
 ### Write Tests
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { MyClass } from '@/domain/feature';
 import { MockLogger } from 'tests/mocks';
 
 describe('MyClass', () => {
-  it('should do something', async () => {
-    const logger = new MockLogger();
-    const instance = new MyClass(logger);
-    
-    const result = await instance.execute(input);
-    
-    expect(result.isOk()).toBe(true);
-  });
+	it('should do something', async () => {
+		const logger = new MockLogger();
+		const instance = new MyClass(logger);
+
+		const result = await instance.execute(input);
+
+		expect(result.isOk()).toBe(true);
+	});
 });
 ```
 
@@ -92,19 +99,21 @@ describe('MyClass', () => {
 2. Make changes following code style
 3. Add tests for new functionality
 4. Verify all checks pass:
-   ```bash
-   npm run lint          # ✅ 0 warnings
-   npm run build         # ✅ 0 errors
-   npm test             # ✅ All pass
-   npm run test:coverage # ✅ 70%+ coverage
-   ```
+    ```bash
+    npm run lint          # ✅ 0 warnings
+    npm run build         # ✅ 0 errors
+    npm test             # ✅ All pass
+    npm run test:coverage # ✅ 70%+ coverage
+    ```
 5. Commit with clear messages
 6. Push and create PR with description
 
 ## Documentation
 
 ### Module READMEs
+
 Each module needs README.md explaining:
+
 - What it does
 - What it contains
 - How to use it
@@ -113,7 +122,9 @@ Each module needs README.md explaining:
 See [src/core/README.md](src/core/README.md) for example.
 
 ### JSDoc Requirements
+
 All public APIs need JSDoc:
+
 - @param descriptions
 - @returns type description
 - @throws for possible errors
@@ -122,6 +133,7 @@ All public APIs need JSDoc:
 ## Adding Features
 
 ### New Reporter
+
 1. Create `src/reporters/mytool/` directory
 2. Extend `BaseDiagnosticSource`
 3. Implement `collect()` method
@@ -129,6 +141,7 @@ All public APIs need JSDoc:
 5. Update `src/core/types/diagnostic.ts` if new source
 
 ### New Use Case
+
 1. Create in `src/application/usecases/`
 2. Inject all dependencies
 3. Return `Result<T, E>`
@@ -136,6 +149,7 @@ All public APIs need JSDoc:
 5. Export from `src/application/usecases/index.ts`
 
 ### New Domain Logic
+
 1. Create in `src/domain/feature/`
 2. Use only core contracts
 3. Add unit tests

@@ -21,7 +21,4 @@ export type { ISanitizer } from './security/index.js';
 export { RedactSanitizer, PathValidator } from './security/index.js';
 
 // Formatting
-export { ConsoleFormatter, ProgressSpinner, JsonFormatter, TableFormatter } from './formatting/index.js';
-
-// Utils
-export { countTimedOutResults } from './utils/index.js';
+export { ConsoleFormatter, JsonFormatter, TableFormatter } from './formatting/index.js';

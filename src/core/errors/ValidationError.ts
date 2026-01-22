@@ -9,15 +9,15 @@ import { BaseError, type ErrorContext } from './BaseError.js';
  * Thrown when validation of data fails
  */
 export class ValidationError extends BaseError {
-  public readonly issues?: readonly unknown[];
+	public readonly issues?: readonly unknown[];
 
-  public constructor(
-    message: string,
-    context?: ErrorContext & { issues?: readonly unknown[] },
-    originalError?: Error
-  ) {
-    super(message, context, originalError);
-    this.issues = context?.issues;
-    Object.setPrototypeOf(this, ValidationError.prototype);
-  }
+	public constructor(
+		message: string,
+		context?: ErrorContext & { issues?: readonly unknown[] },
+		originalError?: Error
+	) {
+		super(message, context, originalError);
+		this.issues = context?.issues;
+		Object.setPrototypeOf(this, ValidationError.prototype);
+	}
 }

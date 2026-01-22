@@ -4,14 +4,14 @@
 
 ## Принятые решения
 
-| Вопрос | Решение |
-|--------|---------|
-| Reporter pattern | **Объединить** Adapter + Reporter → единый Reporter |
-| Vitest | **Placeholder** - оставить как заглушку |
-| ConfigValidator | **Расширить** - zod-валидация для любых данных |
-| DiagnosticSeverity/Source | **Сократить и внедрить** - упростить value objects |
-| Writers | **Стратегия** - внедрить через паттерн Strategy |
-| VerboseLogger | **Внедрить** - для verbose режима по бизнес-правилам |
+| Вопрос                    | Решение                                              |
+| ------------------------- | ---------------------------------------------------- |
+| Reporter pattern          | **Объединить** Adapter + Reporter → единый Reporter  |
+| Vitest                    | **Placeholder** - оставить как заглушку              |
+| ConfigValidator           | **Расширить** - zod-валидация для любых данных       |
+| DiagnosticSeverity/Source | **Сократить и внедрить** - упростить value objects   |
+| Writers                   | **Стратегия** - внедрить через паттерн Strategy      |
+| VerboseLogger             | **Внедрить** - для verbose режима по бизнес-правилам |
 
 ## Архитектурные принципы
 
@@ -34,25 +34,24 @@
 ```typescript
 // src/di/registerApplication.ts
 export function registerApplication(container: Container): void {
-  // Bind GenerateReportUseCase with factory 
-  container.bind(TOKENS.GENERATE_REPORT_USE_CASE)
-    .toDynamicValue((ctx) => {
-      const sources: IDiagnosticSource[] = [
-        ctx.container.get(TOKENS.ESLINT_REPORTER),
-        ctx.container.get(TOKENS.TYPESCRIPT_REPORTER),
-      ];
-      return new GenerateReportUseCase(
-        sources,
-        ctx.container.get(TOKENS.DIAGNOSTIC_AGGREGATOR),
-        ctx.container.get(TOKENS.DIAGNOSTIC_ANALYTICS)
-      );
-    })
-    .inTransientScope();
+	// Bind GenerateReportUseCase with factory
+	container
+		.bind(TOKENS.GENERATE_REPORT_USE_CASE)
+		.toDynamicValue((ctx) => {
+			const sources: IDiagnosticSource[] = [
+				ctx.container.get(TOKENS.ESLINT_REPORTER),
+				ctx.container.get(TOKENS.TYPESCRIPT_REPORTER),
+			];
+			return new GenerateReportUseCase(
+				sources,
+				ctx.container.get(TOKENS.DIAGNOSTIC_AGGREGATOR),
+				ctx.container.get(TOKENS.DIAGNOSTIC_ANALYTICS)
+			);
+		})
+		.inTransientScope();
 
-  // Bind DiagnosticApplicationService
-  container.bind(TOKENS.DIAGNOSTIC_APPLICATION_SERVICE)
-    .to(DiagnosticApplicationService)
-    .inSingletonScope();
+	// Bind DiagnosticApplicationService
+	container.bind(TOKENS.DIAGNOSTIC_APPLICATION_SERVICE).to(DiagnosticApplicationService).inSingletonScope();
 }
 ```
 
@@ -67,6 +66,7 @@ Add `registerApplication(container)` call.
 ### Task 2.1: Merge Adapter into Reporter
 
 **Files affected:**
+
 - `src/reporters/eslint/EslintAdapter.ts` → merge into EslintReporter.ts
 - `src/reporters/eslint/EslintReporter.ts` → becomes the single class
 - `src/reporters/typescript/TypeScriptAdapter.ts` → merge into TypeScriptReporter.ts
@@ -77,17 +77,17 @@ Add `registerApplication(container)` call.
 ```typescript
 // src/reporters/eslint/EslintReporter.ts
 export class EslintReporter extends BaseDiagnosticSource {
-  public constructor(
-    private readonly logger: ILogger,
-    private readonly verbose: boolean = false
-  ) {
-    super('eslint');
-  }
+	public constructor(
+		private readonly logger: ILogger,
+		private readonly verbose: boolean = false
+	) {
+		super('eslint');
+	}
 
-  protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {
-    // ESLint integration code directly here
-    // (moved from EslintAdapter)
-  }
+	protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {
+		// ESLint integration code directly here
+		// (moved from EslintAdapter)
+	}
 }
 ```
 
@@ -112,13 +112,13 @@ export type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'note';
 
 // Add simple validation/utility functions if needed:
 export const DiagnosticSeverityUtils = {
-  isValid: (value: unknown): value is DiagnosticSeverity =>
-    typeof value === 'string' && ['error', 'warning', 'info', 'note'].includes(value),
-  
-  compare: (a: DiagnosticSeverity, b: DiagnosticSeverity): number => {
-    const order = { error: 3, warning: 2, info: 1, note: 0 };
-    return order[a] - order[b];
-  }
+	isValid: (value: unknown): value is DiagnosticSeverity =>
+		typeof value === 'string' && ['error', 'warning', 'info', 'note'].includes(value),
+
+	compare: (a: DiagnosticSeverity, b: DiagnosticSeverity): number => {
+		const order = { error: 3, warning: 2, info: 1, note: 0 };
+		return order[a] - order[b];
+	},
 };
 ```
 
@@ -131,10 +131,10 @@ export const DiagnosticSeverityUtils = {
 export type DiagnosticSource = 'eslint' | 'typescript' | 'vitest';
 
 export const DiagnosticSourceUtils = {
-  isValid: (value: unknown): value is DiagnosticSource =>
-    typeof value === 'string' && ['eslint', 'typescript', 'vitest'].includes(value),
-  
-  all: (): readonly DiagnosticSource[] => ['eslint', 'typescript', 'vitest']
+	isValid: (value: unknown): value is DiagnosticSource =>
+		typeof value === 'string' && ['eslint', 'typescript', 'vitest'].includes(value),
+
+	all: (): readonly DiagnosticSource[] => ['eslint', 'typescript', 'vitest'],
 };
 ```
 
@@ -147,16 +147,17 @@ export const DiagnosticSourceUtils = {
 ```typescript
 // src/core/contracts/IWriterStrategy.ts
 export interface IWriterStrategy {
-  readonly format: 'json' | 'stream' | 'file';
-  write(data: unknown, options: WriteOptions): Promise<Result<WriteStats, Error>>;
+	readonly format: 'json' | 'stream' | 'file';
+	write(data: unknown, options: WriteOptions): Promise<Result<WriteStats, Error>>;
 }
 ```
 
 ### Task 4.2: Implement Strategies
 
 Writers become strategies:
+
 - `JsonWriterStrategy` (from JsonWriter)
-- `FileWriterStrategy` (from FileWriter)  
+- `FileWriterStrategy` (from FileWriter)
 - `StreamWriterStrategy` (from StreamWriter)
 
 ### Task 4.3: WriterFactory or Context
@@ -165,17 +166,19 @@ Writers become strategies:
 // src/infrastructure/filesystem/WriterContext.ts
 @injectable()
 export class WriterContext {
-  public constructor(
-    @inject(TOKENS.JSON_WRITER_STRATEGY) private jsonStrategy: IWriterStrategy,
-    @inject(TOKENS.FILE_WRITER_STRATEGY) private fileStrategy: IWriterStrategy,
-  ) {}
+	public constructor(
+		@inject(TOKENS.JSON_WRITER_STRATEGY) private jsonStrategy: IWriterStrategy,
+		@inject(TOKENS.FILE_WRITER_STRATEGY) private fileStrategy: IWriterStrategy
+	) {}
 
-  public getStrategy(format: 'json' | 'file'): IWriterStrategy {
-    switch (format) {
-      case 'json': return this.jsonStrategy;
-      case 'file': return this.fileStrategy;
-    }
-  }
+	public getStrategy(format: 'json' | 'file'): IWriterStrategy {
+		switch (format) {
+			case 'json':
+				return this.jsonStrategy;
+			case 'file':
+				return this.fileStrategy;
+		}
+	}
 }
 ```
 
@@ -190,19 +193,22 @@ export class WriterContext {
 ### Task 5.1: Verbose Logging Strategy
 
 Per business rules:
+
 - `--verbose` flag enables detailed logging
 - Logs should show tool execution details
 
 ```typescript
 // Update DI to support logger selection
 export function registerLogging(container: Container): void {
-  container.bind<ILogger>(TOKENS.LOGGER)
-    .toDynamicValue(() => new PinoLogger())
-    .inSingletonScope();
+	container
+		.bind<ILogger>(TOKENS.LOGGER)
+		.toDynamicValue(() => new PinoLogger())
+		.inSingletonScope();
 
-  container.bind<ILogger>(TOKENS.VERBOSE_LOGGER)
-    .toDynamicValue(() => new VerboseLogger())
-    .inSingletonScope();
+	container
+		.bind<ILogger>(TOKENS.VERBOSE_LOGGER)
+		.toDynamicValue(() => new VerboseLogger())
+		.inSingletonScope();
 }
 ```
 
@@ -212,19 +218,19 @@ Reporters receive verbose flag and use appropriate logger:
 
 ```typescript
 export class EslintReporter extends BaseDiagnosticSource {
-  public constructor(
-    private readonly logger: ILogger,
-    private readonly verbose: boolean = false
-  ) {
-    super('eslint');
-  }
+	public constructor(
+		private readonly logger: ILogger,
+		private readonly verbose: boolean = false
+	) {
+		super('eslint');
+	}
 
-  protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {
-    if (this.verbose || config.verboseLogging) {
-      this.logger.debug('Starting ESLint analysis', { patterns: config.patterns });
-    }
-    // ...
-  }
+	protected async doDiagnosticCollection(config: CollectionConfig): Promise<readonly Diagnostic[]> {
+		if (this.verbose || config.verboseLogging) {
+			this.logger.debug('Starting ESLint analysis', { patterns: config.patterns });
+		}
+		// ...
+	}
 }
 ```
 
@@ -235,13 +241,16 @@ export class EslintReporter extends BaseDiagnosticSource {
 ### Task 6.1: Consolidate Analytics
 
 **Keep:**
+
 - `DiagnosticAnalytics` - generic for all diagnostics
 
 **Remove:**
+
 - `LintAnalytics` - redundant (use DiagnosticAnalytics)
 - `TypeScriptAnalytics` - redundant (use DiagnosticAnalytics)
 
 **Keep for tests:**
+
 - `TestAnalytics` - specific for test results (different data structure)
 
 ### Task 6.2: Delete Files
@@ -265,24 +274,26 @@ src/domain/analytics/typescript/types.ts ❌
 // src/domain/validation/Validator.ts
 @injectable()
 export class Validator {
-  /**
-   * Validate any data against a zod schema
-   */
-  public validate<T>(data: unknown, schema: z.ZodType<T>): Result<T, ValidationError> {
-    const result = schema.safeParse(data);
-    if (result.success) {
-      return ok(result.data);
-    }
-    return err(new ValidationError('Validation failed', { 
-      issues: result.error.issues 
-    }));
-  }
+	/**
+	 * Validate any data against a zod schema
+	 */
+	public validate<T>(data: unknown, schema: z.ZodType<T>): Result<T, ValidationError> {
+		const result = schema.safeParse(data);
+		if (result.success) {
+			return ok(result.data);
+		}
+		return err(
+			new ValidationError('Validation failed', {
+				issues: result.error.issues,
+			})
+		);
+	}
 }
 ```
 
 ### Task 7.2: Keep Specific Schemas
 
-- `CollectionConfigSchema` 
+- `CollectionConfigSchema`
 - `ReportingConfigSchema`
 - Add new schemas as needed
 
@@ -294,14 +305,14 @@ export class Validator {
 
 ```typescript
 const APPLICATION = {
-  GENERATE_REPORT_USE_CASE: Symbol.for('GenerateReportUseCase'),
-  DIAGNOSTIC_APPLICATION_SERVICE: Symbol.for('DiagnosticApplicationService'),
+	GENERATE_REPORT_USE_CASE: Symbol.for('GenerateReportUseCase'),
+	DIAGNOSTIC_APPLICATION_SERVICE: Symbol.for('DiagnosticApplicationService'),
 };
 
 const WRITERS = {
-  JSON_WRITER_STRATEGY: Symbol.for('JsonWriterStrategy'),
-  FILE_WRITER_STRATEGY: Symbol.for('FileWriterStrategy'),
-  WRITER_CONTEXT: Symbol.for('WriterContext'),
+	JSON_WRITER_STRATEGY: Symbol.for('JsonWriterStrategy'),
+	FILE_WRITER_STRATEGY: Symbol.for('FileWriterStrategy'),
+	WRITER_CONTEXT: Symbol.for('WriterContext'),
 };
 ```
 
@@ -309,9 +320,9 @@ const WRITERS = {
 
 ```typescript
 // Remove these:
-ESLINT_ADAPTER
-TYPESCRIPT_ADAPTER
-CONSOLE_LOGGER // if not used
+ESLINT_ADAPTER;
+TYPESCRIPT_ADAPTER;
+CONSOLE_LOGGER; // if not used
 ```
 
 ---
@@ -320,34 +331,34 @@ CONSOLE_LOGGER // if not used
 
 ### Files to DELETE
 
-| Path | Reason |
-|------|--------|
-| `src/core/types/DiagnosticSeverity.ts` | Replace with utils |
-| `src/core/types/DiagnosticSource.ts` | Replace with utils |
-| `src/reporters/eslint/EslintAdapter.ts` | Merge into Reporter |
+| Path                                            | Reason              |
+| ----------------------------------------------- | ------------------- |
+| `src/core/types/DiagnosticSeverity.ts`          | Replace with utils  |
+| `src/core/types/DiagnosticSource.ts`            | Replace with utils  |
+| `src/reporters/eslint/EslintAdapter.ts`         | Merge into Reporter |
 | `src/reporters/typescript/TypeScriptAdapter.ts` | Merge into Reporter |
-| `src/domain/analytics/lint/*.ts` | Unused |
-| `src/domain/analytics/typescript/*.ts` | Unused |
+| `src/domain/analytics/lint/*.ts`                | Unused              |
+| `src/domain/analytics/typescript/*.ts`          | Unused              |
 
 ### Files to MODIFY
 
-| Path | Changes |
-|------|---------|
-| `src/reporters/eslint/EslintReporter.ts` | Include Adapter logic |
-| `src/reporters/typescript/TypeScriptReporter.ts` | Include Adapter logic |
-| `src/core/types/diagnostic.ts` | Add utils for Severity/Source |
-| `src/di/container.ts` | Add registerApplication |
-| `src/di/tokens.ts` | Update token list |
-| `src/di/registerReporters.ts` | Update bindings |
-| `src/infrastructure/filesystem/*.ts` | Implement strategies |
+| Path                                             | Changes                       |
+| ------------------------------------------------ | ----------------------------- |
+| `src/reporters/eslint/EslintReporter.ts`         | Include Adapter logic         |
+| `src/reporters/typescript/TypeScriptReporter.ts` | Include Adapter logic         |
+| `src/core/types/diagnostic.ts`                   | Add utils for Severity/Source |
+| `src/di/container.ts`                            | Add registerApplication       |
+| `src/di/tokens.ts`                               | Update token list             |
+| `src/di/registerReporters.ts`                    | Update bindings               |
+| `src/infrastructure/filesystem/*.ts`             | Implement strategies          |
 
 ### Files to CREATE
 
-| Path | Purpose |
-|------|---------|
-| `src/di/registerApplication.ts` | Application layer DI |
-| `src/core/contracts/IWriterStrategy.ts` | Writer strategy contract |
-| `src/infrastructure/filesystem/WriterContext.ts` | Strategy selector |
+| Path                                             | Purpose                  |
+| ------------------------------------------------ | ------------------------ |
+| `src/di/registerApplication.ts`                  | Application layer DI     |
+| `src/core/contracts/IWriterStrategy.ts`          | Writer strategy contract |
+| `src/infrastructure/filesystem/WriterContext.ts` | Strategy selector        |
 
 ---
 
@@ -377,12 +388,12 @@ graph TD
 
 ## Estimated Impact
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Total files in src/ | ~80 | ~70 |
-| Dead code lines | ~700 | 0 |
-| DI registration errors | 2 | 0 |
-| Redundant patterns | 3 | 0 |
+| Metric                 | Before | After |
+| ---------------------- | ------ | ----- |
+| Total files in src/    | ~80    | ~70   |
+| Dead code lines        | ~700   | 0     |
+| DI registration errors | 2      | 0     |
+| Redundant patterns     | 3      | 0     |
 
 ---
 
@@ -391,6 +402,7 @@ graph TD
 ### Task 9.1: Анализ текущего состояния
 
 **Структура `src/application/`:**
+
 ```
 src/application/
 ├── index.ts
@@ -406,20 +418,20 @@ src/application/
 ### Task 9.2: Проблемы Application Layer
 
 1. **README.md ссылается на несуществующий класс:**
-   - `CollectDiagnosticsUseCase` - упоминается но НЕ существует
-   
+    - `CollectDiagnosticsUseCase` - упоминается но НЕ существует
 2. **DiagnosticApplicationService проблемы:**
-   - Зависит от КОНКРЕТНЫХ классов (`EslintAdapter`, `TypeScriptAdapter`) вместо абстракций
-   - Методы `runEslint()` и `runTypeScript()` - дублируют функционал
-   - Не зарегистрирован в DI контейнере
+    - Зависит от КОНКРЕТНЫХ классов (`EslintAdapter`, `TypeScriptAdapter`) вместо абстракций
+    - Методы `runEslint()` и `runTypeScript()` - дублируют функционал
+    - Не зарегистрирован в DI контейнере
 
 3. **GenerateReportUseCase проблемы:**
-   - Принимает `sources: readonly IDiagnosticSource[]` но нет DI для инжекции
-   - Использует `DiagnosticAnalytics` напрямую вместо интерфейса
+    - Принимает `sources: readonly IDiagnosticSource[]` но нет DI для инжекции
+    - Использует `DiagnosticAnalytics` напрямую вместо интерфейса
 
 ### Task 9.3: Рефакторинг DiagnosticApplicationService
 
 **До:**
+
 ```typescript
 export class DiagnosticApplicationService {
   constructor(
@@ -432,6 +444,7 @@ export class DiagnosticApplicationService {
 ```
 
 **После:**
+
 ```typescript
 export class DiagnosticApplicationService {
   constructor(
@@ -449,24 +462,27 @@ export class DiagnosticApplicationService {
 ### Task 9.4: Рефакторинг GenerateReportUseCase
 
 **До:**
+
 ```typescript
 export class GenerateReportUseCase {
-  constructor(
-    private readonly sources: readonly IDiagnosticSource[],
-    private readonly aggregator: DiagnosticAggregator,
-    private readonly analytics: DiagnosticAnalytics
-  ) {}
+	constructor(
+		private readonly sources: readonly IDiagnosticSource[],
+		private readonly aggregator: DiagnosticAggregator,
+		private readonly analytics: DiagnosticAnalytics
+	) {}
 }
 ```
 
 **После:**
+
 ```typescript
 export class GenerateReportUseCase {
-  constructor(
-    @inject(TOKENS.DIAGNOSTIC_SOURCES) private readonly sources: readonly IDiagnosticSource[],
-    @inject(TOKENS.DIAGNOSTIC_AGGREGATOR) private readonly aggregator: IDiagnosticAggregator,
-    @inject(TOKENS.DIAGNOSTIC_ANALYTICS) private readonly analytics: IAnalyticsCollector<Diagnostic, DiagnosticStatistics>
-  ) {}
+	constructor(
+		@inject(TOKENS.DIAGNOSTIC_SOURCES) private readonly sources: readonly IDiagnosticSource[],
+		@inject(TOKENS.DIAGNOSTIC_AGGREGATOR) private readonly aggregator: IDiagnosticAggregator,
+		@inject(TOKENS.DIAGNOSTIC_ANALYTICS)
+		private readonly analytics: IAnalyticsCollector<Diagnostic, DiagnosticStatistics>
+	) {}
 }
 ```
 
@@ -481,6 +497,7 @@ export class GenerateReportUseCase {
 ### Task 10.1: Анализ текущего состояния
 
 **Структура `src/domain/`:**
+
 ```
 src/domain/
 ├── index.ts
@@ -508,42 +525,43 @@ src/domain/
 ### Task 10.2: Проблемы Domain Layer
 
 1. **Несуществующие типы в экспортах:**
-   - `SeverityCount` - экспортируется но НЕ существует
-   - `GroupedBySources` - экспортируется но НЕ существует
+    - `SeverityCount` - экспортируется но НЕ существует
+    - `GroupedBySources` - экспортируется но НЕ существует
 
 2. **Неиспользуемые модули:**
-   - `analytics/lint/` - целая папка мёртвого кода
-   - `analytics/typescript/` - зарегистрирован но не используется
+    - `analytics/lint/` - целая папка мёртвого кода
+    - `analytics/typescript/` - зарегистрирован но не используется
 
 3. **DiagnosticAggregator:**
-   - Не реализует интерфейс (нет `IDiagnosticAggregator`)
-   - Зависит от `@core` напрямую - ОК
+    - Не реализует интерфейс (нет `IDiagnosticAggregator`)
+    - Зависит от `@core` напрямую - ОК
 
 4. **DiagnosticMapper:**
-   - Имеет статические методы И instance метод `map()` - избыточность
-   - `toDomain()` возвращает input без изменений - бесполезный метод
+    - Имеет статические методы И instance метод `map()` - избыточность
+    - `toDomain()` возвращает input без изменений - бесполезный метод
 
 5. **ConfigValidator:**
-   - Deprecated методы в коде
-   - Дублирование статических и instance методов
+    - Deprecated методы в коде
+    - Дублирование статических и instance методов
 
 ### Task 10.3: Создать интерфейсы Domain
 
 ```typescript
 // src/core/contracts/IDiagnosticAggregator.ts
 export interface IDiagnosticAggregator {
-  aggregate(sources: readonly (readonly Diagnostic[])[]): readonly Diagnostic[];
-  aggregateResults(
-    results: readonly PromiseSettledResult<Result<readonly Diagnostic[], Error>>[]
-  ): { diagnostics: readonly Diagnostic[]; successCount: number };
+	aggregate(sources: readonly (readonly Diagnostic[])[]): readonly Diagnostic[];
+	aggregateResults(results: readonly PromiseSettledResult<Result<readonly Diagnostic[], Error>>[]): {
+		diagnostics: readonly Diagnostic[];
+		successCount: number;
+	};
 }
 
 // src/core/contracts/IDiagnosticMapper.ts
 export interface IDiagnosticMapper<TRaw, TPersist> {
-  map(raw: TRaw): Diagnostic;
-  mapArray(raw: readonly TRaw[]): readonly Diagnostic[];
-  toPersistence(diagnostic: Diagnostic): TPersist;
-  fromPersistence(data: TPersist): Diagnostic;
+	map(raw: TRaw): Diagnostic;
+	mapArray(raw: readonly TRaw[]): readonly Diagnostic[];
+	toPersistence(diagnostic: Diagnostic): TPersist;
+	fromPersistence(data: TPersist): Diagnostic;
 }
 ```
 
@@ -556,7 +574,7 @@ export interface IDiagnosticMapper<TRaw, TPersist> {
 // Реализовать интерфейс:
 @injectable()
 export class DiagnosticAggregator implements IDiagnosticAggregator {
-  // ...
+	// ...
 }
 ```
 
@@ -567,7 +585,7 @@ export class DiagnosticAggregator implements IDiagnosticAggregator {
 // Оставить:
 export class DiagnosticMapper extends BaseMapper<RawDiagnosticData, Diagnostic>
   implements IDiagnosticMapper<RawDiagnosticData, PersistentDiagnosticData> {
-  
+
   public map(input: RawDiagnosticData): Diagnostic { ... }
   public toPersistence(diagnostic: Diagnostic): PersistentDiagnosticData { ... }
   public fromPersistence(data: PersistentDiagnosticData): Diagnostic { ... }
@@ -589,6 +607,7 @@ export class ConfigValidator implements IValidator {
 ### Task 10.7: Удалить неиспользуемые analytics
 
 **Удалить полностью:**
+
 ```
 src/domain/analytics/lint/
 ├── LintAnalytics.ts
@@ -604,6 +623,7 @@ src/domain/analytics/typescript/
 ```
 
 **Оставить:**
+
 ```
 src/domain/analytics/diagnostics/     ✓ Используется
 src/domain/analytics/tests/           ✓ Используется VitestAdapter
@@ -631,42 +651,42 @@ graph TD
 
 ## Полный список файлов для удаления
 
-| Path | Reason |
-|------|--------|
-| `src/core/types/DiagnosticSeverity.ts` | Replace with utils |
-| `src/core/types/DiagnosticSource.ts` | Replace with utils |
-| `src/reporters/eslint/EslintAdapter.ts` | Merge into Reporter |
-| `src/reporters/typescript/TypeScriptAdapter.ts` | Merge into Reporter |
-| `src/domain/analytics/lint/LintAnalytics.ts` | Unused |
-| `src/domain/analytics/lint/LintStatisticsCalculator.ts` | Unused |
-| `src/domain/analytics/lint/types.ts` | Unused |
-| `src/domain/analytics/lint/index.ts` | Unused |
-| `src/domain/analytics/typescript/TypeScriptAnalytics.ts` | Unused |
-| `src/domain/analytics/typescript/TypeScriptStatisticsCalculator.ts` | Unused |
-| `src/domain/analytics/typescript/types.ts` | Unused |
-| `src/domain/analytics/typescript/index.ts` | Unused |
+| Path                                                                | Reason              |
+| ------------------------------------------------------------------- | ------------------- |
+| `src/core/types/DiagnosticSeverity.ts`                              | Replace with utils  |
+| `src/core/types/DiagnosticSource.ts`                                | Replace with utils  |
+| `src/reporters/eslint/EslintAdapter.ts`                             | Merge into Reporter |
+| `src/reporters/typescript/TypeScriptAdapter.ts`                     | Merge into Reporter |
+| `src/domain/analytics/lint/LintAnalytics.ts`                        | Unused              |
+| `src/domain/analytics/lint/LintStatisticsCalculator.ts`             | Unused              |
+| `src/domain/analytics/lint/types.ts`                                | Unused              |
+| `src/domain/analytics/lint/index.ts`                                | Unused              |
+| `src/domain/analytics/typescript/TypeScriptAnalytics.ts`            | Unused              |
+| `src/domain/analytics/typescript/TypeScriptStatisticsCalculator.ts` | Unused              |
+| `src/domain/analytics/typescript/types.ts`                          | Unused              |
+| `src/domain/analytics/typescript/index.ts`                          | Unused              |
 
 ---
 
 ## Новые интерфейсы для создания
 
-| Interface | Location | Purpose |
-|-----------|----------|---------|
+| Interface               | Location              | Purpose             |
+| ----------------------- | --------------------- | ------------------- |
 | `IDiagnosticAggregator` | `src/core/contracts/` | Aggregator contract |
-| `IDiagnosticMapper` | `src/core/contracts/` | Mapper contract |
-| `IValidator` | `src/core/contracts/` | Validation contract |
-| `IWriterStrategy` | `src/core/contracts/` | Writer strategy |
-| `IDirectoryService` | `src/core/contracts/` | Directory service |
+| `IDiagnosticMapper`     | `src/core/contracts/` | Mapper contract     |
+| `IValidator`            | `src/core/contracts/` | Validation contract |
+| `IWriterStrategy`       | `src/core/contracts/` | Writer strategy     |
+| `IDirectoryService`     | `src/core/contracts/` | Directory service   |
 
 ---
 
 ## Обновлённые метрики
 
-| Metric | Before | After Est. |
-|--------|--------|------------|
-| Total files in src/ | ~80 | ~65 |
-| Dead code lines | ~800+ | 0 |
-| Missing DI registrations | 2 | 0 |
-| Deprecated methods | 2 | 0 |
-| Unused exports | 2 types | 0 |
-| Concrete dependencies | 5+ | 0 |
+| Metric                   | Before  | After Est. |
+| ------------------------ | ------- | ---------- |
+| Total files in src/      | ~80     | ~65        |
+| Dead code lines          | ~800+   | 0          |
+| Missing DI registrations | 2       | 0          |
+| Deprecated methods       | 2       | 0          |
+| Unused exports           | 2 types | 0          |
+| Concrete dependencies    | 5+      | 0          |

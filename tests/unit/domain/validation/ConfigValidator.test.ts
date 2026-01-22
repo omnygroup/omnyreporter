@@ -9,79 +9,79 @@ import { ConfigValidator } from '../../../../src/domain/validation/index';
 import { createTestConfig } from '../../../helpers/index';
 
 describe('ConfigValidator', () => {
-  const validator = new ConfigValidator();
+	const validator = new ConfigValidator();
 
-  describe('validate', () => {
-    it('should accept valid configuration', () => {
-      const config = createTestConfig();
-      const result = validator.validate(config);
+	describe('validate', () => {
+		it('should accept valid configuration', () => {
+			const config = createTestConfig();
+			const result = validator.validate(config);
 
-      expect(result.isOk()).toBe(true);
-    });
+			expect(result.isOk()).toBe(true);
+		});
 
-    it('should accept config with custom patterns', () => {
-      const config = createTestConfig({
-        patterns: ['src/**/*.ts', 'tests/**/*.test.ts'],
-      });
-      const result = validator.validate(config);
+		it('should accept config with custom patterns', () => {
+			const config = createTestConfig({
+				patterns: ['src/**/*.ts', 'tests/**/*.test.ts'],
+			});
+			const result = validator.validate(config);
 
-      expect(result.isOk()).toBe(true);
-    });
+			expect(result.isOk()).toBe(true);
+		});
 
-    it('should accept config with ignore patterns', () => {
-      const config = createTestConfig({
-        ignorePatterns: ['dist/**', 'coverage/**', 'node_modules/**'],
-      });
-      const result = validator.validate(config);
+		it('should accept config with ignore patterns', () => {
+			const config = createTestConfig({
+				ignorePatterns: ['dist/**', 'coverage/**', 'node_modules/**'],
+			});
+			const result = validator.validate(config);
 
-      expect(result.isOk()).toBe(true);
-    });
+			expect(result.isOk()).toBe(true);
+		});
 
-    it('should reject config with missing patterns', () => {
-      const invalidConfig = { ignorePatterns: [] } as unknown;
-      const result = validator.validate(invalidConfig);
+		it('should reject config with missing patterns', () => {
+			const invalidConfig = { ignorePatterns: [] } as unknown;
+			const result = validator.validate(invalidConfig);
 
-      expect(result.isErr()).toBe(true);
-    });
+			expect(result.isErr()).toBe(true);
+		});
 
-    it('should reject empty patterns array', () => {
-      const config = createTestConfig({ patterns: [] });
-      const result = validator.validate(config);
+		it('should reject empty patterns array', () => {
+			const config = createTestConfig({ patterns: [] });
+			const result = validator.validate(config);
 
-      expect(result.isErr()).toBe(true);
-    });
+			expect(result.isErr()).toBe(true);
+		});
 
-    it('should accept empty ignore patterns', () => {
-      const config = createTestConfig({ ignorePatterns: [] });
-      const result = validator.validate(config);
+		it('should accept empty ignore patterns', () => {
+			const config = createTestConfig({ ignorePatterns: [] });
+			const result = validator.validate(config);
 
-      expect(result.isOk()).toBe(true);
-    });
-  });
+			expect(result.isOk()).toBe(true);
+		});
+	});
 
-  describe('validateOrThrow', () => {
-    it('should return config for valid input', () => {
-      const config = createTestConfig();
-      const result = validator.validateOrThrow(config);
+	describe('validateOrThrow', () => {
+		it('should return config for valid input', () => {
+			const config = createTestConfig();
+			const result = validator.validateOrThrow(config);
 
-      // Schema applies defaults for optional fields; ensure returned config
-      // includes those defaults merged with the provided config
-      expect(result).toEqual({
-        patterns: config.patterns,
-        ignorePatterns: config.ignorePatterns,
-        concurrency: 4,
-        timeout: 30000,
-        cache: false,
-        eslint: true,
-        typescript: true,
-        verboseLogging: false,
-      });
-    });
+			// Schema applies defaults for optional fields; ensure returned config
+			// includes those defaults merged with the provided config
+			expect(result).toEqual({
+				patterns: config.patterns,
+				ignorePatterns: config.ignorePatterns,
+				concurrency: 4,
+				timeout: 30000,
+				cache: false,
+				eslint: true,
+				typescript: true,
+				verboseLogging: false,
+			});
+		});
 
-    it('should throw ValidationError for invalid input', () => {
-      const invalidConfig = {} as unknown;
+		it('should throw ValidationError for invalid input', () => {
+			const invalidConfig = {} as unknown;
 
-      expect(() => validator.validateOrThrow(invalidConfig)).toThrow();
-    });
-  });
+			expect(() => validator.validateOrThrow(invalidConfig)).toThrow();
+		});
+	});
 });

@@ -7,6 +7,7 @@
 ## Задачи
 
 ### 1. Создать src/container.ts (1-2 часа)
+
 ```
 - Импортировать все сервисы из infrastructure/
 - Создать TOKENS объект со всеми ключами
@@ -23,6 +24,7 @@
 ```
 
 ### 2. Исправить View/CLI типизация (2-3 часа)
+
 ```
 - Адаптировать yargs CommandBuilder для DiagnosticsOptions
 - Использовать builder pattern без конфликтов типов
@@ -31,6 +33,7 @@
 ```
 
 ### 3. Интегрировать CLI с use-cases (1 час)
+
 ```
 - Получить container из App.ts
 - В diagnostics команде:
@@ -42,6 +45,7 @@
 ```
 
 ### 4. Создать интеграционные точки
+
 ```
 - Обновить ReportingOrchestrator для работы с DI
 - Обновить ReportingFacade для использования use-cases
@@ -54,6 +58,6 @@
 ✅ CLI работает (bin/omny.js запускается без ошибок)  
 ✅ Use-cases вызываются из CLI  
 ✅ Результаты выводятся через форматтеры  
-✅ 0 TypeScript ошибок (включая CLI)  
+✅ 0 TypeScript ошибок (включая CLI)
 
 ## Следующее: PHASE 3

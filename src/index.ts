@@ -1,6 +1,6 @@
 /**
  * OmnyReporter - Unified diagnostic and test reporting
- * 
+ *
  * @packageDocumentation
  */
 
@@ -24,13 +24,3 @@ export * from './reporters/index.js';
 // View layer - CLI and presentation
 // DONE: Fix yargs types and CLI integration (completed)
 // export * from './view/index.js';
-
-/**
- * Version information
- */
-export const VERSION = '0.2.0';
-
-/**
- * Package name
- */
-export const PACKAGE_NAME = '@omnygroup/omnyreporter';

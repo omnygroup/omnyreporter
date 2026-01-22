@@ -1,111 +1,87 @@
 # Core Module
 
-The **core** module is the foundation of OmnyReporter. It contains all interfaces (contracts), types, abstractions, and error definitions that all other modules depend on.
+Фундамент OmnyReporter: интерфейсы (контракты), типы, абстракции и ошибки.
 
-## Contents
+## Содержимое
 
-### `types/` - Type Definitions
-- `diagnostic.ts` - Core Diagnostic type and factories
-- `statistics.ts` - Statistics type for aggregated counts
-- `result.ts` - Result<T, E> type alias (neverthrow)
-- `config.ts` - Collection configuration type
+### `types/` — Определения типов
 
-### `contracts/` - Interface Contracts
-8 core interfaces that define the architecture:
+| Файл                                  | Описание                                       |
+| ------------------------------------- | ---------------------------------------------- |
+| `diagnostic/Diagnostic.ts`            | Класс Diagnostic и его props                   |
+| `diagnostic/DiagnosticFileReport.ts`  | Отчёт по файлу с диагностиками                 |
+| `diagnostic/DiagnosticIntegration.ts` | Enum IntegrationName                           |
+| `diagnostic/DiagnosticSeverity.ts`    | Уровни severity                                |
+| `statistics.ts`                       | Типы статистики                                |
+| `result.ts`                           | Result<T, E> (neverthrow)                      |
+| `config.ts`                           | FileOperationOptions, WriteOptions, WriteStats |
 
-| Interface | Purpose | Implemented By |
-|-----------|---------|-----------------|
-| `ILogger` | Logging interface | PinoLogger |
-| `IFileSystem` | File I/O operations | NodeFileSystem |
-| `IDiagnosticSource` | Diagnostic collection | EslintReporter, TypeScriptAdapter |
-| `IFormatter<T>` | Output formatting | JsonFormatter, TableFormatter |
-| `IWriter<T>` | Result output | JsonWriter, StreamWriter |
-| `IPathService` | Path normalization | UpathService |
-| `ISanitizer` | Sensitive data redaction | RedactSanitizer |
-| `IAnalyticsCollector<T, S>` | Statistics collection | DiagnosticAnalytics |
+### `contracts/` — Интерфейсы
 
-### `abstractions/` - Base Classes
-Template Method pattern base classes:
+| Интерфейс               | Назначение            | Реализация                         |
+| ----------------------- | --------------------- | ---------------------------------- |
+| `ILogger`               | Логирование           | PinoLogger, ConsoleLogger          |
+| `IFileSystem`           | Файловые операции     | NodeFileSystem                     |
+| `IFormatter<T>`         | Форматирование вывода | JsonFormatter, TableFormatter      |
+| `IWriter<T>`            | Запись результатов    | JsonWriter, StreamWriter           |
+| `IPathService`          | Нормализация путей    | UpathService                       |
+| `ISanitizer`            | Редактирование данных | RedactSanitizer                    |
+| `DiagnosticIntegration` | Интерфейс интеграции  | EslintReporter, TypeScriptReporter |
 
-- `BaseDiagnosticSource` - Base for all diagnostic reporters
-- `BaseAnalyticsCollector<T, S>` - Base for analytics calculators
-- `BaseMapper` - Base for data transformations
-- `BaseError` - Base for all custom errors
+### `abstractions/` — Базовые классы
 
-### `errors/` - Error Types
-Typed error classes for compile-time safety:
+- `BaseReportGenerator` — Template Method для репортеров
+- `BaseError` — Базовый класс ошибок
 
-- `ValidationError` - Invalid configuration
-- `ConfigurationError` - Config-related errors
-- `FileSystemError` - File I/O errors
-- `DiagnosticError` - Diagnostic collection errors
+### `errors/` — Типизированные ошибки
 
-### `utils/` - Utilities
-- `type-guards.ts` - TypeScript type guards
-- `assertions.ts` - Runtime assertion functions
+| Класс                | Использование           |
+| -------------------- | ----------------------- |
+| `ValidationError`    | Невалидная конфигурация |
+| `ConfigurationError` | Ошибки конфигурации     |
+| `FileSystemError`    | Ошибки файловой системы |
+| `DiagnosticError`    | Ошибки сбора диагностик |
 
-## Key Principles
+## Принципы
 
-1. **Zero External Dependencies** - Core only uses TypeScript
-2. **Interface Segregation** - Small, focused interfaces
-3. **Immutability** - All types use `readonly` fields
-4. **Type Safety** - Strict TypeScript mode enabled
+1. **Минимум зависимостей** — только TypeScript и neverthrow
+2. **Interface Segregation** — маленькие, фокусированные интерфейсы
+3. **Immutability** — `readonly` поля
+4. **Type Safety** — strict TypeScript
 
-## Usage Examples
+## Примеры
 
-### Using Contracts
+### Использование контрактов
+
 ```typescript
-import type { ILogger, IDiagnosticSource } from '@/core/contracts';
-import type { Diagnostic } from '@/core/types';
+import type { ILogger, DiagnosticIntegration } from '@core';
+import type { Diagnostic } from '@core';
 
-function createReporter(logger: ILogger): IDiagnosticSource {
-  // Logger interface is defined in core
-  logger.info('Creating reporter');
-  // ...
+class MyReporter implements DiagnosticIntegration {
+	constructor(private readonly logger: ILogger) {}
+
+	async collect(config): Promise<Result<Diagnostic[], Error>> {
+		this.logger.info('Collecting...');
+		// ...
+	}
 }
 ```
 
-### Creating Typed Errors
+### Типизированные ошибки
+
 ```typescript
-import { ValidationError } from '@/core/errors';
+import { ValidationError } from '@core';
 
 if (!isValid(config)) {
-  throw new ValidationError('Configuration is invalid', { config });
+	throw new ValidationError('Invalid config', { config });
 }
 ```
 
-### Type Guards
-```typescript
-import { isError, isDiagnostic } from '@/core/utils';
+## Зависимости
 
-if (isError(value)) {
-  console.error(value.message);
-}
-```
-
-## Extension Points
-
-To add a new interface contract:
-
-1. Create `IMyContract.ts` in `contracts/`
-2. Document all methods with JSDoc
-3. Export from `contracts/index.ts`
-4. Create implementation in `infrastructure/` module
-5. Add base class in `abstractions/` if pattern-based
-
-## Dependencies
-
-- No external dependencies (only TypeScript)
-- All other modules depend on this module
-- Changes here affect entire codebase
-
-## Testing
-
-Core module doesn't have unit tests (pure type definitions). However:
-- Type correctness is verified by TypeScript compiler
-- Implementation tests exist in infrastructure tests
-- Contract compliance tested in integration tests
+- `neverthrow` — Result type
+- Все остальные модули зависят от core
 
 ---
 
-See [../../specs/architecture.md](../../specs/architecture.md) for detailed architecture overview.
+См. [specs/architecture.md](../../specs/architecture.md)

@@ -3,6 +3,6 @@
  * @module infrastructure/formatting
  */
 
-export { ConsoleFormatter, ProgressSpinner } from './ConsoleFormatter.js';
+export { ConsoleFormatter } from './ConsoleFormatter.js';
 export { JsonFormatter } from './JsonFormatter.js';
 export { TableFormatter } from './TableFormatter.js';

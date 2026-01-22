@@ -15,14 +15,14 @@ import { PathNormalizer } from './normalizer/PathNormalizer';
 import { TsconfigParser } from './parser/TsconfigParser';
 
 export function createViteAliasResolver(): AliasGenerator<ViteAliasEntry[]> {
-  return new AliasGenerator(
-    new TsconfigParser(),
-    new PathNormalizer(),
-    new AliasMatcherFactory(),
-    new ViteAliasAdapter()
-  );
+	return new AliasGenerator(
+		new TsconfigParser(),
+		new PathNormalizer(),
+		new AliasMatcherFactory(),
+		new ViteAliasAdapter()
+	);
 }
 
 export function getViteAliases(rootDir?: string): ViteAliasEntry[] {
-  return createViteAliasResolver().generate(rootDir);
+	return createViteAliasResolver().generate(rootDir);
 }

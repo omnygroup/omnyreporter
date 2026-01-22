@@ -4,104 +4,71 @@
  */
 
 import chalk from 'chalk';
-import { injectable } from 'inversify';
-import createSpinner from 'ora';
+import { injectable, inject } from 'inversify';
 
-import { type Diagnostic ,type  DiagnosticStatistics ,type  IFormatter } from '../../core/index.js';
+import { TOKENS } from '@/di/tokens.js';
+import { type Diagnostic, type DiagnosticStatistics, type IFormatter, type ISanitizer } from '@core';
 
 /**
  * Console formatter for diagnostics with colors and styling
+ * Sanitizes file paths in output
  */
 @injectable()
 export class ConsoleFormatter implements IFormatter<Diagnostic> {
-  public format(diagnostic: Diagnostic): string {
-    const severity = this.formatSeverity(diagnostic.severity);
-    const code = chalk.gray(`[${diagnostic.code}]`);
-    const location = chalk.cyan(`${diagnostic.filePath}:${String(diagnostic.line)}:${String(diagnostic.column)}`);
-    const message = diagnostic.message;
+	public constructor(
+		@inject(TOKENS.SANITIZER) private readonly sanitizer: ISanitizer
+	) {}
 
-    return `${severity} ${location} ${code} ${message}`;
-  }
+	public format(diagnostic: Diagnostic): string {
+		const severity = this.formatSeverity(diagnostic.severity);
+		const code = chalk.gray(`[${diagnostic.code}]`);
+		const sanitizedPath = this.sanitizer.sanitizePath(diagnostic.filePath);
+		const location = chalk.cyan(`${sanitizedPath}:${String(diagnostic.line)}:${String(diagnostic.column)}`);
+		const message = diagnostic.message;
 
-  /**
-   * Format diagnostics summary with statistics
-   * @param diagnostics Diagnostics to format
-   * @param stats Statistics snapshot
-   * @returns Formatted summary
-   */
-  public formatSummary(diagnostics: readonly Diagnostic[], stats: DiagnosticStatistics): string {
-    const lines: string[] = [];
+		return `${severity} ${location} ${code} ${message}`;
+	}
 
-    lines.push('');
-    lines.push(chalk.bold('═══ Diagnostic Report ═══'));
-    lines.push('');
+	/**
+	 * Format diagnostics summary with statistics
+	 * @param diagnostics Diagnostics to format
+	 * @param stats Statistics snapshot
+	 * @returns Formatted summary
+	 */
+	public formatSummary(diagnostics: readonly Diagnostic[], stats: DiagnosticStatistics): string {
+		const lines: string[] = [];
 
-    diagnostics.forEach((d) => {
-      lines.push(this.format(d));
-    });
+		lines.push('');
+		lines.push(chalk.bold('═══ Diagnostic Report ═══'));
+		lines.push('');
 
-    lines.push('');
-    lines.push(chalk.bold('─── Summary ───'));
-    lines.push(chalk.red(`  ✖ Errors: ${String(stats.errorCount)}`));
-    lines.push(chalk.yellow(`  ⚠ Warnings: ${String(stats.warningCount)}`));
-    lines.push(chalk.blue(`  ℹ Info: ${String(stats.infoCount)}`));
-    lines.push(chalk.gray(`  ○ Notes: ${String(stats.noteCount)}`));
-    lines.push('');
+		diagnostics.forEach((d) => {
+			lines.push(this.format(d));
+		});
 
-    return lines.join('\n');
-  }
+		lines.push('');
+		lines.push(chalk.bold('─── Summary ───'));
+		lines.push(chalk.red(`  ✖ Errors: ${String(stats.errorCount)}`));
+		lines.push(chalk.yellow(`  ⚠ Warnings: ${String(stats.warningCount)}`));
+		lines.push(chalk.blue(`  ℹ Info: ${String(stats.infoCount)}`));
+		lines.push(chalk.gray(`  ○ Notes: ${String(stats.noteCount)}`));
+		lines.push('');
 
-  private formatSeverity(severity: string): string {
-    switch (severity) {
-      case 'error':
-        return chalk.red('✖ ERROR');
-      case 'warning':
-        return chalk.yellow('⚠ WARN');
-      case 'info':
-        return chalk.blue('ℹ INFO');
-      case 'note':
-        return chalk.gray('○ NOTE');
-      default:
-        return chalk.gray('? UNKNOWN');
-    }
-  }
-}
+		return lines.join('\n');
+	}
 
-/**
- * Progress spinner helper
- */
-export class ProgressSpinner {
-  private spinner: ReturnType<typeof createSpinner> | null = null;
-
-  public start(text: string): void {
-    this.spinner = createSpinner(chalk.cyan(text)).start();
-  }
-
-  public succeed(text?: string): void {
-    if (this.spinner !== null) {
-      this.spinner.succeed(text !== undefined ? chalk.green(text) : undefined);
-      this.spinner = null;
-    }
-  }
-
-  public fail(text?: string): void {
-    if (this.spinner !== null) {
-      this.spinner.fail(text !== undefined ? chalk.red(text) : undefined);
-      this.spinner = null;
-    }
-  }
-
-  public warn(text?: string): void {
-    if (this.spinner !== null) {
-      this.spinner.warn(text !== undefined ? chalk.yellow(text) : undefined);
-      this.spinner = null;
-    }
-  }
-
-  public stop(): void {
-    if (this.spinner !== null) {
-      this.spinner.stop();
-      this.spinner = null;
-    }
-  }
+	private formatSeverity(severity: string): string {
+		switch (severity) {
+			case 'error':
+				return chalk.red('✖ ERROR');
+			case 'warning':
+				return chalk.yellow('⚠ WARN');
+			case 'info':
+				return chalk.blue('ℹ INFO');
+			case 'note':
+				return chalk.gray('○ NOTE');
+			default:
+				return chalk.gray('? UNKNOWN');
+		}
+	}
 }

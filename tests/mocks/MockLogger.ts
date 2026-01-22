@@ -6,37 +6,37 @@
 import type { ILogger, LogContext } from '../../src/core/contracts/index.js';
 
 export class MockLogger implements ILogger {
-  private logs: { level: string; message: string; context?: LogContext }[] = [];
+	private logs: { level: string; message: string; context?: LogContext }[] = [];
 
-  debug(message: string, context?: LogContext): void {
-    this.logs.push({ level: 'debug', message, context });
-  }
+	debug(message: string, context?: LogContext): void {
+		this.logs.push({ level: 'debug', message, context });
+	}
 
-  info(message: string, context?: LogContext): void {
-    this.logs.push({ level: 'info', message, context });
-  }
+	info(message: string, context?: LogContext): void {
+		this.logs.push({ level: 'info', message, context });
+	}
 
-  warn(message: string, context?: LogContext): void {
-    this.logs.push({ level: 'warn', message, context });
-  }
+	warn(message: string, context?: LogContext): void {
+		this.logs.push({ level: 'warn', message, context });
+	}
 
-  error(message: string, error?: Error | LogContext, _context?: LogContext): void {
-    this.logs.push({ level: 'error', message, context: error as LogContext | undefined });
-  }
+	error(message: string, error?: Error | LogContext, _context?: LogContext): void {
+		this.logs.push({ level: 'error', message, context: error as LogContext | undefined });
+	}
 
-  child(_context: LogContext): ILogger {
-    return new MockLogger();
-  }
+	child(_context: LogContext): ILogger {
+		return new MockLogger();
+	}
 
-  getLogs(): { level: string; message: string; context?: LogContext }[] {
-    return this.logs;
-  }
+	getLogs(): { level: string; message: string; context?: LogContext }[] {
+		return this.logs;
+	}
 
-  clear(): void {
-    this.logs = [];
-  }
+	clear(): void {
+		this.logs = [];
+	}
 
-  getLogsByLevel(level: string): { level: string; message: string; context?: LogContext }[] {
-    return this.logs.filter((log) => log.level === level);
-  }
+	getLogsByLevel(level: string): { level: string; message: string; context?: LogContext }[] {
+		return this.logs.filter((log) => log.level === level);
+	}
 }

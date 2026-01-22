@@ -1,25 +1,25 @@
 {
-  "name": "@omnyreporter/tsconfig-alias-resolver",
-  "version": "1.0.0",
-  "description": "A SOLID-compliant, extensible TSConfig path alias resolver for bundlers",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts"
-    }
-  },
-  "keywords": [
-    "vite",
-    "tsconfig",
-    "alias",
-    "resolver",
-    "solid"
-  ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "typescript": "^5.0.0",
-    "vite": "^5.0.0"
-  }
+	"name": "@omnyreporter/tsconfig-alias-resolver",
+	"version": "1.0.0",
+	"description": "A SOLID-compliant, extensible TSConfig path alias resolver for bundlers",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./src/index.ts"
+		}
+	},
+	"keywords": [
+		"vite",
+		"tsconfig",
+		"alias",
+		"resolver",
+		"solid"
+	],
+	"author": "",
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^5.0.0",
+		"vite": "^5.0.0"
+	}
 }

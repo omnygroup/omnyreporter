@@ -9,18 +9,18 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
 ## Desired Output - ACiD Style
 
 ```
-                                                                              
+
         ██████╗ ██╗   ██╗██╗██╗     ██████╗
         ██╔══██╗██║   ██║██║██║     ██╔══██╗
         ██████╔╝██║   ██║██║██║     ██║  ██║
         ██╔══██╗██║   ██║██║██║     ██║  ██║
         ██████╔╝╚██████╔╝██║███████╗██████╔╝
         ╚═════╝  ╚═════╝ ╚═╝╚══════╝╚═════╝
-                                                                              
+
     ═══════════════════════════════════════════════════════════════════════
      R  E  P  O  R  T  E  R     ·     o m n y g r o u p     ·     2 0 2 6
     ═══════════════════════════════════════════════════════════════════════
-                                                                              
+
     ┌─────────────────────────────────────────────────────────────────────┐
     │                      ── RELEASE INFORMATION ──                      │
     ├─────────────────────────────────────────────────────────────────────┤
@@ -38,7 +38,7 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
     │  Runtime    [ Node 22.12.0    ]   Platform   [ macOS Sequoia   ]   │
     │                                                                     │
     └─────────────────────────────────────────────────────────────────────┘
-                                                                              
+
     ┌─────────────────────────────────────────────────────────────────────┐
     │                        ── BUNDLE ANALYSIS ──                        │
     ├─────────────────────────────────────────────────────────────────────┤
@@ -59,7 +59,7 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
     │  └──────────────────────────────────────────────────────────────┘   │
     │                                                                     │
     └─────────────────────────────────────────────────────────────────────┘
-                                                                              
+
     ┌─────────────────────────────────────────────────────────────────────┐
     │                        ── SIZE COMPARISON ──                        │
     ├─────────────────────────────────────────────────────────────────────┤
@@ -68,21 +68,21 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
     │  Gzip     78.2 KB ──→  76.1 KB    ▼  -2.1 KB   (-2.6%)      ✓     │
     │                                                                     │
     └─────────────────────────────────────────────────────────────────────┘
-                                                                              
+
     ┌─────────────────────────────────────────────────────────────────────┐
     │                        ── DEPENDENCIES ──                           │
     ├─────────────────────────────────────────────────────────────────────┤
     │  17 packages · chalk inversify neverthrow pino zod yargs ...       │
     └─────────────────────────────────────────────────────────────────────┘
-                                                                              
+
     ┌─────────────────────────────────────────────────────────────────────┐
     │  ⚠  3 warnings · see .build-report/warnings.log for details        │
     └─────────────────────────────────────────────────────────────────────┘
-                                                                              
+
     ═══════════════════════════════════════════════════════════════════════
       ▓▓▓  BUILD COMPLETED SUCCESSFULLY  ▓▓▓
     ═══════════════════════════════════════════════════════════════════════
-                                                                              
+
     ··─────────── Copyright OmnyGroup 2026 · omnyreporter v0.1 ───────────··
 ```
 
@@ -90,15 +90,15 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
 
 ### Types of Animations
 
-| Animation | Description | Use Case |
-|-----------|-------------|----------|
-| **Shimmer** | Rainbow/gradient cycling on borders | Header box, success message |
-| **Typing** | Typewriter effect for text | Logo reveal, status messages |
-| **Pulse** | Brightness pulsing | Progress indicators |
-| **Slide** | Text sliding left/right | Subtitle bar |
-| **Spinner** | Rotating character | Loading states |
-| **Wipe** | Line-by-line reveal | Full report reveal |
-| **Glitch** | Random character replacement | Error states |
+| Animation   | Description                         | Use Case                     |
+| ----------- | ----------------------------------- | ---------------------------- |
+| **Shimmer** | Rainbow/gradient cycling on borders | Header box, success message  |
+| **Typing**  | Typewriter effect for text          | Logo reveal, status messages |
+| **Pulse**   | Brightness pulsing                  | Progress indicators          |
+| **Slide**   | Text sliding left/right             | Subtitle bar                 |
+| **Spinner** | Rotating character                  | Loading states               |
+| **Wipe**    | Line-by-line reveal                 | Full report reveal           |
+| **Glitch**  | Random character replacement        | Error states                 |
 
 ### Animation Architecture
 
@@ -106,32 +106,32 @@ A Vite plugin that displays **demoscene-inspired, ACiD-style** build reports in 
 // animations/types.ts
 
 export interface IAnimator {
-  start(): void;
-  stop(): void;
-  render(frame: number): string[];
+	start(): void;
+	stop(): void;
+	render(frame: number): string[];
 }
 
 export interface AnimationConfig {
-  fps: number;              // Frames per second (default: 30)
-  duration: number;         // Duration in ms (0 = infinite)
-  easing: EasingFunction;   // Easing function
+	fps: number; // Frames per second (default: 30)
+	duration: number; // Duration in ms (0 = infinite)
+	easing: EasingFunction; // Easing function
 }
 
 export type EasingFunction = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
 
 // Rainbow shimmer for borders
 export interface ShimmerConfig extends AnimationConfig {
-  colors: string[];         // Hex colors to cycle through
-  width: number;           // Characters to shimmer
-  speed: number;           // Cycle speed
+	colors: string[]; // Hex colors to cycle through
+	width: number; // Characters to shimmer
+	speed: number; // Cycle speed
 }
 
 // Typewriter effect
 export interface TypewriterConfig extends AnimationConfig {
-  text: string;
-  speed: number;           // ms per character
-  cursor: string;          // Cursor character
-  cursorBlink: boolean;
+	text: string;
+	speed: number; // ms per character
+	cursor: string; // Cursor character
+	cursorBlink: boolean;
 }
 ```
 
@@ -232,13 +232,13 @@ vite/
 
 #### S - Single Responsibility Principle
 
-| Module | Responsibility |
-|--------|----------------|
-| `GitCollector` | Only collects git information |
-| `BundleCollector` | Only analyzes Rollup output |
-| `ChunksFormatter` | Only formats chunks tree |
-| `BoxRenderer` | Only draws ASCII boxes |
-| `Theme` | Only defines colors/styles |
+| Module            | Responsibility                |
+| ----------------- | ----------------------------- |
+| `GitCollector`    | Only collects git information |
+| `BundleCollector` | Only analyzes Rollup output   |
+| `ChunksFormatter` | Only formats chunks tree      |
+| `BoxRenderer`     | Only draws ASCII boxes        |
+| `Theme`           | Only defines colors/styles    |
 
 #### O - Open/Closed Principle
 
@@ -256,20 +256,20 @@ vite/
 ```typescript
 // Small, focused interfaces
 interface ICollector<T> {
-  collect(): Promise<T>;
+	collect(): Promise<T>;
 }
 
 interface IFormatter<T> {
-  format(data: T): string[];
+	format(data: T): string[];
 }
 
 interface IWriter {
-  write(lines: string[]): void;
+	write(lines: string[]): void;
 }
 
 interface ITheme {
-  colors: ColorPalette;
-  box: BoxCharacters;
+	colors: ColorPalette;
+	box: BoxCharacters;
 }
 ```
 
@@ -285,92 +285,92 @@ interface ITheme {
 // core/types.ts
 
 export interface BuildMeta {
-  projectName: string;
-  projectVersion: string;
-  author: GitAuthor;
-  git: GitInfo;
-  timestamp: Date;
+	projectName: string;
+	projectVersion: string;
+	author: GitAuthor;
+	git: GitInfo;
+	timestamp: Date;
 }
 
 export interface GitInfo {
-  branch: string;
-  sha: string;
-  shortSha: string;
-  dirty: boolean;
+	branch: string;
+	sha: string;
+	shortSha: string;
+	dirty: boolean;
 }
 
 export interface GitAuthor {
-  name: string;
-  email: string;
+	name: string;
+	email: string;
 }
 
 export interface BuildInfo {
-  duration: number;           // ms
-  mode: 'development' | 'production';
-  target: string;
-  environment: EnvironmentInfo;
+	duration: number; // ms
+	mode: 'development' | 'production';
+	target: string;
+	environment: EnvironmentInfo;
 }
 
 export interface EnvironmentInfo {
-  nodeVersion: string;
-  os: string;
-  arch: string;
+	nodeVersion: string;
+	os: string;
+	arch: string;
 }
 
 export interface ChunkInfo {
-  name: string;
-  path: string;
-  size: number;              // bytes
-  gzipSize?: number;
-  isEntry: boolean;
-  modules: string[];
+	name: string;
+	path: string;
+	size: number; // bytes
+	gzipSize?: number;
+	isEntry: boolean;
+	modules: string[];
 }
 
 export interface ChunkGroup {
-  name: string;
-  path: string;
-  totalSize: number;
-  chunks: ChunkInfo[];
-  children: ChunkGroup[];
+	name: string;
+	path: string;
+	totalSize: number;
+	chunks: ChunkInfo[];
+	children: ChunkGroup[];
 }
 
 export interface BundleInfo {
-  totalSize: number;
-  gzipSize: number;
-  chunkCount: number;
-  groups: ChunkGroup[];
-  chunks: ChunkInfo[];
+	totalSize: number;
+	gzipSize: number;
+	chunkCount: number;
+	groups: ChunkGroup[];
+	chunks: ChunkInfo[];
 }
 
 export interface DeltaInfo {
-  previousSize: number;
-  currentSize: number;
-  absoluteDelta: number;
-  percentDelta: number;
-  previousGzip: number;
-  currentGzip: number;
-  gzipDelta: number;
-  gzipPercentDelta: number;
+	previousSize: number;
+	currentSize: number;
+	absoluteDelta: number;
+	percentDelta: number;
+	previousGzip: number;
+	currentGzip: number;
+	gzipDelta: number;
+	gzipPercentDelta: number;
 }
 
 export interface DependencyInfo {
-  count: number;
-  top: string[];             // Top 5-7 deps to display
-  hasMore: boolean;
+	count: number;
+	top: string[]; // Top 5-7 deps to display
+	hasMore: boolean;
 }
 
 export interface WarningInfo {
-  count: number;
-  logFile: string | null;
+	count: number;
+	logFile: string | null;
 }
 
 export interface BuildReport {
-  meta: BuildMeta;
-  build: BuildInfo;
-  bundle: BundleInfo;
-  delta: DeltaInfo | null;
-  deps: DependencyInfo;
-  warnings: WarningInfo;
+	meta: BuildMeta;
+	build: BuildInfo;
+	bundle: BundleInfo;
+	delta: DeltaInfo | null;
+	deps: DependencyInfo;
+	warnings: WarningInfo;
 }
 ```
 
@@ -380,54 +380,54 @@ export interface BuildReport {
 // core/contracts.ts
 
 export interface ICollector<T> {
-  collect(): Promise<T>;
+	collect(): Promise<T>;
 }
 
 export interface IFormatter<T> {
-  format(data: T, theme: ITheme): string[];
+	format(data: T, theme: ITheme): string[];
 }
 
 export interface IWriter {
-  write(lines: string[]): void;
+	write(lines: string[]): void;
 }
 
 export interface ITheme {
-  readonly width: number;
-  readonly colors: IColorPalette;
-  readonly box: IBoxChars;
-  readonly icons: IIcons;
+	readonly width: number;
+	readonly colors: IColorPalette;
+	readonly box: IBoxChars;
+	readonly icons: IIcons;
 }
 
 export interface IColorPalette {
-  primary: ChalkFn;
-  secondary: ChalkFn;
-  accent: ChalkFn;
-  success: ChalkFn;
-  warning: ChalkFn;
-  error: ChalkFn;
-  muted: ChalkFn;
-  text: ChalkFn;
+	primary: ChalkFn;
+	secondary: ChalkFn;
+	accent: ChalkFn;
+	success: ChalkFn;
+	warning: ChalkFn;
+	error: ChalkFn;
+	muted: ChalkFn;
+	text: ChalkFn;
 }
 
 export interface IBoxChars {
-  topLeft: string;
-  topRight: string;
-  bottomLeft: string;
-  bottomRight: string;
-  horizontal: string;
-  vertical: string;
-  titleLeft: string;
-  titleRight: string;
+	topLeft: string;
+	topRight: string;
+	bottomLeft: string;
+	bottomRight: string;
+	horizontal: string;
+	vertical: string;
+	titleLeft: string;
+	titleRight: string;
 }
 
 export interface IIcons {
-  success: string;
-  warning: string;
-  error: string;
-  folder: string;
-  file: string;
-  up: string;
-  down: string;
+	success: string;
+	warning: string;
+	error: string;
+	folder: string;
+	file: string;
+	up: string;
+	down: string;
 }
 ```
 
@@ -438,198 +438,266 @@ export interface IIcons {
 ```typescript
 // theme/DefaultTheme.ts - Clean & Minimal
 export const defaultTheme: ITheme = {
-  name: 'default',
-  width: 76,
-  
-  colors: {
-    primary: chalk.cyan,
-    secondary: chalk.blue,
-    accent: chalk.magenta,
-    success: chalk.green,
-    warning: chalk.yellow,
-    error: chalk.red,
-    muted: chalk.gray,
-    text: chalk.white,
-    border: chalk.gray,
-  },
-  
-  box: {
-    topLeft: '┌', topRight: '┐',
-    bottomLeft: '└', bottomRight: '┘',
-    horizontal: '─', vertical: '│',
-    cross: '┼', teeLeft: '├', teeRight: '┤',
-    teeUp: '┴', teeDown: '┬',
-  },
-  
-  tree: {
-    branch: '├──', lastBranch: '└──',
-    vertical: '│  ', space: '   ',
-    dots: '·',
-  },
-  
-  progress: {
-    filled: '█', empty: '░',
-    left: '', right: '',
-  },
-  
-  icons: {
-    success: '✓', warning: '⚠', error: '✖',
-    folder: '📁', file: '📄',
-    up: '↑', down: '↓', arrow: '→',
-    bullet: '•', check: '✓', cross: '✗',
-  },
-  
-  animations: {
-    shimmerColors: ['#888888', '#AAAAAA', '#FFFFFF', '#AAAAAA'],
-    glitchChars: '!@#$%^&*<>[]{}',
-  },
+	name: 'default',
+	width: 76,
+
+	colors: {
+		primary: chalk.cyan,
+		secondary: chalk.blue,
+		accent: chalk.magenta,
+		success: chalk.green,
+		warning: chalk.yellow,
+		error: chalk.red,
+		muted: chalk.gray,
+		text: chalk.white,
+		border: chalk.gray,
+	},
+
+	box: {
+		topLeft: '┌',
+		topRight: '┐',
+		bottomLeft: '└',
+		bottomRight: '┘',
+		horizontal: '─',
+		vertical: '│',
+		cross: '┼',
+		teeLeft: '├',
+		teeRight: '┤',
+		teeUp: '┴',
+		teeDown: '┬',
+	},
+
+	tree: {
+		branch: '├──',
+		lastBranch: '└──',
+		vertical: '│  ',
+		space: '   ',
+		dots: '·',
+	},
+
+	progress: {
+		filled: '█',
+		empty: '░',
+		left: '',
+		right: '',
+	},
+
+	icons: {
+		success: '✓',
+		warning: '⚠',
+		error: '✖',
+		folder: '📁',
+		file: '📄',
+		up: '↑',
+		down: '↓',
+		arrow: '→',
+		bullet: '•',
+		check: '✓',
+		cross: '✗',
+	},
+
+	animations: {
+		shimmerColors: ['#888888', '#AAAAAA', '#FFFFFF', '#AAAAAA'],
+		glitchChars: '!@#$%^&*<>[]{}',
+	},
 };
 
 // theme/AcidTheme.ts - ACiD Productions BBS Style
 export const acidTheme: ITheme = {
-  name: 'acid',
-  width: 76,
-  
-  colors: {
-    primary: chalk.hex('#00BFFF'),     // Deep sky blue
-    secondary: chalk.hex('#9370DB'),    // Medium purple
-    accent: chalk.hex('#FF69B4'),       // Hot pink
-    success: chalk.hex('#00FF7F'),      // Spring green
-    warning: chalk.hex('#FFD700'),      // Gold
-    error: chalk.hex('#FF4500'),        // Orange red
-    muted: chalk.hex('#708090'),        // Slate gray
-    text: chalk.hex('#F5F5F5'),         // White smoke
-    border: chalk.hex('#4682B4'),       // Steel blue
-  },
-  
-  box: {
-    topLeft: '╔', topRight: '╗',
-    bottomLeft: '╚', bottomRight: '╝',
-    horizontal: '═', vertical: '║',
-    cross: '╬', teeLeft: '╠', teeRight: '╣',
-    teeUp: '╩', teeDown: '╦',
-  },
-  
-  tree: {
-    branch: '╠══', lastBranch: '╚══',
-    vertical: '║  ', space: '   ',
-    dots: '·',
-  },
-  
-  progress: {
-    filled: '▓', empty: '░',
-    left: '[', right: ']',
-  },
-  
-  icons: {
-    success: '▓▓▓', warning: '░░░', error: '███',
-    folder: '┌─', file: '│ ',
-    up: '▲', down: '▼', arrow: '►',
-    bullet: '■', check: '√', cross: 'x',
-  },
-  
-  animations: {
-    shimmerColors: ['#00BFFF', '#9370DB', '#FF69B4', '#00FF7F', '#FFD700'],
-    glitchChars: '▓▒░█▄▀■□●○◆◇',
-  },
+	name: 'acid',
+	width: 76,
+
+	colors: {
+		primary: chalk.hex('#00BFFF'), // Deep sky blue
+		secondary: chalk.hex('#9370DB'), // Medium purple
+		accent: chalk.hex('#FF69B4'), // Hot pink
+		success: chalk.hex('#00FF7F'), // Spring green
+		warning: chalk.hex('#FFD700'), // Gold
+		error: chalk.hex('#FF4500'), // Orange red
+		muted: chalk.hex('#708090'), // Slate gray
+		text: chalk.hex('#F5F5F5'), // White smoke
+		border: chalk.hex('#4682B4'), // Steel blue
+	},
+
+	box: {
+		topLeft: '╔',
+		topRight: '╗',
+		bottomLeft: '╚',
+		bottomRight: '╝',
+		horizontal: '═',
+		vertical: '║',
+		cross: '╬',
+		teeLeft: '╠',
+		teeRight: '╣',
+		teeUp: '╩',
+		teeDown: '╦',
+	},
+
+	tree: {
+		branch: '╠══',
+		lastBranch: '╚══',
+		vertical: '║  ',
+		space: '   ',
+		dots: '·',
+	},
+
+	progress: {
+		filled: '▓',
+		empty: '░',
+		left: '[',
+		right: ']',
+	},
+
+	icons: {
+		success: '▓▓▓',
+		warning: '░░░',
+		error: '███',
+		folder: '┌─',
+		file: '│ ',
+		up: '▲',
+		down: '▼',
+		arrow: '►',
+		bullet: '■',
+		check: '√',
+		cross: 'x',
+	},
+
+	animations: {
+		shimmerColors: ['#00BFFF', '#9370DB', '#FF69B4', '#00FF7F', '#FFD700'],
+		glitchChars: '▓▒░█▄▀■□●○◆◇',
+	},
 };
 
 // theme/MatrixTheme.ts - Hacker Green Terminal
 export const matrixTheme: ITheme = {
-  name: 'matrix',
-  width: 76,
-  
-  colors: {
-    primary: chalk.hex('#00FF00'),      // Bright green
-    secondary: chalk.hex('#00CC00'),    // Medium green
-    accent: chalk.hex('#00FF66'),       // Lime
-    success: chalk.hex('#00FF00'),
-    warning: chalk.hex('#CCFF00'),      // Yellow-green
-    error: chalk.hex('#FF3300'),
-    muted: chalk.hex('#006600'),        // Dark green
-    text: chalk.hex('#00FF00'),
-    border: chalk.hex('#009900'),
-  },
-  
-  box: {
-    topLeft: '┏', topRight: '┓',
-    bottomLeft: '┗', bottomRight: '┛',
-    horizontal: '━', vertical: '┃',
-    cross: '╋', teeLeft: '┣', teeRight: '┫',
-    teeUp: '┻', teeDown: '┳',
-  },
-  
-  tree: {
-    branch: '├─', lastBranch: '└─',
-    vertical: '│ ', space: '  ',
-    dots: '.',
-  },
-  
-  progress: {
-    filled: '▰', empty: '▱',
-    left: '⟨', right: '⟩',
-  },
-  
-  icons: {
-    success: '◉', warning: '◎', error: '◉',
-    folder: '▸', file: '·',
-    up: '△', down: '▽', arrow: '▸',
-    bullet: '▪', check: '◉', cross: '○',
-  },
-  
-  animations: {
-    shimmerColors: ['#003300', '#006600', '#009900', '#00CC00', '#00FF00'],
-    glitchChars: '01アイウエオカキクケコ',
-  },
+	name: 'matrix',
+	width: 76,
+
+	colors: {
+		primary: chalk.hex('#00FF00'), // Bright green
+		secondary: chalk.hex('#00CC00'), // Medium green
+		accent: chalk.hex('#00FF66'), // Lime
+		success: chalk.hex('#00FF00'),
+		warning: chalk.hex('#CCFF00'), // Yellow-green
+		error: chalk.hex('#FF3300'),
+		muted: chalk.hex('#006600'), // Dark green
+		text: chalk.hex('#00FF00'),
+		border: chalk.hex('#009900'),
+	},
+
+	box: {
+		topLeft: '┏',
+		topRight: '┓',
+		bottomLeft: '┗',
+		bottomRight: '┛',
+		horizontal: '━',
+		vertical: '┃',
+		cross: '╋',
+		teeLeft: '┣',
+		teeRight: '┫',
+		teeUp: '┻',
+		teeDown: '┳',
+	},
+
+	tree: {
+		branch: '├─',
+		lastBranch: '└─',
+		vertical: '│ ',
+		space: '  ',
+		dots: '.',
+	},
+
+	progress: {
+		filled: '▰',
+		empty: '▱',
+		left: '⟨',
+		right: '⟩',
+	},
+
+	icons: {
+		success: '◉',
+		warning: '◎',
+		error: '◉',
+		folder: '▸',
+		file: '·',
+		up: '△',
+		down: '▽',
+		arrow: '▸',
+		bullet: '▪',
+		check: '◉',
+		cross: '○',
+	},
+
+	animations: {
+		shimmerColors: ['#003300', '#006600', '#009900', '#00CC00', '#00FF00'],
+		glitchChars: '01アイウエオカキクケコ',
+	},
 };
 
 // theme/CyberpunkTheme.ts - Neon Synthwave
 export const cyberpunkTheme: ITheme = {
-  name: 'cyberpunk',
-  width: 76,
-  
-  colors: {
-    primary: chalk.hex('#FF00FF'),      // Magenta
-    secondary: chalk.hex('#00FFFF'),    // Cyan
-    accent: chalk.hex('#FF6EC7'),       // Hot magenta
-    success: chalk.hex('#39FF14'),      // Neon green
-    warning: chalk.hex('#FFFF00'),      // Yellow
-    error: chalk.hex('#FF0000'),
-    muted: chalk.hex('#666699'),
-    text: chalk.hex('#FFFFFF'),
-    border: chalk.hex('#9900FF'),       // Purple
-  },
-  
-  box: {
-    topLeft: '╭', topRight: '╮',
-    bottomLeft: '╰', bottomRight: '╯',
-    horizontal: '─', vertical: '│',
-    cross: '┼', teeLeft: '├', teeRight: '┤',
-    teeUp: '┴', teeDown: '┬',
-  },
-  
-  tree: {
-    branch: '├──', lastBranch: '╰──',
-    vertical: '│  ', space: '   ',
-    dots: '·',
-  },
-  
-  progress: {
-    filled: '▓', empty: '░',
-    left: '«', right: '»',
-  },
-  
-  icons: {
-    success: '◆', warning: '◇', error: '◆',
-    folder: '▶', file: '▪',
-    up: '▴', down: '▾', arrow: '▸',
-    bullet: '◦', check: '◆', cross: '◇',
-  },
-  
-  animations: {
-    shimmerColors: ['#FF00FF', '#FF00CC', '#CC00FF', '#00FFFF', '#00CCFF'],
-    glitchChars: '█▓▒░╳╱╲◢◣◤◥',
-  },
+	name: 'cyberpunk',
+	width: 76,
+
+	colors: {
+		primary: chalk.hex('#FF00FF'), // Magenta
+		secondary: chalk.hex('#00FFFF'), // Cyan
+		accent: chalk.hex('#FF6EC7'), // Hot magenta
+		success: chalk.hex('#39FF14'), // Neon green
+		warning: chalk.hex('#FFFF00'), // Yellow
+		error: chalk.hex('#FF0000'),
+		muted: chalk.hex('#666699'),
+		text: chalk.hex('#FFFFFF'),
+		border: chalk.hex('#9900FF'), // Purple
+	},
+
+	box: {
+		topLeft: '╭',
+		topRight: '╮',
+		bottomLeft: '╰',
+		bottomRight: '╯',
+		horizontal: '─',
+		vertical: '│',
+		cross: '┼',
+		teeLeft: '├',
+		teeRight: '┤',
+		teeUp: '┴',
+		teeDown: '┬',
+	},
+
+	tree: {
+		branch: '├──',
+		lastBranch: '╰──',
+		vertical: '│  ',
+		space: '   ',
+		dots: '·',
+	},
+
+	progress: {
+		filled: '▓',
+		empty: '░',
+		left: '«',
+		right: '»',
+	},
+
+	icons: {
+		success: '◆',
+		warning: '◇',
+		error: '◆',
+		folder: '▶',
+		file: '▪',
+		up: '▴',
+		down: '▾',
+		arrow: '▸',
+		bullet: '◦',
+		check: '◆',
+		cross: '◇',
+	},
+
+	animations: {
+		shimmerColors: ['#FF00FF', '#FF00CC', '#CC00FF', '#00FFFF', '#00CCFF'],
+		glitchChars: '█▓▒░╳╱╲◢◣◤◥',
+	},
 };
 ```
 
@@ -639,100 +707,100 @@ export const cyberpunkTheme: ITheme = {
 // index.ts
 
 export interface BuildReporterOptions {
-  /** Enable/disable the plugin (default: true) */
-  enabled?: boolean;
-  
-  /** Terminal width (default: 76) */
-  width?: number;
-  
-  /** Theme to use */
-  theme?: 'default' | 'acid' | 'matrix' | 'cyberpunk' | ITheme;
-  
-  /** Sections to show */
-  sections?: {
-    header?: boolean;      // ASCII logo
-    release?: boolean;     // Project/author/git info
-    build?: boolean;       // Duration/mode/target
-    bundle?: boolean;      // Chunks tree
-    delta?: boolean;       // Size comparison
-    deps?: boolean;        // Dependencies
-    warnings?: boolean;    // Warnings
-    footer?: boolean;      // Success message
-  };
-  
-  /** Chunk grouping depth (1-3, default: 2) */
-  chunkDepth?: number;
-  
-  /** Show gzip sizes (default: true) */
-  gzip?: boolean;
-  
-  /** Save report to file */
-  outputFile?: string | null;
-  
-  /** Previous build manifest for delta comparison */
-  compareWith?: string | null;
-  
-  /** Animation settings */
-  animations?: {
-    /** Enable animations (default: true if TTY) */
-    enabled?: boolean;
-    
-    /** Header logo reveal animation */
-    headerReveal?: 'none' | 'typewriter' | 'wipe' | 'glitch';
-    
-    /** Border shimmer effect */
-    shimmer?: boolean;
-    
-    /** Success message effect */
-    successEffect?: 'none' | 'pulse' | 'shimmer' | 'glitch';
-    
-    /** Animation duration multiplier (0.5 = faster, 2 = slower) */
-    speed?: number;
-    
-    /** Hold final animation for N ms before static output */
-    holdDuration?: number;
-  };
-  
-  /** Copyright text in footer */
-  copyright?: string;
-  
-  /** Custom ASCII logo lines (array of strings) */
-  logo?: string[];
+	/** Enable/disable the plugin (default: true) */
+	enabled?: boolean;
+
+	/** Terminal width (default: 76) */
+	width?: number;
+
+	/** Theme to use */
+	theme?: 'default' | 'acid' | 'matrix' | 'cyberpunk' | ITheme;
+
+	/** Sections to show */
+	sections?: {
+		header?: boolean; // ASCII logo
+		release?: boolean; // Project/author/git info
+		build?: boolean; // Duration/mode/target
+		bundle?: boolean; // Chunks tree
+		delta?: boolean; // Size comparison
+		deps?: boolean; // Dependencies
+		warnings?: boolean; // Warnings
+		footer?: boolean; // Success message
+	};
+
+	/** Chunk grouping depth (1-3, default: 2) */
+	chunkDepth?: number;
+
+	/** Show gzip sizes (default: true) */
+	gzip?: boolean;
+
+	/** Save report to file */
+	outputFile?: string | null;
+
+	/** Previous build manifest for delta comparison */
+	compareWith?: string | null;
+
+	/** Animation settings */
+	animations?: {
+		/** Enable animations (default: true if TTY) */
+		enabled?: boolean;
+
+		/** Header logo reveal animation */
+		headerReveal?: 'none' | 'typewriter' | 'wipe' | 'glitch';
+
+		/** Border shimmer effect */
+		shimmer?: boolean;
+
+		/** Success message effect */
+		successEffect?: 'none' | 'pulse' | 'shimmer' | 'glitch';
+
+		/** Animation duration multiplier (0.5 = faster, 2 = slower) */
+		speed?: number;
+
+		/** Hold final animation for N ms before static output */
+		holdDuration?: number;
+	};
+
+	/** Copyright text in footer */
+	copyright?: string;
+
+	/** Custom ASCII logo lines (array of strings) */
+	logo?: string[];
 }
 
 export function buildReporter(options: BuildReporterOptions = {}): Plugin {
-  return new BuildReporterPlugin(options).toVitePlugin();
+	return new BuildReporterPlugin(options).toVitePlugin();
 }
 
 // Default options
 const defaultOptions: Required<BuildReporterOptions> = {
-  enabled: true,
-  width: 76,
-  theme: 'acid',
-  sections: {
-    header: true,
-    release: true,
-    build: true,
-    bundle: true,
-    delta: true,
-    deps: true,
-    warnings: true,
-    footer: true,
-  },
-  chunkDepth: 2,
-  gzip: true,
-  outputFile: null,
-  compareWith: '.build-report/manifest.json',
-  animations: {
-    enabled: process.stdout.isTTY ?? false,
-    headerReveal: 'typewriter',
-    shimmer: true,
-    successEffect: 'pulse',
-    speed: 1,
-    holdDuration: 1500,
-  },
-  copyright: 'OmnyGroup',
-  logo: [], // Use default BUILD logo
+	enabled: true,
+	width: 76,
+	theme: 'acid',
+	sections: {
+		header: true,
+		release: true,
+		build: true,
+		bundle: true,
+		delta: true,
+		deps: true,
+		warnings: true,
+		footer: true,
+	},
+	chunkDepth: 2,
+	gzip: true,
+	outputFile: null,
+	compareWith: '.build-report/manifest.json',
+	animations: {
+		enabled: process.stdout.isTTY ?? false,
+		headerReveal: 'typewriter',
+		shimmer: true,
+		successEffect: 'pulse',
+		speed: 1,
+		holdDuration: 1500,
+	},
+	copyright: 'OmnyGroup',
+	logo: [], // Use default BUILD logo
 };
 ```
 
@@ -750,13 +818,13 @@ sequenceDiagram
     V->>P: buildEnd hook
     P->>C: collect all data
     C-->>P: BuildReport
-    
+
     P->>T: get theme
     T-->>P: ITheme
-    
+
     P->>F: format each section
     F-->>P: string[] lines
-    
+
     P->>W: write output
     W-->>V: console output
 ```
@@ -769,7 +837,7 @@ graph TB
         E[index.ts Entry]
         M[BuildReporterPlugin]
     end
-    
+
     subgraph Collectors
         GC[GitCollector]
         EC[EnvironmentCollector]
@@ -777,7 +845,7 @@ graph TB
         BC[BundleCollector]
         DC[DeltaCollector]
     end
-    
+
     subgraph Formatters
         MF[MetaFormatter]
         BF[BuildFormatter]
@@ -786,33 +854,33 @@ graph TB
         DEF[DepsFormatter]
         WF[WarningsFormatter]
     end
-    
+
     subgraph Theme
         TH[Theme]
         BR[BoxRenderer]
         PB[ProgressBar]
         CL[Colors]
     end
-    
+
     subgraph Output
         CW[ConsoleWriter]
         FW[FileWriter]
     end
-    
+
     E --> M
     M --> GC
     M --> EC
     M --> PC
     M --> BC
     M --> DC
-    
+
     M --> MF
     M --> BF
     M --> CF
     M --> DF
     M --> DEF
     M --> WF
-    
+
     MF --> BR
     BF --> BR
     CF --> BR
@@ -820,11 +888,11 @@ graph TB
     DF --> BR
     DEF --> BR
     WF --> BR
-    
+
     BR --> TH
     PB --> TH
     CL --> TH
-    
+
     M --> CW
     M --> FW
 ```
@@ -832,6 +900,7 @@ graph TB
 ## Implementation Priority
 
 ### Phase 1: Core Foundation
+
 - [ ] `core/types.ts` - All TypeScript interfaces
 - [ ] `core/contracts.ts` - ICollector, IFormatter, IWriter, ITheme
 - [ ] `utils/` - formatBytes, formatDuration, pad, ansi helpers
@@ -840,6 +909,7 @@ graph TB
 - [ ] `output/TerminalWriter.ts` - Basic console output
 
 ### Phase 2: Data Collection
+
 - [ ] `collectors/GitCollector.ts` - Branch, SHA, author from git
 - [ ] `collectors/PackageCollector.ts` - name, version, deps from package.json
 - [ ] `collectors/EnvironmentCollector.ts` - Node version, OS, arch
@@ -847,6 +917,7 @@ graph TB
 - [ ] `plugin.ts` - Main plugin class with buildEnd hook
 
 ### Phase 3: Formatters & Themes
+
 - [ ] `theme/DefaultTheme.ts` - Clean theme
 - [ ] `theme/AcidTheme.ts` - ACiD Productions style
 - [ ] `theme/AsciiLogo.ts` - Generate ASCII art
@@ -861,6 +932,7 @@ graph TB
 - [ ] `formatters/FooterFormatter.ts` - Success + copyright
 
 ### Phase 4: Animations
+
 - [ ] `animations/types.ts` - Animation interfaces
 - [ ] `animations/AnimationController.ts` - Frame timing
 - [ ] `animations/TypewriterEffect.ts` - Text reveal
@@ -871,6 +943,7 @@ graph TB
 - [ ] `animations/presets.ts` - Pre-configured combos
 
 ### Phase 5: Advanced Features
+
 - [ ] `collectors/DeltaCollector.ts` - Size comparison
 - [ ] `formatters/DeltaFormatter.ts` - Delta arrows
 - [ ] `output/FileWriter.ts` - Persistent reports
@@ -879,6 +952,7 @@ graph TB
 - [ ] `theme/CyberpunkTheme.ts` - Neon synthwave
 
 ### Phase 6: Integration & Polish
+
 - [ ] `index.ts` - Plugin factory function
 - [ ] Unit tests for formatters
 - [ ] Unit tests for collectors
@@ -891,6 +965,7 @@ graph TB
 ### 1. Why Not Using Existing Project's DI Container?
 
 The plugin is intentionally standalone and self-contained:
+
 - No inversify dependency - keeps plugin lightweight
 - Simple factory pattern for component creation
 - Can be extracted to npm package later
@@ -929,6 +1004,7 @@ Warnings are collected but not displayed in full - just count and log file path.
 ## Dependencies
 
 No new dependencies required - reuses existing:
+
 - `chalk` - colors (already in project)
 - Node.js built-in: `child_process` for git, `os` for environment
 
@@ -939,20 +1015,20 @@ No new dependencies required - reuses existing:
 import { buildReporter } from './vite/plugins/build-reporter';
 
 export default defineConfig({
-  plugins: [
-    buildReporter({
-      theme: 'brutal',
-      gzip: true,
-      sections: {
-        meta: true,
-        build: true,
-        chunks: true,
-        delta: true,
-        deps: true,
-        warnings: true,
-      },
-    }),
-  ],
+	plugins: [
+		buildReporter({
+			theme: 'brutal',
+			gzip: true,
+			sections: {
+				meta: true,
+				build: true,
+				chunks: true,
+				delta: true,
+				deps: true,
+				warnings: true,
+			},
+		}),
+	],
 });
 ```
 

@@ -9,7 +9,6 @@ import { TOKENS } from './tokens.js';
 
 import type { Container } from 'inversify';
 
-
 export function registerAnalytics(container: Container): void {
-  container.bind(TOKENS.DIAGNOSTIC_ANALYTICS).to(DiagnosticAnalytics).inTransientScope();
+	container.bind(TOKENS.DIAGNOSTIC_ANALYTICS).to(DiagnosticAnalytics).inTransientScope();
 }

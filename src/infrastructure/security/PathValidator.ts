@@ -15,48 +15,48 @@ import { FileSystemError, type IPathService } from '../../core/index.js';
  */
 @injectable()
 export class PathValidator {
-  public constructor(@inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService) {}
+	public constructor(@inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService) {}
 
-  /**
-   * Validate path is safe and within allowed scope
-   * @param path Path to validate
-   * @param basePath Optional base path to restrict relative to
-   * @returns Normalized path
-   * @throws FileSystemError if path is invalid or escapes base
-   */
-  public validatePath(path: string, basePath?: string): string {
-    const normalized = this.pathService.normalize(path);
+	/**
+	 * Validate path is safe and within allowed scope
+	 * @param path Path to validate
+	 * @param basePath Optional base path to restrict relative to
+	 * @returns Normalized path
+	 * @throws FileSystemError if path is invalid or escapes base
+	 */
+	public validatePath(path: string, basePath?: string): string {
+		const normalized = this.pathService.normalize(path);
 
-    // Check for null bytes
-    if (normalized.includes('\0')) {
-      throw new FileSystemError('Path contains null bytes', { path });
-    }
+		// Check for null bytes
+		if (normalized.includes('\0')) {
+			throw new FileSystemError('Path contains null bytes', { path });
+		}
 
-    // If base path provided, ensure normalized path is within base
-    if (basePath !== undefined && basePath !== '') {
-      const normalizedBase = this.pathService.normalize(basePath);
-      const relative = this.pathService.relative(normalizedBase, normalized);
+		// If base path provided, ensure normalized path is within base
+		if (basePath !== undefined && basePath !== '') {
+			const normalizedBase = this.pathService.normalize(basePath);
+			const relative = this.pathService.relative(normalizedBase, normalized);
 
-      if (relative.startsWith('..') || upath.isAbsolute(relative)) {
-        throw new FileSystemError('Path escapes base directory', { path, basePath });
-      }
-    }
+			if (relative.startsWith('..') || upath.isAbsolute(relative)) {
+				throw new FileSystemError('Path escapes base directory', { path, basePath });
+			}
+		}
 
-    return normalized;
-  }
+		return normalized;
+	}
 
-  /**
-   * Check if path is safe (doesn't escape boundaries)
-   * @param path Path to check
-   * @param basePath Base path boundary
-   * @returns True if safe
-   */
-  public isSafe(path: string, basePath?: string): boolean {
-    try {
-      this.validatePath(path, basePath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
+	/**
+	 * Check if path is safe (doesn't escape boundaries)
+	 * @param path Path to check
+	 * @param basePath Base path boundary
+	 * @returns True if safe
+	 */
+	public isSafe(path: string, basePath?: string): boolean {
+		try {
+			this.validatePath(path, basePath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
 }
