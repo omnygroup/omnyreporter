@@ -26,17 +26,19 @@ export class TypeScriptReporter extends BaseReportGenerator {
   protected async collectDiagnostics(
     config: CollectionConfig
   ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    return this.runReporter(() => {
+    return this.runReporter(async () => {
       const configPath = config.configPath ?? 'tsconfig.json';
       const tsConfig = this.readConfig(configPath);
       const program = ts.createProgram(tsConfig.fileNames, tsConfig.options);
       const tsDiagnostics = ts.getPreEmitDiagnostics(program);
 
-      return tsDiagnostics
-        .filter((d): d is ts.Diagnostic & { file: ts.SourceFile; start: number } =>
-          d.file !== undefined && d.start !== undefined
-        )
-        .map((d) => new TypeScriptDiagnosticResult(d).diagnostic);
+      return await Promise.resolve(
+        tsDiagnostics
+          .filter((d): d is ts.Diagnostic & { file: ts.SourceFile; start: number } =>
+            d.file !== undefined && d.start !== undefined
+          )
+          .map((d) => new TypeScriptDiagnosticResult(d).diagnostic)
+      );
     }, 'TypeScript compilation check failed');
   }
 

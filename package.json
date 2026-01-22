@@ -29,7 +29,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "start": "node parse-tests.mjs",
+    "start": "node app.js diagnostics",
     "report:lint": "node app.js diagnostics --eslint",
     "report:tsc": "node app.js diagnostics --typescript",
     "report:all": "node app.js diagnostics",

@@ -56,10 +56,10 @@ export async function handler(argv: DiagnosticsOptions): Promise<void> {
   try {
     const container = getContainer();
     const logger = container.get<ILogger>(TOKENS.LOGGER);
+    // TODO: DiagnosticApplicationService delete from DI
     const appService = container.get<DiagnosticApplicationService>(TOKENS.DIAGNOSTIC_APPLICATION_SERVICE);
 
-    // Filter tools based on user flags
-    // If no flags are provided, both run. If one is provided, only that one runs.
+
     const runEslint = argv.eslint ?? argv.typescript !== true;
     const runTypescript = argv.typescript ?? argv.eslint !== true;
 

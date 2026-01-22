@@ -11,6 +11,7 @@ import type { Diagnostic, DiagnosticFileReport, IntegrationName, IFileSystem, IL
  * Single responsibility: create DiagnosticFileReport with file content
  */
 export class FileReportBuilder {
+  // TODO: Необязательно принимать это в конструкторе, можно создавать экземпляры внутри конструктора
   public constructor(
     private readonly fileSystem: IFileSystem,
     private readonly logger: ILogger

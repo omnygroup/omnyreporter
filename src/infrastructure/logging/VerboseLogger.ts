@@ -18,8 +18,8 @@ export class VerboseLogger implements ILogger {
     private readonly underlying: ILogger,
     private readonly verbose = false
   ) {
-    this.originalStdoutWrite = process.stdout.write;
-    this.originalStderrWrite = process.stderr.write;
+    this.originalStdoutWrite = process.stdout.write.bind(process.stdout);
+    this.originalStderrWrite = process.stderr.write.bind(process.stderr);
 
     if (this.verbose) {
       this.setupProxying();
@@ -33,8 +33,9 @@ export class VerboseLogger implements ILogger {
     // Proxy stdout to info level
     process.stdout.write = ((chunk: string | Buffer): boolean => {
       const text = typeof chunk === 'string' ? chunk : chunk.toString();
-      if (text && text.trim()) {
-        this.underlying.debug(`[stdout] ${text.trim()}`);
+      const trimmed = text.trim();
+      if (trimmed.length > 0) {
+        this.underlying.debug(`[stdout] ${trimmed}`);
       }
       return true;
     }) as typeof process.stdout.write;
@@ -42,8 +43,9 @@ export class VerboseLogger implements ILogger {
     // Proxy stderr to warn level
     process.stderr.write = ((chunk: string | Buffer): boolean => {
       const text = typeof chunk === 'string' ? chunk : chunk.toString();
-      if (text && text.trim()) {
-        this.underlying.warn(`[stderr] ${text.trim()}`);
+      const trimmed = text.trim();
+      if (trimmed.length > 0) {
+        this.underlying.warn(`[stderr] ${trimmed}`);
       }
       return true;
     }) as typeof process.stderr.write;

@@ -49,15 +49,12 @@ export class DiagnosticApplicationService {
     @inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService,
     @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem
   ) {
+    // TODO: Лишние присвения
     this.grouper = new DiagnosticGrouper();
-    this.reportBuilder = new FileReportBuilder(fileSystem, logger);
+    this.reportBuilder = new FileReportBuilder(this.fileSystem, this.logger);
   }
 
-  /**
-   * Generate and write diagnostic report
-   * @param config Collection configuration
-   * @returns Result with diagnostics, stats, and write stats
-   */
+  // TODO: generateAndWriteReport -> run
   public async generateAndWriteReport(
     config: CollectionConfig
   ): Promise<Result<DiagnosticReportingResult, DiagnosticError>> {

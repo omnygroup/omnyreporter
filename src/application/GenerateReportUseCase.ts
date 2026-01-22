@@ -7,7 +7,7 @@
 import { injectable, multiInject, inject } from 'inversify';
 
 import { TOKENS } from '@/di/tokens.js';
-import { DiagnosticError, ok, err, type DiagnosticIntegration, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger } from '@core';
+import { DiagnosticError, ok, err, type DiagnosticIntegration, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger, IntegrationName } from '@core';
 import { type CollectionConfig } from '@domain';
 import { DiagnosticAnalytics } from '@domain/analytics/DiagnosticAnalytics.js';
 
@@ -39,6 +39,7 @@ export interface ReportResult {
  * - aggregator: Combines results from multiple sources (uses IDiagnosticAggregator interface)
  * - analytics: Calculates statistics (uses DiagnosticAnalytics for collectAll batch method)
  */
+// TODO: GenerateReportUseCase -> ReportGenerator 
 @injectable()
 export class GenerateReportUseCase {
   public constructor(
@@ -48,12 +49,7 @@ export class GenerateReportUseCase {
     @inject(TOKENS.LOGGER) private readonly logger: ILogger
   ) {}
 
-  /**
-   * Execute report generation
-   * Collects diagnostics from sources, aggregates, and calculates statistics
-   * @param config Collection configuration
-   * @returns Result with diagnostics and statistics
-   */
+  // TODO: execute -> generate
   public async execute(config: CollectionConfig): Promise<Result<ReportResult, DiagnosticError>> {
     try {
       // Filter sources based on configuration
@@ -73,12 +69,11 @@ export class GenerateReportUseCase {
         total: activeSources.length,
       });
 
-      // Collect diagnostics from all active sources with timeout
       const results = await Promise.allSettled(
         activeSources.map(async (source) => this.collectWithTimeout(source, config))
       );
 
-      // Track timeout statistics
+      // TODO: вынести у infrastructure
       let timedOutCount = 0;
       for (const result of results) {
         if (
@@ -90,7 +85,6 @@ export class GenerateReportUseCase {
         }
       }
 
-      // Aggregate successful results
       const { diagnostics: aggregated, successCount } = this.aggregator.aggregateResults(results);
 
       // Check if all sources failed
@@ -136,22 +130,18 @@ export class GenerateReportUseCase {
     }
   }
 
-  /**
-   * Filter sources based on configuration flags
-   * @param config Collection configuration
-   * @returns Active sources
-   */
+
   private filterActiveSources(config: CollectionConfig): readonly DiagnosticIntegration[] {
     return this.sources.filter((source) => {
-      const name = source.getName().toLowerCase();
+      const name = source.getName();
 
       // Check ESLint flag
-      if (name.includes('eslint')) {
+      if (name.includes(IntegrationName.ESLint)) {
         return !config.eslint ? false : true;
       }
 
       // Check TypeScript flag
-      if (name.includes('typescript')) {
+      if (name.includes(IntegrationName.TypeScript)) {
         return !config.typescript ? false : true;
       }
 
@@ -160,12 +150,7 @@ export class GenerateReportUseCase {
     });
   }
 
-  /**
-   * Collect diagnostics from source with timeout
-   * @param source Diagnostic source
-   * @param config Collection configuration
-   * @returns Promise that resolves with Result or rejects on timeout
-   */
+
   private async collectWithTimeout(
     source: DiagnosticIntegration,
     config: CollectionConfig
@@ -183,12 +168,6 @@ export class GenerateReportUseCase {
     ]);
   }
 
-  /**
-   * Create timeout promise that rejects after specified duration
-   * @param ms Timeout in milliseconds
-   * @param sourceName Source name for error message
-   * @returns Promise that rejects on timeout
-   */
   private async createTimeoutPromise(
     ms: number,
     sourceName: string

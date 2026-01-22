@@ -17,10 +17,10 @@ import type { ILogger, LogContext } from '../../core/index.js';
 export class PinoLogger implements ILogger {
   private readonly logger: PinoLoggerType;
 
-  public constructor(options?: { name?: string; level?: string }) {
+  public constructor() {
     this.logger = pino({
-      name: options?.name ?? 'omnyreporter',
-      level: options?.level ?? 'info',
+      name: 'omnyreporter',
+      level: 'info',
       transport:
         process.env['NODE_ENV'] === 'development'
           ? {

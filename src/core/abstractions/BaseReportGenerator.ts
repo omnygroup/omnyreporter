@@ -19,7 +19,7 @@ export abstract class BaseReportGenerator implements DiagnosticIntegration {
    * Get name of the diagnostic source
    * Required by DiagnosticIntegration interface
    */
-  public getName(): string {
+  public getName(): IntegrationName {
     return this.getIntegrationName();
   }
 

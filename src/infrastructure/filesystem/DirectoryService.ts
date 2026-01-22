@@ -10,7 +10,7 @@ import { injectable, inject } from 'inversify';
 
 import { TOKENS } from '@/di/tokens.js';
 
-import { type IFileSystem, type IntegrationName } from '../../core/index.js';
+import { type IFileSystem, IntegrationName } from '../../core/index.js';
 
 const OMNY_DIR = '.omnyreporter';
 const REPORTS_DIR = 'reports';
@@ -108,7 +108,7 @@ export class DirectoryService {
    * Clear all diagnostic errors
    */
   public async clearAllErrors(): Promise<void> {
-    const sources: IntegrationName[] = ['eslint', 'typescript', 'vitest'];
+    const sources: IntegrationName[] = [IntegrationName.ESLint, IntegrationName.TypeScript, IntegrationName.Vitest];
 
     for (const source of sources) {
       await this.clearInstrumentErrors(source);
