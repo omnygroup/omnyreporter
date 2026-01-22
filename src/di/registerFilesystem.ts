@@ -17,37 +17,16 @@ import type { IFileSystem } from '../core/index.js';
 import type { Container } from 'inversify';
 
 export function registerFilesystem(container: Container): void {
+  // Bind base path constant
+  container.bind<string>(TOKENS.BASE_PATH).toConstantValue(process.cwd());
+
+  // Core filesystem
   container.bind<IFileSystem>(TOKENS.FILE_SYSTEM).to(NodeFileSystem).inSingletonScope();
 
-  container
-    .bind(TOKENS.DIRECTORY_SERVICE)
-    .toDynamicValue(() => new DirectoryService(container.get(TOKENS.FILE_SYSTEM)))
-    .inSingletonScope();
-
-  container
-    .bind(TOKENS.JSON_WRITER)
-    .toDynamicValue(() => new JsonWriter(container.get(TOKENS.FILE_SYSTEM), process.cwd()))
-    .inTransientScope();
-
-  container
-    .bind(TOKENS.STREAM_WRITER)
-    .toDynamicValue(() => new StreamWriter(container.get(TOKENS.FILE_SYSTEM), process.cwd()))
-    .inTransientScope();
-
-  container
-    .bind(TOKENS.FILE_WRITER)
-    .toDynamicValue(() => new FileWriter(process.cwd()))
-    .inTransientScope();
-
-  container
-    .bind(TOKENS.STRUCTURED_REPORT_WRITER)
-    .toDynamicValue(() =>
-      new StructuredReportWriter(
-        container.get(TOKENS.FILE_SYSTEM),
-        container.get(TOKENS.PATH_SERVICE),
-        container.get(TOKENS.DIRECTORY_SERVICE),
-        container.get(TOKENS.LOGGER)
-      )
-    )
-    .inTransientScope();
+  // Filesystem services
+  container.bind(TOKENS.DIRECTORY_SERVICE).to(DirectoryService).inSingletonScope();
+  container.bind(TOKENS.JSON_WRITER).to(JsonWriter).inTransientScope();
+  container.bind(TOKENS.STREAM_WRITER).to(StreamWriter).inTransientScope();
+  container.bind(TOKENS.FILE_WRITER).to(FileWriter).inTransientScope();
+  container.bind(TOKENS.STRUCTURED_REPORT_WRITER).to(StructuredReportWriter).inTransientScope();
 }

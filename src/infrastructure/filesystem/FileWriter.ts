@@ -6,7 +6,9 @@
 import { resolve } from 'node:path';
 
 import fs from 'fs-extra';
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
+
+import { TOKENS } from '@/di/tokens.js';
 
 import { FileSystemError, ok, err ,type  IWriter,type  WriteOptions,type  WriteStats,type  Result } from '../../core/index.js';
 
@@ -16,11 +18,9 @@ import { FileSystemError, ok, err ,type  IWriter,type  WriteOptions,type  WriteS
  */
 @injectable()
 export class FileWriter implements IWriter<unknown> {
-  private readonly basePath: string;
-
-  public constructor(basePath: string) {
-    this.basePath = basePath;
-  }
+  public constructor(
+    @inject(TOKENS.BASE_PATH) private readonly basePath: string
+  ) {}
 
   /**
    * Write data serialized as JSON to a file

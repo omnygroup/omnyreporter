@@ -16,7 +16,7 @@ import {
   type ILogger,
   type DiagnosticFileReport,
   type Diagnostic,
-  type DiagnosticIntegration,
+  type IntegrationName,
   type IFileSystem,
 } from '@core';
 import { type CollectionConfig } from '@domain';
@@ -149,11 +149,11 @@ export class DiagnosticApplicationService {
   private async buildFileReports(
     diagnostics: readonly Diagnostic[],
     rootPath: string
-  ): Promise<Map<DiagnosticIntegration, readonly DiagnosticFileReport[]>> {
+  ): Promise<Map<IntegrationName, readonly DiagnosticFileReport[]>> {
     this.logger.info('Step 4/4: Building file reports');
 
     const grouped = this.grouper.groupBySourceAndFile(diagnostics);
-    const result = new Map<DiagnosticIntegration, readonly DiagnosticFileReport[]>();
+    const result = new Map<IntegrationName, readonly DiagnosticFileReport[]>();
 
     for (const [source, fileMap] of grouped) {
       const reports = await this.buildReportsForSource(source, fileMap, rootPath);
@@ -167,7 +167,7 @@ export class DiagnosticApplicationService {
    * Build reports for single source
    */
   private async buildReportsForSource(
-    source: DiagnosticIntegration,
+    source: IntegrationName,
     fileMap: Map<string, Diagnostic[]>,
     rootPath: string
   ): Promise<DiagnosticFileReport[]> {
@@ -190,7 +190,7 @@ export class DiagnosticApplicationService {
    * Write reports to files
    */
   private async writeReports(
-    reports: Map<DiagnosticIntegration, readonly DiagnosticFileReport[]>
+    reports: Map<IntegrationName, readonly DiagnosticFileReport[]>
   ): Promise<Result<WriteStats, Error>> {
     return this.writer.write(reports);
   }

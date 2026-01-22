@@ -6,9 +6,11 @@
 
 import { resolve } from 'node:path';
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 
-import { type IFileSystem, type DiagnosticIntegration } from '../../core/index.js';
+import { TOKENS } from '@/di/tokens.js';
+
+import { type IFileSystem, type IntegrationName } from '../../core/index.js';
 
 const OMNY_DIR = '.omnyreporter';
 const REPORTS_DIR = 'reports';
@@ -23,8 +25,8 @@ export class DirectoryService {
   private readonly rootPath: string;
 
   public constructor(
-    private readonly fileSystem: IFileSystem,
-    rootPath: string = process.cwd()
+    @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem,
+    @inject(TOKENS.BASE_PATH) rootPath: string
   ) {
     this.rootPath = fileSystem.resolvePath(rootPath);
   }
@@ -78,7 +80,7 @@ export class DirectoryService {
    * @param source Diagnostic source (eslint, typescript, vitest)
    * @returns Path to .omnyreporter/{source} directory
    */
-  public getInstrumentDirectory(source: DiagnosticIntegration): string {
+  public getInstrumentDirectory(source: IntegrationName): string {
     return resolve(this.getAppDirectory(), source);
   }
 
@@ -87,7 +89,7 @@ export class DirectoryService {
    * @param source Diagnostic source
    * @returns Path to .omnyreporter/{source}/errors directory
    */
-  public getInstrumentErrorsDirectory(source: DiagnosticIntegration): string {
+  public getInstrumentErrorsDirectory(source: IntegrationName): string {
     return resolve(this.getInstrumentDirectory(source), ERRORS_DIR);
   }
 
@@ -95,7 +97,7 @@ export class DirectoryService {
    * Clear errors for specific instrument
    * @param source Diagnostic source
    */
-  public async clearInstrumentErrors(source: DiagnosticIntegration): Promise<void> {
+  public async clearInstrumentErrors(source: IntegrationName): Promise<void> {
     const errorsDir = this.getInstrumentErrorsDirectory(source);
     if (await this.fileSystem.exists(errorsDir)) {
       await this.fileSystem.removeDir(errorsDir);
@@ -106,7 +108,7 @@ export class DirectoryService {
    * Clear all diagnostic errors
    */
   public async clearAllErrors(): Promise<void> {
-    const sources: DiagnosticIntegration[] = ['eslint', 'typescript', 'vitest'];
+    const sources: IntegrationName[] = ['eslint', 'typescript', 'vitest'];
 
     for (const source of sources) {
       await this.clearInstrumentErrors(source);

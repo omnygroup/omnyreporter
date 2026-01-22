@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { Diagnostic, DiagnosticIntegration } from '@core';
+import { Diagnostic, IntegrationName } from '@core';
 
 type TsDiagnosticWithLocation = ts.Diagnostic & { file: ts.SourceFile; start: number };
 
@@ -28,7 +28,7 @@ export class TypeScriptDiagnosticResult {
 
   public get diagnostic(): Diagnostic {
     return new Diagnostic({
-      source: DiagnosticIntegration.TypeScript,
+      source: IntegrationName.TypeScript,
       filePath: this.filePath,
       line: this.line,
       column: this.column,

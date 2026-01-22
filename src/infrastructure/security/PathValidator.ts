@@ -3,9 +3,10 @@
  * @module infrastructure/security/PathValidator
  */
 
-// Inversify decorator - import needed for @injectable decorator to work at runtime
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import upath from 'upath';
+
+import { TOKENS } from '@/di/tokens.js';
 
 import { FileSystemError, type IPathService } from '../../core/index.js';
 
@@ -14,7 +15,7 @@ import { FileSystemError, type IPathService } from '../../core/index.js';
  */
 @injectable()
 export class PathValidator {
-  public constructor(private readonly pathService: IPathService) {}
+  public constructor(@inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService) {}
 
   /**
    * Validate path is safe and within allowed scope

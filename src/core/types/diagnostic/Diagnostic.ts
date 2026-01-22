@@ -1,4 +1,4 @@
-import { DiagnosticIntegration } from './DiagnosticIntegration.js';
+import { IntegrationName } from './DiagnosticIntegration.js';
 
 import type { DiagnosticSeverity } from './DiagnosticSeverity.js';
 
@@ -6,7 +6,7 @@ import type { DiagnosticSeverity } from './DiagnosticSeverity.js';
  * Props for creating a Diagnostic
  */
 export interface DiagnosticProps {
-  readonly source: DiagnosticIntegration;
+  readonly source: IntegrationName;
   readonly filePath: string;
   readonly line: number;
   readonly column: number;
@@ -23,7 +23,7 @@ export interface DiagnosticProps {
  */
 export interface PersistentDiagnostic {
   readonly id: string;
-  readonly source: DiagnosticIntegration;
+  readonly source: IntegrationName;
   readonly filePath: string;
   readonly line: number;
   readonly column: number;
@@ -42,7 +42,7 @@ export interface PersistentDiagnostic {
  */
 export class Diagnostic {
   public readonly id: string;
-  public readonly source: DiagnosticIntegration;
+  public readonly source: IntegrationName;
   public readonly filePath: string;
   public readonly line: number;
   public readonly column: number;

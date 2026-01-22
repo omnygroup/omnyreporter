@@ -14,9 +14,5 @@ import type { Container } from 'inversify';
 
 export function registerSecurity(container: Container): void {
   container.bind<ISanitizer>(TOKENS.SANITIZER).to(RedactSanitizer).inSingletonScope();
-
-  container
-    .bind(TOKENS.PATH_VALIDATOR)
-    .toDynamicValue(() => new PathValidator(container.get(TOKENS.PATH_SERVICE)))
-    .inSingletonScope();
+  container.bind(TOKENS.PATH_VALIDATOR).to(PathValidator).inSingletonScope();
 }

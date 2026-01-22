@@ -4,9 +4,10 @@
  * @module infrastructure/filesystem/StructuredReportWriter
  */
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 
-import { FileSystemError, type DiagnosticFileReport, type DiagnosticIntegration, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
+import { TOKENS } from '@/di/tokens.js';
+import { FileSystemError, type DiagnosticFileReport, type IntegrationName, type IFileSystem, type ILogger, type IPathService, type Result, type WriteStats, err, ok } from '@core';
 
 import { DirectoryService } from './DirectoryService.js';
 
@@ -17,10 +18,10 @@ import { DirectoryService } from './DirectoryService.js';
 @injectable()
 export class StructuredReportWriter {
   public constructor(
-    private readonly fileSystem: IFileSystem,
-    private readonly pathService: IPathService,
-    private readonly directoryService: DirectoryService,
-    private readonly logger: ILogger
+    @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem,
+    @inject(TOKENS.PATH_SERVICE) private readonly pathService: IPathService,
+    @inject(TOKENS.DIRECTORY_SERVICE) private readonly directoryService: DirectoryService,
+    @inject(TOKENS.LOGGER) private readonly logger: ILogger
   ) {}
 
   /**
@@ -29,7 +30,7 @@ export class StructuredReportWriter {
    * @returns Result with write statistics
    */
   public async write(
-    reports: Map<DiagnosticIntegration, readonly DiagnosticFileReport[]>
+    reports: Map<IntegrationName, readonly DiagnosticFileReport[]>
   ): Promise<Result<WriteStats, Error>> {
     const startTime = Date.now();
     let totalFiles = 0;
@@ -85,7 +86,7 @@ export class StructuredReportWriter {
    * @returns Result with bytes written
    */
   private async writeFileReport(
-    _source: DiagnosticIntegration,
+    _source: IntegrationName,
     report: DiagnosticFileReport,
     errorsDir: string
   ): Promise<Result<number, Error>> {

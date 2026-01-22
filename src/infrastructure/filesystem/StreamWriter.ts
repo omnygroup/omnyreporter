@@ -5,7 +5,9 @@
 
 import { resolve } from 'node:path';
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
+
+import { TOKENS } from '@/di/tokens.js';
 
 import { FileSystemError, ok, err ,type  IFileSystem,type  IWriter,type  WriteStats,type  WriteOptions,type  Result } from '../../core/index.js';
 
@@ -16,8 +18,8 @@ import { FileSystemError, ok, err ,type  IFileSystem,type  IWriter,type  WriteSt
 @injectable()
 export class StreamWriter<T> implements IWriter<AsyncIterable<T>> {
   public constructor(
-    private readonly fileSystem: IFileSystem,
-    private readonly basePath: string
+    @inject(TOKENS.FILE_SYSTEM) private readonly fileSystem: IFileSystem,
+    @inject(TOKENS.BASE_PATH) private readonly basePath: string
   ) {}
 
   public async write(

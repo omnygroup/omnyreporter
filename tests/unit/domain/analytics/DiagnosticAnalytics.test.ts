@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { DiagnosticIntegration } from '../../../../src/core/types/diagnostic/index';
+import { IntegrationName } from '../../../../src/core/types/diagnostic/index';
 import { DiagnosticAnalytics } from '../../../../src/domain/analytics/DiagnosticAnalytics';
 import { createTestDiagnostic, createTestDiagnostics } from '../../../mocks/index';
 
@@ -76,7 +76,7 @@ describe('DiagnosticAnalytics', () => {
       analytics.collect(createTestDiagnostics(1, 'eslint')[0]);
 
       const collected = analytics.getDiagnostics();
-      expect(collected[0].source).toBe(DiagnosticIntegration.ESLint);
+      expect(collected[0].source).toBe(IntegrationName.ESLint);
     });
   });
 

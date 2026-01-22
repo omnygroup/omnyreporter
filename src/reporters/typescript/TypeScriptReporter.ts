@@ -3,27 +3,30 @@
  * Collects diagnostics from TypeScript compiler
  */
 
+import { injectable, inject } from 'inversify';
 import ts from 'typescript';
 
-import { BaseReportGenerator, DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
+import { TOKENS } from '@/di/tokens.js';
+import { BaseReportGenerator, IntegrationName, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
 
 import { TypeScriptDiagnosticResult } from './TypeScriptDiagnosticResult.js';
 
 import type { CollectionConfig } from '@domain';
 
+@injectable()
 export class TypeScriptReporter extends BaseReportGenerator {
-  public constructor(logger: ILogger) {
+  public constructor(@inject(TOKENS.LOGGER) logger: ILogger) {
     super(logger);
   }
 
-  protected getIntegrationName(): DiagnosticIntegration {
-    return DiagnosticIntegration.TypeScript;
+  protected getIntegrationName(): IntegrationName {
+    return IntegrationName.TypeScript;
   }
 
   protected async collectDiagnostics(
     config: CollectionConfig
   ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
-    return this.runReporter(async () => {
+    return this.runReporter(() => {
       const configPath = config.configPath ?? 'tsconfig.json';
       const tsConfig = this.readConfig(configPath);
       const program = ts.createProgram(tsConfig.fileNames, tsConfig.options);

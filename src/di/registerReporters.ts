@@ -10,21 +10,16 @@ import { VitestAdapter } from '../reporters/vitest/VitestAdapter.js';
 
 import { TOKENS } from './tokens.js';
 
+import type { DiagnosticIntegration } from '../core/contracts/DiagnosticIntegration.js';
 import type { Container } from 'inversify';
 
 export function registerReporters(container: Container): void {
-  container
-    .bind(TOKENS.ESLINT_REPORTER)
-    .toDynamicValue(() => new EslintReporter(container.get(TOKENS.LOGGER)))
-    .inTransientScope();
+  // Bind individual reporters
+  container.bind(TOKENS.ESLINT_REPORTER).to(EslintReporter).inTransientScope();
+  container.bind(TOKENS.TYPESCRIPT_REPORTER).to(TypeScriptReporter).inTransientScope();
+  container.bind(TOKENS.VITEST_ADAPTER).to(VitestAdapter).inTransientScope();
 
-  container
-    .bind(TOKENS.TYPESCRIPT_REPORTER)
-    .toDynamicValue(() => new TypeScriptReporter(container.get(TOKENS.LOGGER)))
-    .inTransientScope();
-
-  container
-    .bind(TOKENS.VITEST_ADAPTER)
-    .toDynamicValue(() => new VitestAdapter(container.get(TOKENS.LOGGER)))
-    .inTransientScope();
+  // Bind as DiagnosticIntegration for multi-inject
+  container.bind<DiagnosticIntegration>(TOKENS.DIAGNOSTIC_INTEGRATION).to(EslintReporter).inTransientScope();
+  container.bind<DiagnosticIntegration>(TOKENS.DIAGNOSTIC_INTEGRATION).to(TypeScriptReporter).inTransientScope();
 }

@@ -18,5 +18,5 @@ export type {
 } from './DiagnosticSeverity.js';
 
 export {
-  DiagnosticIntegration,
+  IntegrationName,
 } from './DiagnosticIntegration.js';

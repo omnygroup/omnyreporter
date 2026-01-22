@@ -26,7 +26,7 @@ export type {
 
 export {
   Diagnostic,
-  DiagnosticIntegration,
+  IntegrationName,
   ok,
   err,
 } from './types/index.js';
@@ -40,7 +40,7 @@ export type {
   ISanitizer,
   IFormatter,
   IWriter,
-  IDiagnosticSource,
+  DiagnosticIntegration,
   IDiagnosticAggregator,
   IAnalyticsCollector,
 } from './contracts/index.js';

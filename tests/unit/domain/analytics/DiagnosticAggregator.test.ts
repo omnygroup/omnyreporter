@@ -6,7 +6,7 @@
 import { ok, err } from 'neverthrow';
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { DiagnosticIntegration } from '../../../../src/core/types/diagnostic/index';
+import { IntegrationName } from '../../../../src/core/types/diagnostic/index';
 import { DiagnosticAggregator } from '../../../../src/domain/aggregation/DiagnosticAggregator';
 import { createTestDiagnostics } from '../../../mocks/index';
 
@@ -33,7 +33,7 @@ describe('DiagnosticAggregator', () => {
 
       const firstDiag = result[0];
       expect(firstDiag.id).toBeDefined();
-      expect(firstDiag.source).toBe(DiagnosticIntegration.ESLint);
+      expect(firstDiag.source).toBe(IntegrationName.ESLint);
       expect(firstDiag.filePath).toBeDefined();
       expect(firstDiag.message).toBeDefined();
     });

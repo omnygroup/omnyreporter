@@ -1,6 +1,6 @@
 import { Diagnostic } from './Diagnostic';
 
-import type { DiagnosticIntegration } from './DiagnosticIntegration.js';
+import type { IntegrationName } from './DiagnosticIntegration.js';
 
 /** Diagnostic report containing all diagnostics for a project */
 export interface DiagnosticReport {
@@ -14,7 +14,7 @@ export interface DiagnosticReport {
 /** Metadata for diagnostic report */
 export interface DiagnosticReportMetadata {
   /** Diagnostic integration (tool) */
-  readonly instrument: DiagnosticIntegration;
+  readonly instrument: IntegrationName;
 
   /** Report generation timestamp */
   readonly timestamp: Date;

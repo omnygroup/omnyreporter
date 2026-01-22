@@ -35,6 +35,8 @@ const CORE = {
   PATH_SERVICE: Symbol.for('IPathService'),
   /** Data sanitization service (ISanitizer interface) */
   SANITIZER: Symbol.for('ISanitizer'),
+  /** Base path for file operations (defaults to cwd) */
+  BASE_PATH: Symbol.for('BasePath'),
 } as const;
 
 /**
@@ -117,12 +119,12 @@ const VALIDATION = {
 } as const;
 
 // ============================================================================
-// REPORTERS (DIAGNOSTIC SOURCES)
+// REPORTERS (DIAGNOSTIC INTEGRATIONS)
 // ============================================================================
 
 /**
- * Reporter tokens - Diagnostic source implementations
- * Each implements IDiagnosticSource interface
+ * Reporter tokens - DiagnosticIntegration implementations
+ * Each implements DiagnosticIntegration interface
  * @see registerReporters.ts
  */
 const REPORTERS = {
@@ -132,6 +134,8 @@ const REPORTERS = {
   TYPESCRIPT_REPORTER: Symbol.for('TypeScriptReporter'),
   /** Vitest test reporter adapter */
   VITEST_ADAPTER: Symbol.for('VitestAdapter'),
+  /** Multi-inject token for all diagnostic integrations */
+  DIAGNOSTIC_INTEGRATION: Symbol.for('DiagnosticIntegration'),
 } as const;
 
 // ============================================================================

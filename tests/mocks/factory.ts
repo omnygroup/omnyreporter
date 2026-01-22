@@ -3,18 +3,18 @@
  * @module tests/mocks/factory
  */
 
-import { Diagnostic, DiagnosticIntegration } from '../../src/core/types/diagnostic/index.js';
+import { Diagnostic, IntegrationName } from '../../src/core/types/diagnostic/index.js';
 
 import type { Statistics } from '../../src/core/types/index.js';
 
-function mapSource(source: 'eslint' | 'typescript' | 'vitest'): DiagnosticIntegration {
+function mapSource(source: 'eslint' | 'typescript' | 'vitest'): IntegrationName {
   switch (source) {
     case 'eslint':
-      return DiagnosticIntegration.ESLint;
+      return IntegrationName.ESLint;
     case 'typescript':
-      return DiagnosticIntegration.TypeScript;
+      return IntegrationName.TypeScript;
     case 'vitest':
-      return DiagnosticIntegration.Vitest;
+      return IntegrationName.Vitest;
   }
 }
 

@@ -4,9 +4,10 @@
  * @module application/GenerateReportUseCase
  */
 
-import { injectable } from 'inversify';
+import { injectable, multiInject, inject } from 'inversify';
 
-import { DiagnosticError, ok, err, type IDiagnosticSource, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger } from '@core';
+import { TOKENS } from '@/di/tokens.js';
+import { DiagnosticError, ok, err, type DiagnosticIntegration, type IDiagnosticAggregator, type Diagnostic, type DiagnosticStatistics, type Result, type ILogger } from '@core';
 import { type CollectionConfig } from '@domain';
 import { DiagnosticAnalytics } from '@domain/analytics/DiagnosticAnalytics.js';
 
@@ -41,10 +42,10 @@ export interface ReportResult {
 @injectable()
 export class GenerateReportUseCase {
   public constructor(
-    private readonly sources: readonly IDiagnosticSource[],
-    private readonly aggregator: IDiagnosticAggregator,
-    private readonly analytics: DiagnosticAnalytics,
-    private readonly logger: ILogger
+    @multiInject(TOKENS.DIAGNOSTIC_INTEGRATION) private readonly sources: DiagnosticIntegration[],
+    @inject(TOKENS.DIAGNOSTIC_AGGREGATOR) private readonly aggregator: IDiagnosticAggregator,
+    @inject(TOKENS.DIAGNOSTIC_ANALYTICS) private readonly analytics: DiagnosticAnalytics,
+    @inject(TOKENS.LOGGER) private readonly logger: ILogger
   ) {}
 
   /**
@@ -140,7 +141,7 @@ export class GenerateReportUseCase {
    * @param config Collection configuration
    * @returns Active sources
    */
-  private filterActiveSources(config: CollectionConfig): readonly IDiagnosticSource[] {
+  private filterActiveSources(config: CollectionConfig): readonly DiagnosticIntegration[] {
     return this.sources.filter((source) => {
       const name = source.getName().toLowerCase();
 
@@ -166,7 +167,7 @@ export class GenerateReportUseCase {
    * @returns Promise that resolves with Result or rejects on timeout
    */
   private async collectWithTimeout(
-    source: IDiagnosticSource,
+    source: DiagnosticIntegration,
     config: CollectionConfig
   ): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
     const timeout = config.timeout;

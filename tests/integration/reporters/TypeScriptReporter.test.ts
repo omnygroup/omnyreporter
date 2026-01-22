@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { DiagnosticIntegration } from '../../../src/core';
+import { IntegrationName } from '../../../src/core';
 import { TypeScriptReporter } from '../../../src/reporters/typescript';
 import { createTestConfig } from '../../helpers';
 import { MockLogger } from '../../mocks';
@@ -47,7 +47,7 @@ describe('TypeScriptReporter', () => {
         expect(Array.isArray(diagnostics)).toBe(true);
         // All diagnostics should have TypeScript source
         diagnostics.forEach((diag) => {
-          expect(diag.source).toBe(DiagnosticIntegration.TypeScript);
+          expect(diag.source).toBe(IntegrationName.TypeScript);
         });
       }
     });

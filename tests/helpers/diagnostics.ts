@@ -3,20 +3,20 @@
  * @module tests/helpers/diagnostics
  */
 
-import { Diagnostic, DiagnosticIntegration } from '../../src/core/types/diagnostic/index.js';
+import { Diagnostic, IntegrationName } from '../../src/core/types/diagnostic/index.js';
 
 import type { DiagnosticSeverity } from '../../src/core/types/index.js';
 
 type DiagnosticSource = 'eslint' | 'typescript' | 'vitest';
 
-function mapSource(source: DiagnosticSource): DiagnosticIntegration {
+function mapSource(source: DiagnosticSource): IntegrationName {
   switch (source) {
     case 'eslint':
-      return DiagnosticIntegration.ESLint;
+      return IntegrationName.ESLint;
     case 'typescript':
-      return DiagnosticIntegration.TypeScript;
+      return IntegrationName.TypeScript;
     case 'vitest':
-      return DiagnosticIntegration.Vitest;
+      return IntegrationName.Vitest;
   }
 }
 

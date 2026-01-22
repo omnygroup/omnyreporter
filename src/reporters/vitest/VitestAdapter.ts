@@ -4,6 +4,10 @@
  * @module reporters/vitest/VitestAdapter
  */
 
+import { injectable, inject } from 'inversify';
+
+import { TOKENS } from '@/di/tokens.js';
+
 import { TaskProcessor ,type  TestResult } from './TaskProcessor.js';
 import { TestAnalytics } from './TestAnalytics.js';
 
@@ -15,10 +19,11 @@ import type { ILogger, TestStatistics } from '@core';
  * Adapter implementing Vitest Reporter interface
  * Coordinates test collection and analytics aggregation
  */
+@injectable()
 export class VitestAdapter {
   private analytics: TestAnalytics;
 
-  public constructor(private readonly logger: ILogger) {
+  public constructor(@inject(TOKENS.LOGGER) private readonly logger: ILogger) {
     this.analytics = new TestAnalytics();
   }
 

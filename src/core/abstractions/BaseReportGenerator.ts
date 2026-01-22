@@ -5,19 +5,19 @@
  */
 
 import { DiagnosticError } from '../errors/index.js';
-import { DiagnosticIntegration, ok, err, type Diagnostic, type Result } from '../types/index.js';
+import { IntegrationName, ok, err, type Diagnostic, type Result } from '../types/index.js';
 
-import type { ILogger, IDiagnosticSource } from '../contracts/index.js';
+import type { ILogger, DiagnosticIntegration } from '../contracts/index.js';
 import type { CollectionConfig } from '@domain';
 
-export abstract class BaseReportGenerator implements IDiagnosticSource {
+export abstract class BaseReportGenerator implements DiagnosticIntegration {
   protected constructor(
     protected readonly logger: ILogger
   ) {}
 
   /**
    * Get name of the diagnostic source
-   * Required by IDiagnosticSource interface
+   * Required by DiagnosticIntegration interface
    */
   public getName(): string {
     return this.getIntegrationName();
@@ -25,7 +25,7 @@ export abstract class BaseReportGenerator implements IDiagnosticSource {
 
   /**
    * Collect diagnostics from source
-   * Required by IDiagnosticSource interface
+   * Required by DiagnosticIntegration interface
    */
   public async collect(config: CollectionConfig): Promise<Result<readonly Diagnostic[], DiagnosticError>> {
     return this.execute(config);
@@ -45,7 +45,7 @@ export abstract class BaseReportGenerator implements IDiagnosticSource {
     config: CollectionConfig
   ): Promise<Result<readonly Diagnostic[], DiagnosticError>>;
 
-  protected abstract getIntegrationName(): DiagnosticIntegration;
+  protected abstract getIntegrationName(): IntegrationName;
 
   private logStart(config: CollectionConfig): void {
     const integration: string = this.getIntegrationName();

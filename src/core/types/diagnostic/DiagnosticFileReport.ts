@@ -1,5 +1,5 @@
 import type { Diagnostic } from './Diagnostic.js';
-import type { DiagnosticIntegration } from './DiagnosticIntegration.js';
+import type { IntegrationName } from './DiagnosticIntegration.js';
 
 /** Enriched diagnostic report with source code for AI agents */
 export interface DiagnosticFileReport {
@@ -27,7 +27,7 @@ export interface DiagnosticFileReport {
   /** Report metadata */
   readonly metadata: {
     /** Diagnostic integration (tool) */
-    readonly instrument: DiagnosticIntegration;
+    readonly instrument: IntegrationName;
 
     /** Report generation timestamp */
     readonly timestamp: Date;

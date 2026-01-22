@@ -1,18 +1,21 @@
 import { ESLint } from 'eslint';
+import { injectable, inject } from 'inversify';
 
-import { BaseReportGenerator, DiagnosticIntegration, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
+import { TOKENS } from '@/di/tokens.js';
+import { BaseReportGenerator, IntegrationName, DiagnosticError, type Diagnostic, type Result, type ILogger } from '@core';
 
 import { EslintLintResult } from './EslintLintResult.js';
 
 import type { CollectionConfig } from '@domain';
 
+@injectable()
 export class EslintReporter extends BaseReportGenerator {
-  public constructor(logger: ILogger) {
+  public constructor(@inject(TOKENS.LOGGER) logger: ILogger) {
     super(logger);
   }
 
-  protected getIntegrationName(): DiagnosticIntegration {
-    return DiagnosticIntegration.ESLint;
+  protected getIntegrationName(): IntegrationName {
+    return IntegrationName.ESLint;
   }
 
   protected async collectDiagnostics(

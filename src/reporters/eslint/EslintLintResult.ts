@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticIntegration } from '@core';
+import { Diagnostic, IntegrationName } from '@core';
 
 import type { ESLint } from 'eslint';
 
@@ -31,7 +31,7 @@ export class EslintLintResult {
 
   public get diagnostic(): Diagnostic {
     return new Diagnostic({
-      source: DiagnosticIntegration.ESLint,
+      source: IntegrationName.ESLint,
       filePath: this.filePath,
       line: this.line,
       column: this.column,
